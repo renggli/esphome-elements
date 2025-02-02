@@ -80,21 +80,26 @@ font:
 
 light:
   # Physical grids
-  - platform: fastled_clockless
+  - platform: neopixelbus
     id: led_grid_1
-    chipset: WS2812B
+    variant: WS2812X
+    method:
+      type: esp32_rmt
+      channel: 0
     pin: GPIO16
     num_leds: 512
-    rgb_order: GRB
+    type: GRB
     restore_mode: ALWAYS_OFF
-  - platform: fastled_clockless
+  - platform: neopixelbus
     id: led_grid_2
-    chipset: WS2812B
+    variant: WS2812X
+    method:
+      type: esp32_rmt
+      channel: 1
     pin: GPIO17
     num_leds: 512
-    rgb_order: GRB
+    type: GRB
     restore_mode: ALWAYS_OFF
-
   # Combined light
   - platform: partition
     id: led_grid
@@ -187,7 +192,6 @@ display:
           it.strftime(8, 28, id(font_chunky_6), Color(127, 127, 127), TextAlign::CENTER, "%e", time);
           it.strftime(24, 20, id(font_chunky_6), Color(127, 127, 127), TextAlign::CENTER, "%b", time);
           it.strftime(24, 28, id(font_chunky_6), Color(127, 127, 127), TextAlign::CENTER, "%Y", time);
-
       - id: page_temperature
         lambda: |-
           if (id(inside_temperature).has_state()) {

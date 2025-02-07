@@ -18,65 +18,130 @@ class ClockElement : public Element {
   time::RealTimeClock* time_;
 };
 
-struct AnalogClockOptions {
-  float start;   // fractional start of the line
-  float end;     // fractional end of the line
-  Color color;   // color of the line
-  bool visible;  // whether the line is drawn
-  bool smooth;   // whether the line moves continous
-};
-
 class AnalogClockElement : public ClockElement {
  public:
   explicit AnalogClockElement() : ClockElement(ANALOG_CLOCK_ELEMENT) {}
 
-  void set_hour_marks(AnalogClockOptions options) { hour_marks_ = options; }
-  void set_trihoral_marks(AnalogClockOptions options) {
-    trihoral_marks_ = options;
+  void set_hour_marks_start(float hour_marks_start) {
+    hour_marks_start_ = hour_marks_start;
   }
-  void set_second_arm(AnalogClockOptions options) { second_arm_ = options; }
-  void set_minute_arm(AnalogClockOptions options) { minute_arm_ = options; }
-  void set_hour_arm(AnalogClockOptions options) { hour_arm_ = options; }
+
+  void set_hour_marks_end(float hour_marks_end) {
+    hour_marks_end_ = hour_marks_end;
+  }
+
+  void set_hour_marks_color(Color hour_marks_color) {
+    hour_marks_color_ = hour_marks_color;
+  }
+
+  void set_hour_marks_visible(bool hour_marks_visible) {
+    hour_marks_visible_ = hour_marks_visible;
+  }
+
+  void set_trihoral_marks_start(float trihoral_marks_start) {
+    trihoral_marks_start_ = trihoral_marks_start;
+  }
+
+  void set_trihoral_marks_end(float trihoral_marks_end) {
+    trihoral_marks_end_ = trihoral_marks_end;
+  }
+
+  void set_trihoral_marks_color(Color trihoral_marks_color) {
+    trihoral_marks_color_ = trihoral_marks_color;
+  }
+
+  void set_trihoral_marks_visible(bool trihoral_marks_visible) {
+    trihoral_marks_visible_ = trihoral_marks_visible;
+  }
+
+  void set_second_arm_start(float second_arm_start) {
+    second_arm_start_ = second_arm_start;
+  }
+
+  void set_second_arm_end(float second_arm_end) {
+    second_arm_end_ = second_arm_end;
+  }
+
+  void set_second_arm_color(Color second_arm_color) {
+    second_arm_color_ = second_arm_color;
+  }
+
+  void set_second_arm_visible(bool second_arm_visible) {
+    second_arm_visible_ = second_arm_visible;
+  }
+
+  void set_second_arm_smooth(bool second_arm_smooth) {
+    second_arm_smooth_ = second_arm_smooth;
+  }
+
+  void set_minute_arm_start(float minute_arm_start) {
+    minute_arm_start_ = minute_arm_start;
+  }
+
+  void set_minute_arm_end(float minute_arm_end) {
+    minute_arm_end_ = minute_arm_end;
+  }
+
+  void set_minute_arm_color(Color minute_arm_color) {
+    minute_arm_color_ = minute_arm_color;
+  }
+
+  void set_minute_arm_visible(bool minute_arm_visible) {
+    minute_arm_visible_ = minute_arm_visible;
+  }
+
+  void set_minute_arm_smooth(bool minute_arm_smooth) {
+    minute_arm_smooth_ = minute_arm_smooth;
+  }
+
+  void set_hour_arm_start(float hour_arm_start) {
+    hour_arm_start_ = hour_arm_start;
+  }
+
+  void set_hour_arm_end(float hour_arm_end) { hour_arm_end_ = hour_arm_end; }
+
+  void set_hour_arm_color(Color hour_arm_color) {
+    hour_arm_color_ = hour_arm_color;
+  }
+
+  void set_hour_arm_visible(bool hour_arm_visible) {
+    hour_arm_visible_ = hour_arm_visible;
+  }
+
+  void set_hour_arm_smooth(bool hour_arm_smooth) {
+    hour_arm_smooth_ = hour_arm_smooth;
+  }
 
   void draw(const Context& context, display::Display& display) override;
 
  protected:
-  void draw_line_(display::Display& display, const AnalogClockOptions& options,
-                  int center_x, int center_y, int radius, int angle_deg);
+  float hour_marks_start_ = 0.8;
+  float hour_marks_end_ = 1.0;
+  Color hour_marks_color_ = Color(0, 0, 255);
+  bool hour_marks_visible_ = true;
 
-  AnalogClockOptions hour_marks_ = {
-      .start = 0.8,
-      .end = 1.0,
-      .color = Color(0, 0, 255),
-      .visible = true,
-  };
-  AnalogClockOptions trihoral_marks_ = {
-      .start = 0.7,
-      .end = 1.0,
-      .color = Color(0, 0, 255),
-      .visible = true,
-  };
-  AnalogClockOptions second_arm_ = {
-      .start = 0.0,
-      .end = 0.9,
-      .color = Color(255, 0, 0),
-      .visible = true,
-      .smooth = true,
-  };
-  AnalogClockOptions minute_arm_ = {
-      .start = 0.0,
-      .end = 0.9,
-      .color = Color::WHITE,
-      .visible = true,
-      .smooth = true,
-  };
-  AnalogClockOptions hour_arm_ = {
-      .start = 0.0,
-      .end = 0.6,
-      .color = Color::WHITE,
-      .visible = true,
-      .smooth = true,
-  };
+  float trihoral_marks_start_ = 0.7;
+  float trihoral_marks_end_ = 1.0;
+  Color trihoral_marks_color_ = Color(0, 0, 255);
+  bool trihoral_marks_visible_ = true;
+
+  float second_arm_start_ = 0.0;
+  float second_arm_end_ = 0.9;
+  Color second_arm_color_ = Color(255, 0, 0);
+  bool second_arm_visible_ = true;
+  bool second_arm_smooth_ = true;
+
+  float minute_arm_start_ = 0.0;
+  float minute_arm_end_ = 0.9;
+  Color minute_arm_color_ = Color::WHITE;
+  bool minute_arm_visible_ = true;
+  bool minute_arm_smooth_ = true;
+
+  float hour_arm_start_ = 0.0;
+  float hour_arm_end_ = 0.6;
+  Color hour_arm_color_ = Color::WHITE;
+  bool hour_arm_visible_ = true;
+  bool hour_arm_smooth_ = true;
 };
 
 class DigitalClockElement : public ClockElement {

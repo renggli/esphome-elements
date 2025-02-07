@@ -1,0 +1,102 @@
+color:
+  # Tango Color Palette:
+  # https://en.wikipedia.org/wiki/Tango_Desktop_Project#Palette
+  - id: aluminium_bright
+    hex: "eeeeec"
+  - id: aluminium
+    hex: "d3d7cf"
+  - id: aluminium_dark
+    hex: "babdb6"
+  - id: slate_bright
+    hex: "888a85"
+  - id: slate
+    hex: "555753"
+  - id: slate_dark
+    hex: "2e3436"
+  - id: yellow_bright
+    hex: "fce94f"
+  - id: yellow
+    hex: "edd400"
+  - id: yellow_dark
+    hex: "c4a000"
+  - id: orange_bright
+    hex: "fcaf3e"
+  - id: orange
+    hex: "f57900"
+  - id: orange_dark
+    hex: "ce5c00"
+  - id: brown_bright
+    hex: "e9b96e"
+  - id: brown
+    hex: "c17d11"
+  - id: brown_dark
+    hex: "8f5902"
+  - id: green_bright
+    hex: "8ae234"
+  - id: green
+    hex: "73d216"
+  - id: green_dark
+    hex: "4e9a06"
+  - id: blue_bright
+    hex: "729fcf"
+  - id: blue
+    hex: "3465a4"
+  - id: blue_dark
+    hex: "204a87"
+  - id: violet_bright
+    hex: "ad7fa8"
+  - id: violet
+    hex: "75507b"
+  - id: violet_dark
+    hex: "5c3566"
+  - id: red_bright
+    hex: "ef2929"
+  - id: red
+    hex: "cc0000"
+  - id: red_dark
+    hex: "a40000"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,3 +1,7 @@
+packages:
+  fonts: !include common/fonts.yaml
+  colors: !include common/colors.yaml
+
 # Board
 esp32:
   board: esp32dev
@@ -44,15 +48,6 @@ text_sensor:
 
 # Fonts
 font:
-  # https://github.com/trip5/Matrix-Fonts
-  - file: assets/fonts/MatrixLight6X.bdf
-    id: font_light_6
-  - file: assets/fonts/MatrixChunky6X.bdf
-    id: font_chunky_6
-  - file: assets/fonts/MatrixLight8X.bdf
-    id: font_light_8
-  - file: assets/fonts/MatrixChunky8X.bdf
-    id: font_chunky_8
   # https://pictogrammers.com/library/mdi/
   - file: assets/fonts/materialdesignicons-webfont.ttf
     id: font_mdi_16
@@ -173,11 +168,11 @@ display:
           int minutes_deg = 360.0 / 60.0 * minutes - 90;
           int hours_deg = 360.0 / 12.0 * hours - 90;
 
-          for (int i = 0; i < 360; i += 30) {
-            if (i % 90 == 0) {
-              it.line_at_angle(center_x, center_y, i, start_marker_quarter, end_marker_quarter, color_marker_quarter);
+          for (int i = 0; i < 12; i++) {
+            if (i % 4 == 0) {
+              it.line_at_angle(center_x, center_y, 30 * i, start_marker_quarter, end_marker_quarter, color_marker_quarter);
             } else {
-              it.line_at_angle(center_x, center_y, i, start_marker_hour, end_marker_hour, color_marker_hour);
+              it.line_at_angle(center_x, center_y, 30 * i, start_marker_hour, end_marker_hour, color_marker_hour);
             }
           }
 
@@ -235,6 +230,7 @@ interval:
     then:
       - display.page.show_next: led_display
       - component.update: led_display
+
 # one_wire:
 #   - platform: gpio
 #     pin: GPIO16

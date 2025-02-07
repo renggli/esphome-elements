@@ -1,0 +1,10 @@
+font:
+  # https://github.com/trip5/Matrix-Fonts
+  - file: assets/fonts/MatrixLight6X.bdf
+    id: font_light_6
+  - file: assets/fonts/MatrixChunky6X.bdf
+    id: font_chunky_6
+  - file: assets/fonts/MatrixLight8X.bdf
+    id: font_light_8
+  - file: assets/fonts/MatrixChunky8X.bdf
+    id: font_chunky_8

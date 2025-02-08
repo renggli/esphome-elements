@@ -117,6 +117,7 @@ async def analog_clock_options_to_code(config):
 def element_schema(value):            # to avoid recursion
     return ELEMENT_SCHEMA(value)
 
+
 BASE_ELEMENT_SCHEMA = cv.Schema({})
 
 CLOCK_ELEMENT_SCHEMA = cv.Schema({

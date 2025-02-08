@@ -9,6 +9,7 @@ namespace esphome::elements {
 class Element;
 class ElementComponent;
 
+/// The drawing context passed to the drawing function.
 struct Context {
   // Component initiating this call.
   ElementComponent *component = nullptr;
@@ -18,6 +19,7 @@ struct Context {
   uint32_t delta_ms = 0;
 };
 
+/// The ESPHome component that displays elements.
 class ElementComponent : public Component {
  public:
   void setup() override;

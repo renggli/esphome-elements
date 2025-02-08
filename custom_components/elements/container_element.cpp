@@ -4,6 +4,11 @@
 
 namespace esphome::elements {
 
+void ContainerElement::add_element(Element* element) {
+  elements_.push_back(element);
+  element->set_parent(this);
+}
+
 void OverlayElement::draw(const Context& context, display::Display& display) {
   for (Element* element : elements_) {
     element->draw(context, display);

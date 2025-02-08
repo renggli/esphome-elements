@@ -1,16 +1,9 @@
 #pragma once
 
 #include "esphome/components/display/display.h"
+#include "esphome/core/helpers.h"
 
 namespace esphome::elements {
-
-/// If the value of v is within [lo, hi], returns v; otherwise returns the
-/// nearest boundary. Replacement for C++17.
-template<class T>
-constexpr const T& clamp(const T& v, const T& lo, const T& hi)
-{
-    return v < lo ? lo : hi < v ? hi : v;
-}
 
 /// A sub-display for an existing display.
 class SubDisplay : public display::Display {

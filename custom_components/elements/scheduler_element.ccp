@@ -1,9 +1,6 @@
-#include "esphome/core/log.h"
 #include "scheduler_element.h"
 
 namespace esphome::elements {
-
-static const char* SCHEDULER_ELEMENT_TAG = "elements.scheduler";
 
 void SchedulerElement::add(Element* element, const SchedulerOptions& options) {
   auto state = make_unique<SchedulerState>();
@@ -26,12 +23,8 @@ void SchedulerElement::draw(const Context& context, display::Display& display) {
   // current_->element_->show(context, display);
 }
 
-void SchedulerElement::schedule_next_() {
+void SchedulerElement::schedule_next_() {}
 
-}
-
-void SchedulerElement::schedule_update_(const Context& context) {
-
-}
+void SchedulerElement::schedule_update_(const Context& context) {}
 
 }  // namespace esphome::elements

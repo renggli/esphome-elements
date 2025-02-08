@@ -3,11 +3,10 @@
 #include <deque>
 
 #include "element.h"
-#include "esphome/components/display/display.h"
 
 namespace esphome::elements {
 
-enum SchedulerInsertion { CURRENT, NEXT, LAST };
+enum class SchedulerInsertion { CURRENT, NEXT, LAST };
 
 struct SchedulerOptions {
   // Identifier of the element.
@@ -38,7 +37,7 @@ struct SchedulerState {
 
 class SchedulerElement : public Element {
  public:
-  explicit SchedulerElement() : Element(SCHEDULER_ELEMENT) {}
+  explicit SchedulerElement() : Element(ElementType::SCHEDULER) {}
 
   void add(Element* element, const SchedulerOptions& options);
 

@@ -5,26 +5,36 @@
 
 namespace esphome::elements {
 
-enum ElementType {
-  ANALOG_CLOCK_ELEMENT,
-  DIGITAL_CLOCK_ELEMENT,
-  ERROR_ELEMENT,
-  FLOW_ELEMENT,
-  OVERLAY_ELEMENT,
-  SCHEDULER_ELEMENT,
-  SEQUENCE_ELEMENT,
-  HORIZONTAL_ELEMENT,
-  VERTICAL_ELEMENT,
+/// The different types of elements.
+enum class ElementType {
+  ANALOG_CLOCK,
+  DIGITAL_CLOCK,
+  ERROR,
+  FLOW,
+  HORIZONTAL,
+  OVERLAY,
+  SCHEDULER,
+  SEQUENCE,
+  TEXTUAL,
+  UNKNOWN,
+  VERTICAL,
 };
 
+/// Abstract superclass of all elements.
 class Element {
  public:
   explicit Element(ElementType type) : type_(type) {}
 
+  ElementType get_type() { return type_; }
+
+  void set_parent(Element* parent) { parent_ = parent; };
+  Element* get_parent() { return parent_; }
+
   virtual void draw(const Context& context, display::Display& display) = 0;
 
  protected:
-  ElementType type_;
+  ElementType type_ = ElementType::UNKNOWN;
+  Element* parent_ = nullptr;
 };
 
 }  // namespace esphome::elements

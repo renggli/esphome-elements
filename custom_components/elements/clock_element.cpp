@@ -10,48 +10,52 @@ void AnalogClockElement::draw(const Context& context,
   const int center_y = display.get_height() / 2;
   const int radius = std::min(center_x, center_y);
 
-  // Draw the marks.
-  for (int i = 0; i < 12; i++) {
-    if (i % 3 == 0 && trihoral_marks_visible_) {
+  // Draw the markers.
+  for (int i = 0; i < 60; i++) {
+    if (quarter_markers_.visible && i % 15 == 0) {
       display.line_at_angle(
-          center_x, center_y, 30 * i, radius * trihoral_marks_start_,
-          radius * trihoral_marks_end_, trihoral_marks_color_);
-    } else if (hour_marks_visible_) {
-      display.line_at_angle(center_x, center_y, 30 * i,
-                            radius * hour_marks_start_,
-                            radius * hour_marks_end_, hour_marks_color_);
+          center_x, center_y, 6 * i, radius * quarter_markers_.start,
+          radius * quarter_markers_.end, quarter_markers_.color);
+    } else if (hour_markers_.visible && i % 5 == 0) {
+      display.line_at_angle(center_x, center_y, 6 * i,
+                            radius * hour_markers_.start,
+                            radius * hour_markers_.end, hour_markers_.color);
+    } else if (minute_markers_.visible) {
+      display.line_at_angle(
+          center_x, center_y, 6 * i, radius * minute_markers_.start,
+          radius * minute_markers_.end, minute_markers_.color);
     }
   }
 
   // Compute fractional times.
   const auto time = time_->now();
   float seconds = time.second;
-  if (second_arm_smooth_) {
+  if (second_hand_.smooth) {
     struct timeval tv;
     if (gettimeofday(&tv, NULL) == 0) {
       seconds += tv.tv_usec / 1000000.0;
     }
   }
   float minutes = time.minute;
-  if (minute_arm_smooth_) minutes += seconds / 60.0;
+  if (minute_hand_.smooth) minutes += seconds / 60.0;
   float hours = time.hour % 12;
-  if (hour_arm_smooth_) hours += minutes / 60.0;
+  if (hour_hand_.smooth) hours += minutes / 60.0;
 
-  // Draw the arms.
-  if (hour_arm_visible_) {
+  // Draw the hands.
+  if (hour_hand_.visible) {
     display.line_at_angle(center_x, center_y, 360.0 * hours / 12.0 - 90.0,
-                          radius * hour_arm_start_, radius * hour_arm_end_,
-                          hour_arm_color_);
+                          radius * hour_hand_.start, radius * hour_hand_.end,
+                          hour_hand_.color);
   }
-  if (minute_arm_visible_) {
+  if (minute_hand_.visible) {
     display.line_at_angle(center_x, center_y, 360.0 * minutes / 60.0 - 90.0,
-                          radius * minute_arm_start_, radius * minute_arm_end_,
-                          minute_arm_color_);
+                          radius * minute_hand_.start,
+                          radius * minute_hand_.end, minute_hand_.color);
   }
-  if (second_arm_visible_) {
+  if (second_hand_.visible) {
     display.line_at_angle(center_x, center_y, 360.0 * seconds / 60.0 - 90.0,
-                          radius * second_arm_start_, radius * second_arm_end_,
-                          second_arm_color_);
+                          radius * second_hand_.start,
+                          radius * second_hand_.end, second_hand_.color);
   }
 }
 

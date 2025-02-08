@@ -58,14 +58,29 @@ SchedulerElement = elements_ns.class_('SchedulerElement', Element)
 def color_validation(value):
     if not isinstance(value, str) or value[0] != '#':
         raise cv.Invalid("Invalid value for hex color")
-    return color.hex_color(value[1:])
+    value = value[1:]
+    try:
+        if len(value) == 8:
+            return (int(value[0:2], 16), int(value[2:4], 16),
+                    int(value[4:6], 16), int(value[6:8], 16))
+        elif len(value) == 6:
+            return (int(value[0:2], 16), int(value[2:4], 16),
+                    int(value[4:6], 16), 0)
+        elif len(value) == 4:
+            return (17 * int(value[0], 16), 17 * int(value[1], 16),
+                    17 * int(value[2], 16), 17 * int(value[3], 16))
+        elif len(value) == 3:
+            return (17 * int(value[0], 16), 17 * int(value[1], 16),
+                    17 * int(value[2], 16), 0)
+    except ValueError as exc:
+        raise cv.Invalid("Color must be hexadecimal") from exc
 
 async def color_to_code(config):
     if isinstance(config, core.ID):
         return await cg.get_variable(config)
     else:
-        r, g, b = config
-        return cg.ArrayInitializer(r, g, b, 0)
+        r, g, b, w = config
+        return cg.ArrayInitializer(r, g, b, w)
 
 COLOR_SCHEMA = cv.Any(
     cv.use_id(color.ColorStruct),

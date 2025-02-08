@@ -151,30 +151,39 @@ display:
       return PIXEL_MAPPING[y][x];
 
 elements:
-  id: elements_1
+  id: elements_display
   display: led_display
-  # element:
-  #   type: sequence
-  #   elements:
-  #     - type: analog_clock
-  #       time: current_time
-  #     - type: digital_clock
-  #       time: current_time
-  #       font: font_light_8
   element:
-    type: vertical
+    type: sequence
+    duration: 5sec
     elements:
-      # - type: analog_clock
-      #   time: current_time
-      - type: digital_clock
+      - type: analog_clock
         time: current_time
-        font: font_light_8
-        format: "%A"
-      - type: digital_clock
-        time: current_time
-        font: font_light_8
-        format: "%d.%m.%Y"
-      - type: digital_clock
-        time: current_time
-        font: font_light_8
-        format: "%H:%M:%S"
+      - type: vertical
+        elements:
+          - type: horizontal
+            elements:
+              - type: vertical
+                elements:
+                  - type: digital_clock
+                    time: current_time
+                    font: font_chunky_6
+                    format: "%a"
+                  - type: digital_clock
+                    time: current_time
+                    font: font_chunky_6
+                    format: "%b"
+              - type: vertical
+                elements:
+                  - type: digital_clock
+                    time: current_time
+                    font: font_chunky_6
+                    format: "%e"
+                  - type: digital_clock
+                    time: current_time
+                    font: font_chunky_6
+                    format: "%Y"
+          - type: digital_clock
+            time: current_time
+            font: font_chunky_8
+            format: "%H:%M:%S"

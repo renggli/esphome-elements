@@ -6,8 +6,6 @@
 
 namespace esphome::elements {
 
-static const char* TAG = "elements.clock";
-
 class ClockElement : public Element {
  public:
   explicit ClockElement(ElementType type) : Element(type) {}

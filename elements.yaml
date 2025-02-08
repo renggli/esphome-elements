@@ -153,8 +153,28 @@ display:
 elements:
   id: elements_1
   display: led_display
+  # element:
+  #   type: sequence
+  #   elements:
+  #     - type: analog_clock
+  #       time: current_time
+  #     - type: digital_clock
+  #       time: current_time
+  #       font: font_light_8
   element:
-    type: analog_clock
-    time: current_time
-    hour_markers:
-      visible: true
+    type: vertical
+    elements:
+      # - type: analog_clock
+      #   time: current_time
+      - type: digital_clock
+        time: current_time
+        font: font_light_8
+        format: "%A"
+      - type: digital_clock
+        time: current_time
+        font: font_light_8
+        format: "%d.%m.%Y"
+      - type: digital_clock
+        time: current_time
+        font: font_light_8
+        format: "%H:%M:%S"

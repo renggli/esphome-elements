@@ -11,6 +11,9 @@ class ContainerElement : public Element {
 
   void add_element(Element* element);
 
+  void on_show(const Context& context) override;
+  void on_hide(const Context& context) override;
+
  protected:
   std::vector<Element*> elements_ = {};
 };
@@ -44,12 +47,18 @@ class SequenceElement : public ContainerElement {
  public:
   explicit SequenceElement() : ContainerElement(ElementType::SEQUENCE) {}
 
-  void set_duration(uint32_t duration_ms) { duration_ms_ = duration_ms; }
+  void set_duration(optional<uint32_t> duration_ms) {
+    duration_ms_ = duration_ms;
+  }
 
   void draw(const Context& context, display::Display& display) override;
 
+  void on_show(const Context& context) override;
+  void on_hide(const Context& context) override;
+  void on_next(const Context& context) override;
+
  protected:
-  uint32_t duration_ms_ = 0;
+  optional<uint32_t> duration_ms_ = nullopt;
   uint32_t start_ms_ = 0;
   uint32_t index_ = 0;
 };

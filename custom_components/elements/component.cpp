@@ -48,6 +48,12 @@ void ElementComponent::draw(display::Display &display) {
   context_.delta_ms = now - context_.current_ms;
   context_.current_ms = now;
 
+  // Call on-show the first time.
+  if (request_on_show_) {
+    root_->on_show(context_);
+    request_on_show_ = false;
+  }
+
   // Draw the update.
   root_->draw(context_, display);
 }

@@ -154,12 +154,31 @@ elements:
   id: elements_display
   display: led_display
   element:
-    type: text
-    font: font_chunky_6
-    align: center
-    lambda: |-
-      return to_string(1000.0 / context.delta_ms);
+    type: sequence
+    elements:
+      - type: text
+        font: font_chunky_8
+        color: yellow
+        scroll_mode: TOP_TO_BOTTOM
+        text: "WTF!!!"
+      - type: text
+        font: font_chunky_8
+        color: orange
+        scroll_mode: BOTTOM_TO_TOP
+        text: "WTF!!!"
+      - type: text
+        font: font_chunky_8
+        color: violet
+        scroll_mode: LEFT_TO_RIGHT
+        text: "WTF!!!"
+      - type: text
+        font: font_chunky_8
+        color: red
+        scroll_mode: RIGHT_TO_LEFT
+        text: "WTF!!!"
 
+    # lambda: |-
+    #   return to_string(1000.0 / context.delta_ms);
 
   # # element:
   #   type: sequence

@@ -26,7 +26,10 @@ class ElementComponent : public Component {
   void dump_config() override;
 
   void set_display(display::Display *display) { display_ = display; }
-  void set_root(Element *root) { root_ = root; }
+  void set_root(Element *root) {
+    root_ = root;
+    request_on_show_ = true;
+  }
 
   void draw();
   void draw(display::Display &display);
@@ -34,6 +37,7 @@ class ElementComponent : public Component {
  protected:
   display::Display *display_ = nullptr;
   std::unique_ptr<display::DisplayPage> display_page_ = nullptr;
+  bool request_on_show_ = false;
 
   Context context_;
   Element *root_ = nullptr;

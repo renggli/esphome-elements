@@ -4,7 +4,8 @@ import esphome.core as core
 from esphome.components import color, display, font, time
 from esphome.const import (CONF_BACKGROUND_COLOR, CONF_COLOR, CONF_DISPLAY,
                            CONF_DURATION, CONF_FONT, CONF_FORMAT, CONF_ID,
-                           CONF_LAMBDA, CONF_TIME, CONF_TYPE, CONF_VISIBLE)
+                           CONF_LAMBDA, CONF_TIME, CONF_TYPE,
+                           CONF_UPDATE_INTERVAL, CONF_VISIBLE)
 
 # conf names
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -21,6 +22,8 @@ CONF_MINUTE_MARKERS = "minute_markers"
 CONF_POSITION_X = "position_x"
 CONF_POSITION_Y = "position_y"
 CONF_QUARTER_MARKERS = "quarter_markers"
+CONF_SCROLL_MODE = "scroll_mode"
+CONF_SCROLL_SPEED = "scroll_speed"
 CONF_SECOND_HAND = "second_hand"
 CONF_SMOOTH = "smooth"
 CONF_START = "start"
@@ -100,7 +103,6 @@ COLOR_SCHEMA = cv.Any(
 
 display_ns = cg.esphome_ns.namespace('display')
 text_align_ns = display_ns.namespace('TextAlign')
-
 TextAlign = text_align_ns.enum("TextAlign")
 
 TEXT_ALIGN = {
@@ -125,6 +127,18 @@ TEXT_ALIGN = {
     "BOTTOM_RIGHT": TextAlign.BOTTOM_RIGHT,
 }
 
+# scroll mode enum
+
+scroll_mode_ns = elements_ns.namespace("ScrollMode")
+ScrollMode = scroll_mode_ns.enum("ScrollMode")
+
+SCROLL_MODE = {
+    "NONE": ScrollMode.NONE,
+    "LEFT_TO_RIGHT": ScrollMode.LEFT_TO_RIGHT,
+    "RIGHT_TO_LEFT": ScrollMode.RIGHT_TO_LEFT,
+    "BOTTOM_TO_TOP": ScrollMode.BOTTOM_TO_TOP,
+    "TOP_TO_BOTTOM": ScrollMode.TOP_TO_BOTTOM,
+}
 
 # analog clock options
 
@@ -202,7 +216,7 @@ ELEMENT_SCHEMA = cv.typed_schema({
     }),
     CONF_SEQUENCE: CONTAINER_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(SequenceElement),
-        cv.Optional(CONF_DURATION, default="5s"): cv.positive_time_period_milliseconds,
+        cv.Optional(CONF_DURATION): cv.positive_time_period_milliseconds,
     }),
     CONF_TEXT: BASE_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(TextElement),
@@ -212,6 +226,9 @@ ELEMENT_SCHEMA = cv.typed_schema({
         cv.Optional(CONF_POSITION_X, default=0.5): cv.float_range(min=0, max=1),
         cv.Optional(CONF_POSITION_Y, default=0.5): cv.float_range(min=0, max=1),
         cv.Optional(CONF_ALIGN): cv.enum(TEXT_ALIGN, upper=True, space="_"),
+        cv.Optional(CONF_SCROLL_MODE): cv.enum(SCROLL_MODE, upper=True, space="_"),
+        cv.Optional(CONF_SCROLL_SPEED): cv.float_range(min=0),
+        cv.Optional(CONF_UPDATE_INTERVAL): cv.positive_time_period_milliseconds,
         cv.Exclusive(CONF_LAMBDA, 'text'): cv.returning_lambda,
         cv.Exclusive(CONF_TEXT, 'text'): cv.string,
     }),
@@ -231,7 +248,8 @@ async def element_to_code(config):
 
     # literals
     for name in [CONF_DURATION, CONF_FORMAT, CONF_POSITION_X, CONF_POSITION_Y,
-                 CONF_TEXT, CONF_ALIGN]:
+                 CONF_TEXT, CONF_ALIGN, CONF_SCROLL_MODE, CONF_SCROLL_SPEED,
+                 CONF_UPDATE_INTERVAL]:
         if value := config.get(name):
             cg.add(getattr(var, "set_" + name)(value))
 

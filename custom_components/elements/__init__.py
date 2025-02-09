@@ -2,40 +2,49 @@ import esphome.codegen as cg
 import esphome.config_validation as cv
 import esphome.core as core
 from esphome.components import color, display, font, time
-from esphome.const import (CONF_COLOR, CONF_DISPLAY, CONF_DURATION, CONF_FONT,
-                           CONF_FORMAT, CONF_ID, CONF_TIME, CONF_TYPE,
-                           CONF_VISIBLE)
+from esphome.const import (CONF_BACKGROUND_COLOR, CONF_COLOR, CONF_DISPLAY,
+                           CONF_DURATION, CONF_FONT, CONF_FORMAT, CONF_ID,
+                           CONF_LAMBDA, CONF_TIME, CONF_TYPE, CONF_VISIBLE)
 
 # conf names
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+# properties
+CONF_ALIGN = "align"
 CONF_ELEMENT = "element"
 CONF_ELEMENTS = "elements"
+CONF_END = "end"
+CONF_HOUR_HAND = "hour_hand"
+CONF_HOUR_MARKERS = "hour_markers"
+CONF_MINUTE_HAND = "minute_hand"
+CONF_MINUTE_MARKERS = "minute_markers"
+CONF_POSITION_X = "position_x"
+CONF_POSITION_Y = "position_y"
+CONF_QUARTER_MARKERS = "quarter_markers"
+CONF_SECOND_HAND = "second_hand"
+CONF_SMOOTH = "smooth"
+CONF_START = "start"
 
+# types
 CONF_ANALOG_CLOCK = "analog_clock"
 CONF_DIGITAL_CLOCK = "digital_clock"
-CONF_ERROR = "error"
-CONF_FLOW = "flow"
 CONF_HORIZONTAL = "horizontal"
 CONF_OVERLAY = "overlay"
 CONF_SCHEDULER = "scheduler"
 CONF_SEQUENCE = "sequence"
+CONF_TEXT = "text"
 CONF_VERTICAL = "vertical"
 
-CONF_START = "start"
-CONF_END = "end"
-CONF_SMOOTH = "smooth"
-
-CONF_MINUTE_MARKERS = "minute_markers"
-CONF_HOUR_MARKERS = "hour_markers"
-CONF_QUARTER_MARKERS = "quarter_markers"
-CONF_SECOND_HAND = "second_hand"
-CONF_MINUTE_HAND = "minute_hand"
-CONF_HOUR_HAND = "hour_hand"
-
 # classes
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+# elements
 
 elements_ns = cg.esphome_ns.namespace('elements')
 ElementComponent = elements_ns.class_('ElementComponent', cg.Component)
+
+Context = elements_ns.class_("Context")
+ContextConstRef = Context.operator("ref").operator("const")
 
 Element = elements_ns.class_('Element')
 
@@ -50,8 +59,8 @@ OverlayElement = elements_ns.class_('OverlayElement', ContainerElement)
 SequenceElement = elements_ns.class_('SequenceElement', ContainerElement)
 VerticalElement = elements_ns.class_('VerticalElement', ContainerElement)
 
-ErrorElement = elements_ns.class_('ErrorElement', Element)
 SchedulerElement = elements_ns.class_('SchedulerElement', Element)
+TextElement = elements_ns.class_('TextElement', Element)
 
 # color struct
 
@@ -87,8 +96,37 @@ COLOR_SCHEMA = cv.Any(
     color_validation,
 )
 
-# analog clock options
+# align enum
 
+display_ns = cg.esphome_ns.namespace('display')
+text_align_ns = display_ns.namespace('TextAlign')
+
+TextAlign = text_align_ns.enum("TextAlign")
+
+TEXT_ALIGN = {
+    "TOP": TextAlign.TOP,
+    "CENTER_VERTICAL": TextAlign.CENTER_VERTICAL,
+    "BASELINE": TextAlign.BASELINE,
+    "BOTTOM": TextAlign.BOTTOM,
+    "LEFT": TextAlign.LEFT,
+    "CENTER_HORIZONTAL": TextAlign.CENTER_HORIZONTAL,
+    "RIGHT": TextAlign.RIGHT,
+    "TOP_LEFT": TextAlign.TOP_LEFT,
+    "TOP_CENTER": TextAlign.TOP_CENTER,
+    "TOP_RIGHT": TextAlign.TOP_RIGHT,
+    "CENTER_LEFT": TextAlign.CENTER_LEFT,
+    "CENTER": TextAlign.CENTER,
+    "CENTER_RIGHT": TextAlign.CENTER_RIGHT,
+    "BASELINE_LEFT": TextAlign.BASELINE_LEFT,
+    "BASELINE_CENTER": TextAlign.BASELINE_CENTER,
+    "BASELINE_RIGHT": TextAlign.BASELINE_RIGHT,
+    "BOTTOM_LEFT": TextAlign.BOTTOM_LEFT,
+    "BOTTOM_CENTER": TextAlign.BOTTOM_CENTER,
+    "BOTTOM_RIGHT": TextAlign.BOTTOM_RIGHT,
+}
+
+
+# analog clock options
 
 AnalogClockOptions = elements_ns.class_('AnalogClockOptions')
 
@@ -153,38 +191,47 @@ ELEMENT_SCHEMA = cv.typed_schema({
         cv.Optional(CONF_COLOR): COLOR_SCHEMA,
         cv.Optional(CONF_FORMAT): cv.string,
     }),
-    CONF_OVERLAY: CONTAINER_ELEMENT_SCHEMA.extend({
-        cv.GenerateID(CONF_ID): cv.declare_id(OverlayElement),
-    }),
     CONF_HORIZONTAL: CONTAINER_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(HorizontalElement),
     }),
-    CONF_VERTICAL: CONTAINER_ELEMENT_SCHEMA.extend({
-        cv.GenerateID(CONF_ID): cv.declare_id(VerticalElement),
+    CONF_OVERLAY: CONTAINER_ELEMENT_SCHEMA.extend({
+        cv.GenerateID(CONF_ID): cv.declare_id(OverlayElement),
+    }),
+    CONF_SCHEDULER: BASE_ELEMENT_SCHEMA.extend({
+        cv.GenerateID(CONF_ID): cv.declare_id(SchedulerElement),
     }),
     CONF_SEQUENCE: CONTAINER_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(SequenceElement),
         cv.Optional(CONF_DURATION, default="5s"): cv.positive_time_period_milliseconds,
     }),
-    CONF_ERROR: BASE_ELEMENT_SCHEMA.extend({
-        cv.GenerateID(CONF_ID): cv.declare_id(ErrorElement),
+    CONF_TEXT: BASE_ELEMENT_SCHEMA.extend({
+        cv.GenerateID(CONF_ID): cv.declare_id(TextElement),
+        cv.Required(CONF_FONT): cv.use_id(font.Font),
+        cv.Optional(CONF_COLOR, default='#ffffff'): COLOR_SCHEMA,
+        cv.Optional(CONF_BACKGROUND_COLOR): COLOR_SCHEMA,
+        cv.Optional(CONF_POSITION_X, default=0.5): cv.float_range(min=0, max=1),
+        cv.Optional(CONF_POSITION_Y, default=0.5): cv.float_range(min=0, max=1),
+        cv.Optional(CONF_ALIGN): cv.enum(TEXT_ALIGN, upper=True, space="_"),
+        cv.Exclusive(CONF_LAMBDA, 'text'): cv.returning_lambda,
+        cv.Exclusive(CONF_TEXT, 'text'): cv.string,
     }),
-    CONF_SCHEDULER: BASE_ELEMENT_SCHEMA.extend({
-        cv.GenerateID(CONF_ID): cv.declare_id(SchedulerElement),
+    CONF_VERTICAL: CONTAINER_ELEMENT_SCHEMA.extend({
+        cv.GenerateID(CONF_ID): cv.declare_id(VerticalElement),
     }),
 })
 
 CONFIG_SCHEMA = cv.Schema({
     cv.GenerateID(): cv.declare_id(ElementComponent),
     cv.Optional(CONF_DISPLAY): cv.use_id(display.Display),
-    cv.Optional(CONF_ELEMENT): ELEMENT_SCHEMA,
+    cv.Required(CONF_ELEMENT): ELEMENT_SCHEMA,
 }).extend(cv.COMPONENT_SCHEMA)
 
 async def element_to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
 
     # literals
-    for name in [CONF_DURATION, CONF_FORMAT]:
+    for name in [CONF_DURATION, CONF_FORMAT, CONF_POSITION_X, CONF_POSITION_Y,
+                 CONF_TEXT, CONF_ALIGN]:
         if value := config.get(name):
             cg.add(getattr(var, "set_" + name)(value))
 
@@ -195,9 +242,19 @@ async def element_to_code(config):
             cg.add(getattr(var, "set_" + name)(value))
 
     # colors
-    for name in [CONF_COLOR]:
+    for name in [CONF_COLOR, CONF_BACKGROUND_COLOR]:
         if conf := config.get(name):
             value = await color_to_code(conf)
+            cg.add(getattr(var, "set_" + name)(value))
+
+    # lambdas
+    for name in [CONF_LAMBDA]:
+        if conf := config.get(name):
+            value = await cg.process_lambda(
+                conf,
+                [(ContextConstRef, "context")],
+                return_type=cg.std_string,
+            )
             cg.add(getattr(var, "set_" + name)(value))
 
     # elements

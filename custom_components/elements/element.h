@@ -9,13 +9,11 @@ namespace esphome::elements {
 enum class ElementType {
   ANALOG_CLOCK,
   DIGITAL_CLOCK,
-  ERROR,
-  FLOW,
   HORIZONTAL,
   OVERLAY,
   SCHEDULER,
   SEQUENCE,
-  TEXTUAL,
+  TEXT,
   UNKNOWN,
   VERTICAL,
 };
@@ -31,6 +29,14 @@ class Element {
   Element* get_parent() { return parent_; }
 
   virtual void draw(const Context& context, display::Display& display) = 0;
+
+  /// Event passed down the element tree when the element is about to be shown,
+  /// that is before the `draw` method is being called repeatedly.
+  virtual void on_show(const Context& context) {}
+
+  /// Event passed down the element tree when the element is about to be hidden,
+  /// that is after the `draw` method is no longer being called repeatedly.
+  virtual void on_hide(const Context& context) {}
 
  protected:
   ElementType type_ = ElementType::UNKNOWN;

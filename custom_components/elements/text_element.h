@@ -1,6 +1,7 @@
 #pragma once
 
 #include "element.h"
+#include "utils.h"
 
 namespace esphome::elements {
 
@@ -30,7 +31,7 @@ class TextElement : public Element {
   void set_scroll_speed(float scroll_speed) { scroll_speed_ = scroll_speed; }
 
   void set_update_interval(uint32_t update_interval_ms) {
-    update_interval_ms_ = update_interval_ms;
+    update_timer_.set_duration(update_interval_ms);
   }
   void set_text(std::string text);
   void set_lambda(std::function<std::string(const Context&)> lambda);
@@ -50,7 +51,7 @@ class TextElement : public Element {
   float scroll_speed_ = 10.0;  // pixel per second
   float scroll_offset_ = 0.0;
 
-  uint32_t update_interval_ms_ = 250;
+  Timer update_timer_ = Timer(250);
   optional<std::string> text_;
   optional<std::function<std::string(const Context&)>> lambda_;
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "element.h"
+#include "utils.h"
 
 namespace esphome::elements {
 
@@ -53,8 +54,9 @@ class SequenceElement : public ContainerElement {
   explicit SequenceElement(ElementComponent* component, Element* parent)
       : ContainerElement(ElementType::SEQUENCE, component, parent) {}
 
-  void set_duration(optional<uint32_t> duration_ms) {
-    duration_ms_ = duration_ms;
+  void set_duration(uint32_t duration_ms) {
+    timer_.set_duration(duration_ms);
+    timer_.reset(get_context().current_ms);
   }
 
   void draw(display::Display& display) override;
@@ -65,8 +67,7 @@ class SequenceElement : public ContainerElement {
   void on_next() override;
 
  protected:
-  optional<uint32_t> duration_ms_ = nullopt;
-  uint32_t start_ms_ = 0;
+  Timer timer_;
   uint32_t index_ = 0;
 };
 

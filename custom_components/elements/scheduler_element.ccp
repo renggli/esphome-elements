@@ -18,13 +18,13 @@ void SchedulerElement::add(Element* element, const SchedulerOptions& options) {
   }
 }
 
-void SchedulerElement::draw(const Context& context, display::Display& display) {
-  schedule_update_(context);
+void SchedulerElement::draw(display::Display& display) {
+  schedule_update_();
   // current_->element_->show(context, display);
 }
 
 void SchedulerElement::schedule_next_() {}
 
-void SchedulerElement::schedule_update_(const Context& context) {}
+void SchedulerElement::schedule_update_() {}
 
 }  // namespace esphome::elements

@@ -31,6 +31,9 @@ class ElementComponent : public Component {
     request_on_show_ = true;
   }
 
+  Context &get_context() { return context_; }
+  Element *get_root() { return root_; }
+
   void draw();
   void draw(display::Display &display);
 

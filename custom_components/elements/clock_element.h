@@ -8,7 +8,9 @@ namespace esphome::elements {
 /// Abstract class for clock elements.
 class ClockElement : public Element {
  public:
-  explicit ClockElement(ElementType type) : Element(type) {}
+  explicit ClockElement(ElementType type, ElementComponent* component,
+                        Element* parent)
+      : Element(type, component, parent) {}
 
   void set_time(time::RealTimeClock* time) { time_ = time; }
 
@@ -28,7 +30,8 @@ struct AnalogClockOptions {
 /// Analog clock element.
 class AnalogClockElement : public ClockElement {
  public:
-  explicit AnalogClockElement() : ClockElement(ElementType::ANALOG_CLOCK) {}
+  explicit AnalogClockElement(ElementComponent* component, Element* parent)
+      : ClockElement(ElementType::ANALOG_CLOCK, component, parent) {}
 
   void set_minute_markers(AnalogClockOptions minute_markers) {
     minute_markers_ = minute_markers;
@@ -47,7 +50,7 @@ class AnalogClockElement : public ClockElement {
   }
   void set_hour_hand(AnalogClockOptions hour_hand) { hour_hand_ = hour_hand; }
 
-  void draw(const Context& context, display::Display& display) override;
+  void draw(display::Display& display) override;
 
  protected:
   AnalogClockOptions minute_markers_;
@@ -61,13 +64,14 @@ class AnalogClockElement : public ClockElement {
 /// Digital clock element.
 class DigitalClockElement : public ClockElement {
  public:
-  explicit DigitalClockElement() : ClockElement(ElementType::DIGITAL_CLOCK) {}
+  explicit DigitalClockElement(ElementComponent* component, Element* parent)
+      : ClockElement(ElementType::DIGITAL_CLOCK, component, parent) {}
 
   void set_font(display::BaseFont* font) { font_ = font; }
   void set_color(Color color) { color_ = color; }
   void set_format(const char* format) { format_ = format; }
 
-  void draw(const Context& context, display::Display& display) override;
+  void draw(display::Display& display) override;
 
  protected:
   display::BaseFont* font_ = nullptr;

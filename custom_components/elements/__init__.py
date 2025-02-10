@@ -140,6 +140,11 @@ SCROLL_MODE = {
     "TOP_TO_BOTTOM": ScrollMode.TOP_TO_BOTTOM,
 }
 
+# other
+
+nullptr = cg.esphome_ns.class_('nullptr')
+nullopt = cg.esphome_ns.class_('nullopt')
+
 # analog clock options
 
 AnalogClockOptions = elements_ns.class_('AnalogClockOptions')
@@ -243,8 +248,8 @@ CONFIG_SCHEMA = cv.Schema({
     cv.Required(CONF_ELEMENT): ELEMENT_SCHEMA,
 }).extend(cv.COMPONENT_SCHEMA)
 
-async def element_to_code(config):
-    var = cg.new_Pvariable(config[CONF_ID])
+async def element_to_code(config, component, parent=nullptr):
+    var = cg.new_Pvariable(config[CONF_ID], component, parent)
 
     # literals
     for name in [CONF_DURATION, CONF_FORMAT, CONF_POSITION_X, CONF_POSITION_Y,
@@ -278,7 +283,7 @@ async def element_to_code(config):
     # elements
     if conf := config.get(CONF_ELEMENTS):
         for conf_item in conf:
-            value = await element_to_code(conf_item)
+            value = await element_to_code(conf_item, component, var)
             cg.add(var.add_element(value))
 
     # analog clock
@@ -299,7 +304,7 @@ async def to_code(config):
         cg.add(var.set_display(drawing_display))
 
     if root_config := config.get(CONF_ELEMENT):
-        root_element = await element_to_code(root_config)
+        root_element = await element_to_code(root_config, var)
         cg.add(var.set_root(root_element))
 
     await cg.register_component(var, config)

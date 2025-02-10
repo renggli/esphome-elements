@@ -4,8 +4,7 @@
 
 namespace esphome::elements {
 
-void AnalogClockElement::draw(const Context& context,
-                              display::Display& display) {
+void AnalogClockElement::draw(display::Display& display) {
   const int center_x = display.get_width() / 2;
   const int center_y = display.get_height() / 2;
   const int radius = std::min(center_x, center_y);
@@ -59,8 +58,7 @@ void AnalogClockElement::draw(const Context& context,
   }
 }
 
-void DigitalClockElement::draw(const Context& context,
-                               display::Display& display) {
+void DigitalClockElement::draw(display::Display& display) {
   display.strftime(display.get_width() / 2, display.get_height() / 2, font_,
                    color_, display::TextAlign::CENTER, format_, time_->now());
 }

@@ -37,11 +37,12 @@ struct SchedulerState {
 
 class SchedulerElement : public Element {
  public:
-  explicit SchedulerElement() : Element(ElementType::SCHEDULER) {}
+  explicit SchedulerElement(ElementComponent* component, Element* parent)
+      : Element(ElementType::SCHEDULER, component, parent) {}
 
   void add(Element* element, const SchedulerOptions& options);
 
-  virtual void draw(const Context& context, display::Display& display) override;
+  virtual void draw(display::Display& display) override;
 
  protected:
   // The currently display element and its state.
@@ -54,7 +55,7 @@ class SchedulerElement : public Element {
   std::deque<std::unique_ptr<SchedulerState>> queue_ = {};
 
   void schedule_next_();
-  void schedule_update_(const Context& context);
+  void schedule_update_();
 };
 
 }  // namespace esphome::elements

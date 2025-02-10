@@ -14,7 +14,8 @@ enum class ScrollMode {
 
 class TextElement : public Element {
  public:
-  explicit TextElement() : Element(ElementType::TEXT) {}
+  explicit TextElement(ElementComponent* component, Element* parent)
+      : Element(ElementType::TEXT, component, parent) {}
 
   void set_font(display::BaseFont* font) { font_ = font; }
   void set_color(Color color) { color_ = color; }
@@ -34,9 +35,9 @@ class TextElement : public Element {
   void set_text(std::string text);
   void set_lambda(std::function<std::string(const Context&)> lambda);
 
-  void draw(const Context& context, display::Display& display) override;
+  void draw(display::Display& display) override;
 
-  void on_show(const Context& context) override;
+  void on_show() override;
 
  protected:
   display::BaseFont* font_ = nullptr;

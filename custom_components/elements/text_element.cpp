@@ -29,18 +29,18 @@ void TextElement::set_lambda(
   request_measurement_ = true;
 }
 
-void TextElement::draw(const Context& context, display::Display& display) {
+void TextElement::draw(display::Display& display) {
   // Update the text, if necessary.
   if (lambda_.has_value() &&
       (!text_.has_value() ||
-       last_update_ms_ + update_interval_ms_ <= context.current_ms)) {
-    std::string text = (*lambda_)(context);
+       last_update_ms_ + update_interval_ms_ <= get_component()->get_context().current_ms)) {
+    std::string text = (*lambda_)(get_component()->get_context());
     if (!text_.has_value() || *text_ != text) {
       ESP_LOGD(TEXT_ELEMENT_TAG, "Text has changed: %s", text.c_str());
       text_ = text;
       request_measurement_ = true;
     }
-    last_update_ms_ = context.current_ms;
+    last_update_ms_ = get_component()->get_context().current_ms;
   }
 
   // Only continue if we have text.
@@ -55,7 +55,7 @@ void TextElement::draw(const Context& context, display::Display& display) {
 
   // Update the placement, if we scroll.
   if (scroll_mode_ != ScrollMode::NONE) {
-    scroll_offset_ += context.delta_ms * scroll_speed_ / 1000.0;
+    scroll_offset_ += get_component()->get_context().delta_ms * scroll_speed_ / 1000.0;
     switch (scroll_mode_) {
       case ScrollMode::LEFT_TO_RIGHT:
         x -= scroll_offset_;
@@ -85,7 +85,7 @@ void TextElement::draw(const Context& context, display::Display& display) {
     if (bounds_x_ + bounds_w_ < 0 || display.get_width() < bounds_x_ ||
         bounds_y_ + bounds_h_ < 0 || display.get_height() < bounds_y_) {
       scroll_offset_ = 0.0;
-      on_next(context);
+      on_next();
     }
   }
 
@@ -93,7 +93,7 @@ void TextElement::draw(const Context& context, display::Display& display) {
   display.print(x, y, font_, color_, align_, text_->c_str(), background_color_);
 }
 
-void TextElement::on_show(const Context& context) {
+void TextElement::on_show() {
   // Clear the cached text, if we have a lambda.
   if (lambda_.has_value()) text_ = nullopt;
 

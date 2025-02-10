@@ -50,12 +50,12 @@ void ElementComponent::draw(display::Display &display) {
 
   // Call on-show the first time.
   if (request_on_show_) {
-    root_->on_show(context_);
+    root_->on_show();
     request_on_show_ = false;
   }
 
   // Draw the update.
-  root_->draw(context_, display);
+  root_->draw(display);
 }
 
 }  // namespace esphome::elements

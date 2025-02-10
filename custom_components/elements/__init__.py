@@ -7,6 +7,10 @@ from esphome.const import (CONF_BACKGROUND_COLOR, CONF_COLOR, CONF_DISPLAY,
                            CONF_LAMBDA, CONF_TIME, CONF_TYPE,
                            CONF_UPDATE_INTERVAL, CONF_VISIBLE)
 
+CODEOWNERS = ["@renggli"]
+DEPENDENCIES = ["display", "image", "animation"]
+MULTI_CONF = True
+
 # conf names
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 

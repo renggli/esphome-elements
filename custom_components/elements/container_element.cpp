@@ -48,7 +48,7 @@ void VerticalElement::draw(display::Display& display) {
 
 void SequenceElement::draw(display::Display& display) {
   if (duration_ms_.has_value() &&
-      start_ms_ + *duration_ms_ <= get_component()->get_context().current_ms) {
+      start_ms_ + *duration_ms_ <= get_context().current_ms) {
     ESP_LOGD(CONTAINER_ELEMENT_TAG, "Duration exceeded");
     on_next();
   }
@@ -59,13 +59,13 @@ void SequenceElement::go_to(int index) {
   if (index_ == index) return;
   elements_[index_]->on_hide();
   index_ = index;
-  start_ms_ = get_component()->get_context().current_ms;
+  start_ms_ = get_context().current_ms;
   elements_[index_]->on_show();
 }
 
 void SequenceElement::on_show() {
   index_ = 0;
-  start_ms_ = get_component()->get_context().current_ms;
+  start_ms_ = get_context().current_ms;
   elements_[index_]->on_show();
 }
 

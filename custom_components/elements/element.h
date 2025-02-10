@@ -23,7 +23,7 @@ class Element {
  public:
   explicit Element(ElementType type, ElementComponent* component,
                    Element* parent)
-      : type_(type), component_(component), parent_(parent) {}
+      : type_(type), component_(*component), parent_(parent) {}
 
   /// Returns the type of this element.
   ElementType get_type() { return type_; }
@@ -32,7 +32,10 @@ class Element {
   Element* get_parent() { return parent_; }
 
   /// Returns the element component of this element.
-  ElementComponent* get_component() { return component_; }
+  ElementComponent& get_component() { return component_; }
+
+  /// Returns the current context of this element.
+  Context& get_context() { return component_.get_context(); }
 
   /// Abstract method that draws this element on the given display.
   virtual void draw(display::Display& display) = 0;
@@ -51,7 +54,7 @@ class Element {
 
  protected:
   ElementType type_ = ElementType::UNKNOWN;
-  ElementComponent* component_;
+  ElementComponent& component_;
   Element* parent_;
 };
 

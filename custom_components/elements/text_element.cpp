@@ -33,14 +33,14 @@ void TextElement::draw(display::Display& display) {
   // Update the text, if necessary.
   if (lambda_.has_value() &&
       (!text_.has_value() ||
-       last_update_ms_ + update_interval_ms_ <= get_component()->get_context().current_ms)) {
-    std::string text = (*lambda_)(get_component()->get_context());
+       last_update_ms_ + update_interval_ms_ <= get_context().current_ms)) {
+    std::string text = (*lambda_)(get_context());
     if (!text_.has_value() || *text_ != text) {
       ESP_LOGD(TEXT_ELEMENT_TAG, "Text has changed: %s", text.c_str());
       text_ = text;
       request_measurement_ = true;
     }
-    last_update_ms_ = get_component()->get_context().current_ms;
+    last_update_ms_ = get_context().current_ms;
   }
 
   // Only continue if we have text.
@@ -55,7 +55,7 @@ void TextElement::draw(display::Display& display) {
 
   // Update the placement, if we scroll.
   if (scroll_mode_ != ScrollMode::NONE) {
-    scroll_offset_ += get_component()->get_context().delta_ms * scroll_speed_ / 1000.0;
+    scroll_offset_ += get_context().delta_ms * scroll_speed_ / 1000.0;
     switch (scroll_mode_) {
       case ScrollMode::LEFT_TO_RIGHT:
         x -= scroll_offset_;

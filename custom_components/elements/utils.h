@@ -72,4 +72,5 @@ class Timer {
   uint32_t next_ms_;
 };
 
+
 }  // namespace esphome::elements

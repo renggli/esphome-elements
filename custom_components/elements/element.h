@@ -10,6 +10,7 @@ enum class ElementType {
   ANALOG_CLOCK,
   DIGITAL_CLOCK,
   HORIZONTAL,
+  IMAGE,
   OVERLAY,
   SCHEDULER,
   SEQUENCE,
@@ -53,7 +54,7 @@ class Element {
   virtual void on_next();
 
  protected:
-  ElementType type_ = ElementType::UNKNOWN;
+  ElementType type_;
   ElementComponent& component_;
   Element* parent_;
 };

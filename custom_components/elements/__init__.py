@@ -1,46 +1,47 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 import esphome.core as core
-from esphome.components import color, display, font, time
+from esphome.components import color, display, font, image, time
 from esphome.const import (CONF_BACKGROUND_COLOR, CONF_COLOR, CONF_DISPLAY,
                            CONF_DURATION, CONF_FONT, CONF_FORMAT, CONF_ID,
                            CONF_LAMBDA, CONF_TIME, CONF_TYPE,
                            CONF_UPDATE_INTERVAL, CONF_VISIBLE)
 
-CODEOWNERS = ["@renggli"]
-DEPENDENCIES = ["display"]
+CODEOWNERS = ['@renggli']
+DEPENDENCIES = ['display']
 MULTI_CONF = True
 
 # conf names
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # properties
-CONF_ALIGN = "align"
-CONF_ELEMENT = "element"
-CONF_ELEMENTS = "elements"
-CONF_END = "end"
-CONF_HOUR_HAND = "hour_hand"
-CONF_HOUR_MARKERS = "hour_markers"
-CONF_MINUTE_HAND = "minute_hand"
-CONF_MINUTE_MARKERS = "minute_markers"
-CONF_POSITION_X = "position_x"
-CONF_POSITION_Y = "position_y"
-CONF_QUARTER_MARKERS = "quarter_markers"
-CONF_SCROLL_MODE = "scroll_mode"
-CONF_SCROLL_SPEED = "scroll_speed"
-CONF_SECOND_HAND = "second_hand"
-CONF_SMOOTH = "smooth"
-CONF_START = "start"
+CONF_ALIGN = 'align'
+CONF_ELEMENT = 'element'
+CONF_ELEMENTS = 'elements'
+CONF_END = 'end'
+CONF_HOUR_HAND = 'hour_hand'
+CONF_HOUR_MARKERS = 'hour_markers'
+CONF_MINUTE_HAND = 'minute_hand'
+CONF_MINUTE_MARKERS = 'minute_markers'
+CONF_POSITION_X = 'position_x'
+CONF_POSITION_Y = 'position_y'
+CONF_QUARTER_MARKERS = 'quarter_markers'
+CONF_SCROLL_MODE = 'scroll_mode'
+CONF_SCROLL_SPEED = 'scroll_speed'
+CONF_SECOND_HAND = 'second_hand'
+CONF_SMOOTH = 'smooth'
+CONF_START = 'start'
 
 # types
-CONF_ANALOG_CLOCK = "analog_clock"
-CONF_DIGITAL_CLOCK = "digital_clock"
-CONF_HORIZONTAL = "horizontal"
-CONF_OVERLAY = "overlay"
-CONF_SCHEDULER = "scheduler"
-CONF_SEQUENCE = "sequence"
-CONF_TEXT = "text"
-CONF_VERTICAL = "vertical"
+CONF_ANALOG_CLOCK = 'analog_clock'
+CONF_DIGITAL_CLOCK = 'digital_clock'
+CONF_HORIZONTAL = 'horizontal'
+CONF_IMAGE = 'image'
+CONF_OVERLAY = 'overlay'
+CONF_SCHEDULER = 'scheduler'
+CONF_SEQUENCE = 'sequence'
+CONF_TEXT = 'text'
+CONF_VERTICAL = 'vertical'
 
 # classes
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -50,8 +51,8 @@ CONF_VERTICAL = "vertical"
 elements_ns = cg.esphome_ns.namespace('elements')
 ElementComponent = elements_ns.class_('ElementComponent', cg.Component)
 
-Context = elements_ns.class_("Context")
-ContextConstRef = Context.operator("ref").operator("const")
+Context = elements_ns.class_('Context')
+ContextConstRef = Context.operator('ref').operator('const')
 
 Element = elements_ns.class_('Element')
 
@@ -68,12 +69,13 @@ VerticalElement = elements_ns.class_('VerticalElement', ContainerElement)
 
 SchedulerElement = elements_ns.class_('SchedulerElement', Element)
 TextElement = elements_ns.class_('TextElement', Element)
+ImageElement = elements_ns.class_('ImageElement', Element)
 
 # color struct
 
 def color_validation(value):
     if not isinstance(value, str) or value[0] != '#':
-        raise cv.Invalid("Invalid value for hex color")
+        raise cv.Invalid('Invalid value for hex color')
     value = value[1:]
     try:
         if len(value) == 8:
@@ -89,7 +91,7 @@ def color_validation(value):
             return (17 * int(value[0], 16), 17 * int(value[1], 16),
                     17 * int(value[2], 16), 0)
     except ValueError as exc:
-        raise cv.Invalid("Color must be hexadecimal") from exc
+        raise cv.Invalid('Color must be hexadecimal') from exc
 
 async def color_to_code(config):
     if isinstance(config, core.ID):
@@ -103,45 +105,67 @@ COLOR_SCHEMA = cv.Any(
     color_validation,
 )
 
-# align enum
+# text and image align enums
 
 display_ns = cg.esphome_ns.namespace('display')
+
 text_align_ns = display_ns.namespace('TextAlign')
-TextAlign = text_align_ns.enum("TextAlign")
+TextAlign = text_align_ns.enum('TextAlign')
 
 TEXT_ALIGN = {
-    "TOP": TextAlign.TOP,
-    "CENTER_VERTICAL": TextAlign.CENTER_VERTICAL,
-    "BASELINE": TextAlign.BASELINE,
-    "BOTTOM": TextAlign.BOTTOM,
-    "LEFT": TextAlign.LEFT,
-    "CENTER_HORIZONTAL": TextAlign.CENTER_HORIZONTAL,
-    "RIGHT": TextAlign.RIGHT,
-    "TOP_LEFT": TextAlign.TOP_LEFT,
-    "TOP_CENTER": TextAlign.TOP_CENTER,
-    "TOP_RIGHT": TextAlign.TOP_RIGHT,
-    "CENTER_LEFT": TextAlign.CENTER_LEFT,
-    "CENTER": TextAlign.CENTER,
-    "CENTER_RIGHT": TextAlign.CENTER_RIGHT,
-    "BASELINE_LEFT": TextAlign.BASELINE_LEFT,
-    "BASELINE_CENTER": TextAlign.BASELINE_CENTER,
-    "BASELINE_RIGHT": TextAlign.BASELINE_RIGHT,
-    "BOTTOM_LEFT": TextAlign.BOTTOM_LEFT,
-    "BOTTOM_CENTER": TextAlign.BOTTOM_CENTER,
-    "BOTTOM_RIGHT": TextAlign.BOTTOM_RIGHT,
+    'TOP': TextAlign.TOP,
+    'CENTER_VERTICAL': TextAlign.CENTER_VERTICAL,
+    'BASELINE': TextAlign.BASELINE,
+    'BOTTOM': TextAlign.BOTTOM,
+    'LEFT': TextAlign.LEFT,
+    'CENTER_HORIZONTAL': TextAlign.CENTER_HORIZONTAL,
+    'RIGHT': TextAlign.RIGHT,
+    'TOP_LEFT': TextAlign.TOP_LEFT,
+    'TOP_CENTER': TextAlign.TOP_CENTER,
+    'TOP_RIGHT': TextAlign.TOP_RIGHT,
+    'CENTER_LEFT': TextAlign.CENTER_LEFT,
+    'CENTER': TextAlign.CENTER,
+    'CENTER_RIGHT': TextAlign.CENTER_RIGHT,
+    'BASELINE_LEFT': TextAlign.BASELINE_LEFT,
+    'BASELINE_CENTER': TextAlign.BASELINE_CENTER,
+    'BASELINE_RIGHT': TextAlign.BASELINE_RIGHT,
+    'BOTTOM_LEFT': TextAlign.BOTTOM_LEFT,
+    'BOTTOM_CENTER': TextAlign.BOTTOM_CENTER,
+    'BOTTOM_RIGHT': TextAlign.BOTTOM_RIGHT,
+}
+
+image_align_ns = display_ns.namespace('ImageAlign')
+ImageAlign = image_align_ns.enum('ImageAlign')
+
+IMAGE_ALIGN = {
+  'TOP': ImageAlign.TOP,
+  'CENTER_VERTICAL': ImageAlign.CENTER_VERTICAL,
+  'BOTTOM': ImageAlign.BOTTOM,
+  'LEFT': ImageAlign.LEFT,
+  'CENTER_HORIZONTAL': ImageAlign.CENTER_HORIZONTAL,
+  'RIGHT': ImageAlign.RIGHT,
+  'TOP_LEFT': ImageAlign.TOP_LEFT,
+  'TOP_CENTER': ImageAlign.TOP_CENTER,
+  'TOP_RIGHT': ImageAlign.TOP_RIGHT,
+  'CENTER_LEFT': ImageAlign.CENTER_LEFT,
+  'CENTER': ImageAlign.CENTER,
+  'CENTER_RIGHT': ImageAlign.CENTER_RIGHT,
+  'BOTTOM_LEFT': ImageAlign.BOTTOM_LEFT,
+  'BOTTOM_CENTER': ImageAlign.BOTTOM_CENTER,
+  'BOTTOM_RIGHT': ImageAlign.BOTTOM_RIGHT,
 }
 
 # scroll mode enum
 
-scroll_mode_ns = elements_ns.namespace("ScrollMode")
-ScrollMode = scroll_mode_ns.enum("ScrollMode")
+scroll_mode_ns = elements_ns.namespace('ScrollMode')
+ScrollMode = scroll_mode_ns.enum('ScrollMode')
 
 SCROLL_MODE = {
-    "NONE": ScrollMode.NONE,
-    "LEFT_TO_RIGHT": ScrollMode.LEFT_TO_RIGHT,
-    "RIGHT_TO_LEFT": ScrollMode.RIGHT_TO_LEFT,
-    "BOTTOM_TO_TOP": ScrollMode.BOTTOM_TO_TOP,
-    "TOP_TO_BOTTOM": ScrollMode.TOP_TO_BOTTOM,
+    'NONE': ScrollMode.NONE,
+    'LEFT_TO_RIGHT': ScrollMode.LEFT_TO_RIGHT,
+    'RIGHT_TO_LEFT': ScrollMode.RIGHT_TO_LEFT,
+    'BOTTOM_TO_TOP': ScrollMode.BOTTOM_TO_TOP,
+    'TOP_TO_BOTTOM': ScrollMode.TOP_TO_BOTTOM,
 }
 
 # other
@@ -217,6 +241,13 @@ ELEMENT_SCHEMA = cv.typed_schema({
     CONF_HORIZONTAL: CONTAINER_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(HorizontalElement),
     }),
+    CONF_IMAGE: BASE_ELEMENT_SCHEMA.extend({
+        cv.GenerateID(CONF_ID): cv.declare_id(ImageElement),
+        cv.Required(CONF_IMAGE): cv.use_id(image.Image_),
+        cv.Optional(CONF_ALIGN): cv.enum(IMAGE_ALIGN, upper=True, space='_'),
+        cv.Optional(CONF_POSITION_X, default=0.5): cv.float_range(min=0, max=1),
+        cv.Optional(CONF_POSITION_Y, default=0.5): cv.float_range(min=0, max=1),
+    }),
     CONF_OVERLAY: CONTAINER_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(OverlayElement),
     }),
@@ -234,8 +265,8 @@ ELEMENT_SCHEMA = cv.typed_schema({
         cv.Optional(CONF_BACKGROUND_COLOR): COLOR_SCHEMA,
         cv.Optional(CONF_POSITION_X, default=0.5): cv.float_range(min=0, max=1),
         cv.Optional(CONF_POSITION_Y, default=0.5): cv.float_range(min=0, max=1),
-        cv.Optional(CONF_ALIGN): cv.enum(TEXT_ALIGN, upper=True, space="_"),
-        cv.Optional(CONF_SCROLL_MODE): cv.enum(SCROLL_MODE, upper=True, space="_"),
+        cv.Optional(CONF_ALIGN): cv.enum(TEXT_ALIGN, upper=True, space='_'),
+        cv.Optional(CONF_SCROLL_MODE): cv.enum(SCROLL_MODE, upper=True, space='_'),
         cv.Optional(CONF_SCROLL_SPEED): cv.float_range(min=0),
         cv.Optional(CONF_UPDATE_INTERVAL): cv.positive_time_period_milliseconds,
         cv.Exclusive(CONF_LAMBDA, 'text'): cv.returning_lambda,
@@ -260,29 +291,29 @@ async def element_to_code(config, component, parent=nullptr):
                  CONF_TEXT, CONF_ALIGN, CONF_SCROLL_MODE, CONF_SCROLL_SPEED,
                  CONF_UPDATE_INTERVAL]:
         if value := config.get(name):
-            cg.add(getattr(var, "set_" + name)(value))
+            cg.add(getattr(var, 'set_' + name)(value))
 
     # references
-    for name in [CONF_TIME, CONF_FONT]:
+    for name in [CONF_TIME, CONF_FONT, CONF_IMAGE]:
         if conf := config.get(name):
             value = await cg.get_variable(conf)
-            cg.add(getattr(var, "set_" + name)(value))
+            cg.add(getattr(var, 'set_' + name)(value))
 
     # colors
     for name in [CONF_COLOR, CONF_BACKGROUND_COLOR]:
         if conf := config.get(name):
             value = await color_to_code(conf)
-            cg.add(getattr(var, "set_" + name)(value))
+            cg.add(getattr(var, 'set_' + name)(value))
 
     # lambdas
     for name in [CONF_LAMBDA]:
         if conf := config.get(name):
             value = await cg.process_lambda(
                 conf,
-                [(ContextConstRef, "context")],
+                [(ContextConstRef, 'context')],
                 return_type=cg.std_string,
             )
-            cg.add(getattr(var, "set_" + name)(value))
+            cg.add(getattr(var, 'set_' + name)(value))
 
     # elements
     if conf := config.get(CONF_ELEMENTS):
@@ -296,7 +327,7 @@ async def element_to_code(config, component, parent=nullptr):
                      CONF_QUARTER_MARKERS, CONF_SECOND_HAND, CONF_MINUTE_HAND,
                      CONF_HOUR_HAND]:
             value = await analog_clock_options_to_code(config.get(name))
-            cg.add(getattr(var, "set_" + name)(value))
+            cg.add(getattr(var, 'set_' + name)(value))
 
     return var
 

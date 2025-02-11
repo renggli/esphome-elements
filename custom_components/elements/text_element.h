@@ -5,6 +5,8 @@
 
 namespace esphome::elements {
 
+using display::TextAlign;
+
 enum class ScrollMode {
   NONE,
   LEFT_TO_RIGHT,
@@ -25,7 +27,7 @@ class TextElement : public Element {
   }
   void set_position_x(float position_x) { position_x_ = position_x; }
   void set_position_y(float position_y) { position_y_ = position_y; }
-  void set_align(display::TextAlign align) { align_ = align; }
+  void set_align(TextAlign align) { align_ = align; }
 
   void set_scroll_mode(ScrollMode scroll_mode) { scroll_mode_ = scroll_mode; }
   void set_scroll_speed(float scroll_speed) { scroll_speed_ = scroll_speed; }
@@ -44,7 +46,7 @@ class TextElement : public Element {
   display::BaseFont* font_ = nullptr;
   Color color_ = Color::WHITE;
   Color background_color_ = Color::BLACK;
-  display::TextAlign align_ = display::TextAlign::CENTER;
+  TextAlign align_ = TextAlign::CENTER;
   float position_x_ = 0.5, position_y_ = 0.5;
 
   ScrollMode scroll_mode_ = ScrollMode::NONE;

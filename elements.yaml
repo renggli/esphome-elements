@@ -7,11 +7,19 @@ esp32:
   board: esp32dev
   framework:
     type: arduino
+i2c:
+  - id: bus_i2c
+    sda: GPIO21
+    scl: GPIO22
+one_wire:
+  - platform: gpio
+    pin: GPIO18
+    id: bus_one
 
 # ESPHome
 esphome:
-  name: frame
-  friendly_name: Frame
+  name: elements
+  friendly_name: Elements
   name_add_mac_suffix: false
 
 # Logging
@@ -34,6 +42,7 @@ api:
 time:
   - platform: homeassistant
     id: current_time
+
 sensor:
   - platform: homeassistant
     id: inside_temperature
@@ -41,6 +50,16 @@ sensor:
   - platform: homeassistant
     id: outside_temperature
     entity_id: sensor.meteo_swiss_temperature
+  - platform: bh1750
+    id: illuminance
+    name: "Illuminance"
+    address: 0x23
+  - platform: dallas_temp
+    id: temperature
+    name: "Temperature"
+    one_wire_id: bus_one
+    address: 0xdd00000051a45928
+
 text_sensor:
   - platform: homeassistant
     id: outside_weather

@@ -50,24 +50,23 @@ void TextElement::draw(display::Display& display) {
   }
 
   // Compute the placement of the text.
-  int x = position_x_ * display.get_width();
-  int y = position_y_ * display.get_height();
+  Point<int> point = anchor_.get(Point<int>::fromExtent(display));
 
   // Update the placement, if we scroll.
   if (scroll_mode_ != ScrollMode::NONE) {
     scroll_offset_ += get_context().delta_ms * scroll_speed_ / 1000.0;
     switch (scroll_mode_) {
       case ScrollMode::LEFT_TO_RIGHT:
-        x -= scroll_offset_;
+        point.x -= scroll_offset_;
         break;
       case ScrollMode::RIGHT_TO_LEFT:
-        x += scroll_offset_;
+        point.x += scroll_offset_;
         break;
       case ScrollMode::BOTTOM_TO_TOP:
-        y -= scroll_offset_;
+        point.y -= scroll_offset_;
         break;
       case ScrollMode::TOP_TO_BOTTOM:
-        y += scroll_offset_;
+        point.y += scroll_offset_;
         break;
     }
     request_measurement_ = true;
@@ -75,8 +74,8 @@ void TextElement::draw(display::Display& display) {
 
   // Measure the text, if necessary.
   if (request_measurement_) {
-    display.get_text_bounds(x, y, text_->c_str(), font_, align_, &bounds_x_,
-                            &bounds_y_, &bounds_w_, &bounds_h_);
+    display.get_text_bounds(point.x, point.y, text_->c_str(), font_, align_,
+                            &bounds_x_, &bounds_y_, &bounds_w_, &bounds_h_);
     request_measurement_ = false;
   }
 
@@ -90,7 +89,8 @@ void TextElement::draw(display::Display& display) {
   }
 
   // Draw the text.
-  display.print(x, y, font_, color_, align_, text_->c_str(), background_color_);
+  display.print(point.x, point.y, font_, color_, align_, text_->c_str(),
+                background_color_);
 }
 
 void TextElement::on_show() {
@@ -101,22 +101,22 @@ void TextElement::on_show() {
   if (scroll_mode_ != ScrollMode::NONE) {
     switch (scroll_mode_) {
       case ScrollMode::LEFT_TO_RIGHT:
-        position_x_ = 1.0;
+        anchor_.fraction.x = 1.0;
         align_ =
             (TextAlign)(((int)align_ & ~TEXT_ALIGN_X) | (int)TextAlign::LEFT);
         break;
       case ScrollMode::RIGHT_TO_LEFT:
-        position_x_ = 0.0;
+        anchor_.fraction.x = 0.0;
         align_ =
             (TextAlign)(((int)align_ & ~TEXT_ALIGN_X) | (int)TextAlign::RIGHT);
         break;
       case ScrollMode::BOTTOM_TO_TOP:
-        position_y_ = 1.0;
+        anchor_.fraction.y = 1.0;
         align_ =
             (TextAlign)(((int)align_ & ~TEXT_ALIGN_Y) | (int)TextAlign::TOP);
         break;
       case ScrollMode::TOP_TO_BOTTOM:
-        position_y_ = 0.0;
+        anchor_.fraction.y = 0.0;
         align_ =
             (TextAlign)(((int)align_ & ~TEXT_ALIGN_Y) | (int)TextAlign::BOTTOM);
         break;

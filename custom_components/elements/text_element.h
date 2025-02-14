@@ -1,7 +1,8 @@
 #pragma once
 
 #include "element.h"
-#include "utils.h"
+#include "geometry.h"
+#include "timer.h"
 
 namespace esphome::elements {
 
@@ -25,16 +26,15 @@ class TextElement : public Element {
   void set_background_color(Color background_color) {
     background_color_ = background_color;
   }
-  void set_position_x(float position_x) { position_x_ = position_x; }
-  void set_position_y(float position_y) { position_y_ = position_y; }
+  void set_anchor(Anchor anchor) { anchor_ = anchor; }
   void set_align(TextAlign align) { align_ = align; }
 
   void set_scroll_mode(ScrollMode scroll_mode) { scroll_mode_ = scroll_mode; }
   void set_scroll_speed(float scroll_speed) { scroll_speed_ = scroll_speed; }
-
   void set_update_interval(uint32_t update_interval_ms) {
     update_timer_.set_duration(update_interval_ms);
   }
+
   void set_text(std::string text);
   void set_lambda(std::function<std::string(const Context&)> lambda);
 
@@ -46,8 +46,8 @@ class TextElement : public Element {
   display::BaseFont* font_ = nullptr;
   Color color_ = Color::WHITE;
   Color background_color_ = Color::BLACK;
-  TextAlign align_ = TextAlign::CENTER;
-  float position_x_ = 0.5, position_y_ = 0.5;
+  Anchor anchor_;
+  TextAlign align_;
 
   ScrollMode scroll_mode_ = ScrollMode::NONE;
   float scroll_speed_ = 10.0;  // pixel per second

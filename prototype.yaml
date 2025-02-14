@@ -7,6 +7,14 @@ esp32:
   board: esp32dev
   framework:
     type: arduino
+i2c:
+  - id: bus_i2c
+    sda: GPIO21
+    scl: GPIO22
+one_wire:
+  - platform: gpio
+    pin: GPIO18
+    id: bus_one
 
 # ESPHome
 esphome:
@@ -34,6 +42,7 @@ api:
 time:
   - platform: homeassistant
     id: current_time
+
 sensor:
   - platform: homeassistant
     id: inside_temperature
@@ -41,6 +50,16 @@ sensor:
   - platform: homeassistant
     id: outside_temperature
     entity_id: sensor.meteo_swiss_temperature
+  - platform: bh1750
+    id: illuminance
+    name: "Illuminance"
+    address: 0x23
+  - platform: dallas_temp
+    id: temperature
+    name: "Temperature"
+    one_wire_id: bus_one
+    address: 0xdd00000051a45928
+
 text_sensor:
   - platform: homeassistant
     id: outside_weather
@@ -224,22 +243,14 @@ display:
             }
           }
           it.printf(16, 16, id(font_mdi_16), Color(127, 127, 127), TextAlign::CENTER, "%s", value);
+      - id: page_light
+        lambda: |-
+          if (id(illuminance).has_state()) {
+            it.printf(16, 16, id(font_chunky_8), Color(127, 127, 127), TextAlign::CENTER, "%2.1f", id(illuminance).state);
+          }
 
 interval:
   - interval: 7s
     then:
       - display.page.show_next: led_display
       - component.update: led_display
-
-# one_wire:
-#   - platform: gpio
-#     pin: GPIO16
-#     id: bus1
-
-# sensor:
-#   - platform: dallas_temp
-#     address: 0xdd00000051a45928
-#     one_wire_id: bus1
-#     name: "Temperatur Sensor"
-#     accuracy_decimals: 2
-#     update_interval: 20s

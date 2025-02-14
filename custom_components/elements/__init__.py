@@ -7,6 +7,7 @@ from esphome.const import (CONF_BACKGROUND_COLOR, CONF_COLOR, CONF_DISPLAY,
                            CONF_LAMBDA, CONF_TIME, CONF_TYPE,
                            CONF_UPDATE_INTERVAL, CONF_VISIBLE)
 
+AUTO_LOAD = ["display", "image"]
 CODEOWNERS = ['@renggli']
 DEPENDENCIES = ['display']
 MULTI_CONF = True
@@ -16,6 +17,7 @@ MULTI_CONF = True
 
 # properties
 CONF_ALIGN = 'align'
+CONF_ANCHOR = 'anchor'
 CONF_ELEMENT = 'element'
 CONF_ELEMENTS = 'elements'
 CONF_END = 'end'
@@ -23,8 +25,6 @@ CONF_HOUR_HAND = 'hour_hand'
 CONF_HOUR_MARKERS = 'hour_markers'
 CONF_MINUTE_HAND = 'minute_hand'
 CONF_MINUTE_MARKERS = 'minute_markers'
-CONF_POSITION_X = 'position_x'
-CONF_POSITION_Y = 'position_y'
 CONF_QUARTER_MARKERS = 'quarter_markers'
 CONF_SCROLL_MODE = 'scroll_mode'
 CONF_SCROLL_SPEED = 'scroll_speed'
@@ -38,7 +38,6 @@ CONF_DIGITAL_CLOCK = 'digital_clock'
 CONF_HORIZONTAL = 'horizontal'
 CONF_IMAGE = 'image'
 CONF_OVERLAY = 'overlay'
-CONF_SCHEDULER = 'scheduler'
 CONF_SEQUENCE = 'sequence'
 CONF_TEXT = 'text'
 CONF_VERTICAL = 'vertical'
@@ -67,7 +66,6 @@ OverlayElement = elements_ns.class_('OverlayElement', ContainerElement)
 SequenceElement = elements_ns.class_('SequenceElement', ContainerElement)
 VerticalElement = elements_ns.class_('VerticalElement', ContainerElement)
 
-SchedulerElement = elements_ns.class_('SchedulerElement', Element)
 TextElement = elements_ns.class_('TextElement', Element)
 ImageElement = elements_ns.class_('ImageElement', Element)
 
@@ -138,21 +136,21 @@ image_align_ns = display_ns.namespace('ImageAlign')
 ImageAlign = image_align_ns.enum('ImageAlign')
 
 IMAGE_ALIGN = {
-  'TOP': ImageAlign.TOP,
-  'CENTER_VERTICAL': ImageAlign.CENTER_VERTICAL,
-  'BOTTOM': ImageAlign.BOTTOM,
-  'LEFT': ImageAlign.LEFT,
-  'CENTER_HORIZONTAL': ImageAlign.CENTER_HORIZONTAL,
-  'RIGHT': ImageAlign.RIGHT,
-  'TOP_LEFT': ImageAlign.TOP_LEFT,
-  'TOP_CENTER': ImageAlign.TOP_CENTER,
-  'TOP_RIGHT': ImageAlign.TOP_RIGHT,
-  'CENTER_LEFT': ImageAlign.CENTER_LEFT,
-  'CENTER': ImageAlign.CENTER,
-  'CENTER_RIGHT': ImageAlign.CENTER_RIGHT,
-  'BOTTOM_LEFT': ImageAlign.BOTTOM_LEFT,
-  'BOTTOM_CENTER': ImageAlign.BOTTOM_CENTER,
-  'BOTTOM_RIGHT': ImageAlign.BOTTOM_RIGHT,
+    'TOP': ImageAlign.TOP,
+    'CENTER_VERTICAL': ImageAlign.CENTER_VERTICAL,
+    'BOTTOM': ImageAlign.BOTTOM,
+    'LEFT': ImageAlign.LEFT,
+    'CENTER_HORIZONTAL': ImageAlign.CENTER_HORIZONTAL,
+    'RIGHT': ImageAlign.RIGHT,
+    'TOP_LEFT': ImageAlign.TOP_LEFT,
+    'TOP_CENTER': ImageAlign.TOP_CENTER,
+    'TOP_RIGHT': ImageAlign.TOP_RIGHT,
+    'CENTER_LEFT': ImageAlign.CENTER_LEFT,
+    'CENTER': ImageAlign.CENTER,
+    'CENTER_RIGHT': ImageAlign.CENTER_RIGHT,
+    'BOTTOM_LEFT': ImageAlign.BOTTOM_LEFT,
+    'BOTTOM_CENTER': ImageAlign.BOTTOM_CENTER,
+    'BOTTOM_RIGHT': ImageAlign.BOTTOM_RIGHT,
 }
 
 # scroll mode enum
@@ -195,6 +193,34 @@ async def analog_clock_options_to_code(config):
         (CONF_COLOR, await color_to_code(config.get(CONF_COLOR))),
         (CONF_VISIBLE, config.get(CONF_VISIBLE)),
         (CONF_SMOOTH, config.get(CONF_SMOOTH)),
+    )
+
+# anchor
+
+Point = elements_ns.class_('Point')
+
+def point_schema(x, y, validation):
+    return cv.Schema({
+        cv.Optional('x', default=x): validation,
+        cv.Optional('y', default=y): validation,
+    })
+
+async def point_to_code(config):
+    return cg.ArrayInitializer(config.get('x'), config.get('y'))
+
+Anchor = elements_ns.class_('Anchor')
+
+def anchor_schema(offset_x=0, offset_y=0, fraction_x=0.5, fraction_y=0.5):
+    return cv.Schema({
+        cv.Optional('offset', default={}): point_schema(x=offset_x, y=offset_y, validation=cv.int_),
+        cv.Optional('fraction', default={}): point_schema(x=fraction_x, y=fraction_y, validation=cv.float_range(min=0.0, max=1.0)),
+    })
+
+async def anchor_to_code(config):
+    return cg.StructInitializer(
+        Anchor,
+        ('offset', await point_to_code(config.get('offset'))),
+        ('fraction', await point_to_code(config.get('fraction'))),
     )
 
 # elements
@@ -244,15 +270,11 @@ ELEMENT_SCHEMA = cv.typed_schema({
     CONF_IMAGE: BASE_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(ImageElement),
         cv.Required(CONF_IMAGE): cv.use_id(image.Image_),
-        cv.Optional(CONF_ALIGN): cv.enum(IMAGE_ALIGN, upper=True, space='_'),
-        cv.Optional(CONF_POSITION_X, default=0.5): cv.float_range(min=0, max=1),
-        cv.Optional(CONF_POSITION_Y, default=0.5): cv.float_range(min=0, max=1),
+        cv.Optional(CONF_ANCHOR, default={}): anchor_schema(),
+        cv.Optional(CONF_ALIGN, default='CENTER'): cv.enum(IMAGE_ALIGN, upper=True, space='_'),
     }),
     CONF_OVERLAY: CONTAINER_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(OverlayElement),
-    }),
-    CONF_SCHEDULER: BASE_ELEMENT_SCHEMA.extend({
-        cv.GenerateID(CONF_ID): cv.declare_id(SchedulerElement),
     }),
     CONF_SEQUENCE: CONTAINER_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(SequenceElement),
@@ -263,9 +285,8 @@ ELEMENT_SCHEMA = cv.typed_schema({
         cv.Required(CONF_FONT): cv.use_id(font.Font),
         cv.Optional(CONF_COLOR, default='#ffffff'): COLOR_SCHEMA,
         cv.Optional(CONF_BACKGROUND_COLOR): COLOR_SCHEMA,
-        cv.Optional(CONF_POSITION_X, default=0.5): cv.float_range(min=0, max=1),
-        cv.Optional(CONF_POSITION_Y, default=0.5): cv.float_range(min=0, max=1),
-        cv.Optional(CONF_ALIGN): cv.enum(TEXT_ALIGN, upper=True, space='_'),
+        cv.Optional(CONF_ANCHOR, default={}): anchor_schema(),
+        cv.Optional(CONF_ALIGN, default='CENTER'): cv.enum(TEXT_ALIGN, upper=True, space='_'),
         cv.Optional(CONF_SCROLL_MODE): cv.enum(SCROLL_MODE, upper=True, space='_'),
         cv.Optional(CONF_SCROLL_SPEED): cv.float_range(min=0),
         cv.Optional(CONF_UPDATE_INTERVAL): cv.positive_time_period_milliseconds,
@@ -287,9 +308,8 @@ async def element_to_code(config, component, parent=nullptr):
     var = cg.new_Pvariable(config[CONF_ID], component, parent)
 
     # literals
-    for name in [CONF_DURATION, CONF_FORMAT, CONF_POSITION_X, CONF_POSITION_Y,
-                 CONF_TEXT, CONF_ALIGN, CONF_SCROLL_MODE, CONF_SCROLL_SPEED,
-                 CONF_UPDATE_INTERVAL]:
+    for name in [CONF_DURATION, CONF_FORMAT, CONF_TEXT, CONF_ALIGN,
+                 CONF_SCROLL_MODE, CONF_SCROLL_SPEED, CONF_UPDATE_INTERVAL]:
         if value := config.get(name):
             cg.add(getattr(var, 'set_' + name)(value))
 
@@ -327,6 +347,12 @@ async def element_to_code(config, component, parent=nullptr):
                      CONF_QUARTER_MARKERS, CONF_SECOND_HAND, CONF_MINUTE_HAND,
                      CONF_HOUR_HAND]:
             value = await analog_clock_options_to_code(config.get(name))
+            cg.add(getattr(var, 'set_' + name)(value))
+
+    # anchor
+    for name in [CONF_ANCHOR]:
+        if conf := config.get(name):
+            value = await anchor_to_code(conf)
             cg.add(getattr(var, 'set_' + name)(value))
 
     return var

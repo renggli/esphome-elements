@@ -1,6 +1,6 @@
 #include "container_element.h"
 
-#include "utils.h"
+#include "display.h"
 
 namespace esphome::elements {
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "element.h"
-#include "utils.h"
+#include "timer.h"
 
 namespace esphome::elements {
 

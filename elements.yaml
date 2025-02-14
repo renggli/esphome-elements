@@ -170,14 +170,17 @@ display:
       return PIXEL_MAPPING[y][x];
 
 image:
-  - id: bits
-    file: https://raw.githubusercontent.com/gammasoft/fatcow/refs/heads/master/32x32/32_bit.png
+  - id: cat
+    file: https://raw.githubusercontent.com/gammasoft/fatcow/refs/heads/master/32x32/cat.png
     type: RGBA
-  - id: colors
-    file: https://raw.githubusercontent.com/gammasoft/fatcow/refs/heads/master/32x32/color_management.png
+  - id: guitar
+    file: https://raw.githubusercontent.com/gammasoft/fatcow/refs/heads/master/32x32/acoustic_guitar.png
     type: RGBA
-  - id: heart
-    file: https://raw.githubusercontent.com/gammasoft/fatcow/refs/heads/master/32x32/heart.png
+  - id: leaf
+    file: https://raw.githubusercontent.com/gammasoft/fatcow/refs/heads/master/32x32/green.png
+    type: RGBA
+  - id: holly
+    file: https://raw.githubusercontent.com/gammasoft/fatcow/refs/heads/master/32x32/holly.png
     type: RGBA
 
 
@@ -194,26 +197,28 @@ elements:
         scroll_mode: TOP_TO_BOTTOM
         text: "1"
       - type: image
-        image: colors
+        image: leaf
       - type: text
         font: font_chunky_8
         color: orange
         scroll_mode: BOTTOM_TO_TOP
         text: "2"
       - type: image
-        image: heart
+        image: holly
       - type: text
         font: font_chunky_8
         color: violet
         scroll_mode: LEFT_TO_RIGHT
         text: "3"
       - type: image
-        image: bits
+        image: cat
       - type: text
         font: font_chunky_8
         color: red
         scroll_mode: RIGHT_TO_LEFT
         text: "4"
+      - type: image
+        image: guitar
 
     # lambda: |-
     #   return to_string(1000.0 / context.delta_ms);

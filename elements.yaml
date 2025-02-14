@@ -188,38 +188,32 @@ elements:
     type: sequence
     duration: 5s
     elements:
-      - type: image
-        image: bits
+      - type: text
+        font: font_chunky_8
+        color: yellow
+        scroll_mode: TOP_TO_BOTTOM
+        text: "1"
       - type: image
         image: colors
+      - type: text
+        font: font_chunky_8
+        color: orange
+        scroll_mode: BOTTOM_TO_TOP
+        text: "2"
       - type: image
         image: heart
-
-
-
-  # element:
-  #   type: sequence
-  #   elements:
-  #     - type: text
-  #       font: font_chunky_8
-  #       color: yellow
-  #       scroll_mode: TOP_TO_BOTTOM
-  #       text: "WTF!!!"
-  #     - type: text
-  #       font: font_chunky_8
-  #       color: orange
-  #       scroll_mode: BOTTOM_TO_TOP
-  #       text: "WTF!!!"
-  #     - type: text
-  #       font: font_chunky_8
-  #       color: violet
-  #       scroll_mode: LEFT_TO_RIGHT
-  #       text: "WTF!!!"
-  #     - type: text
-  #       font: font_chunky_8
-  #       color: red
-  #       scroll_mode: RIGHT_TO_LEFT
-  #       text: "WTF!!!"
+      - type: text
+        font: font_chunky_8
+        color: violet
+        scroll_mode: LEFT_TO_RIGHT
+        text: "3"
+      - type: image
+        image: bits
+      - type: text
+        font: font_chunky_8
+        color: red
+        scroll_mode: RIGHT_TO_LEFT
+        text: "4"
 
     # lambda: |-
     #   return to_string(1000.0 / context.delta_ms);

@@ -8,19 +8,17 @@ esp32:
   framework:
     type: arduino
 i2c:
-  - id: bus_i2c
-    sda: GPIO21
+  - sda: GPIO21
     scl: GPIO22
 one_wire:
   - platform: gpio
-    pin: GPIO18
-    id: bus_one
+    pin: GPIO33
 
 # ESPHome
 esphome:
   name: elements
   friendly_name: Elements
-  name_add_mac_suffix: false
+  name_add_mac_suffix: true
 
 # Logging
 logger:
@@ -30,26 +28,24 @@ ota:
   - platform: esphome
     password: ""
 
-# WiFi
-wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
-
 # Homeassistant
 api:
-
-# Home Assistant
 time:
   - platform: homeassistant
     id: current_time
 
+# WiFi
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: !secret captive_portal_ssid
+    password: !secret captive_portal_password
+captive_portal:
+
+# Sensors
 sensor:
-  - platform: homeassistant
-    id: inside_temperature
-    entity_id: sensor.apollo_air_1_sen55_temperature
-  - platform: homeassistant
-    id: outside_temperature
-    entity_id: sensor.meteo_swiss_temperature
+  # Internal Sensors
   - platform: bh1750
     id: illuminance
     name: "Illuminance"
@@ -57,8 +53,14 @@ sensor:
   - platform: dallas_temp
     id: temperature
     name: "Temperature"
-    one_wire_id: bus_one
     address: 0xdd00000051a45928
+  # External Sensors
+  - platform: homeassistant
+    id: inside_temperature
+    entity_id: sensor.apollo_air_1_sen55_temperature
+  - platform: homeassistant
+    id: outside_temperature
+    entity_id: sensor.meteo_swiss_temperature
 
 text_sensor:
   - platform: homeassistant
@@ -219,9 +221,6 @@ elements:
         text: "4"
       - type: image
         image: guitar
-
-    # lambda: |-
-    #   return to_string(1000.0 / context.delta_ms);
 
   # # element:
   #   type: sequence

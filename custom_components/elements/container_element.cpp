@@ -4,8 +4,6 @@
 
 namespace esphome::elements {
 
-const char* CONTAINER_ELEMENT_TAG = "elements.container";
-
 void ContainerElement::add_element(Element* element) {
   elements_.push_back(element);
 }
@@ -48,7 +46,6 @@ void VerticalElement::draw(display::Display& display) {
 
 void SequenceElement::draw(display::Display& display) {
   if (timer_.check(get_context().current_ms)) {
-    ESP_LOGD(CONTAINER_ELEMENT_TAG, "Duration exceeded");
     on_next();
   }
   elements_[index_]->draw(display);

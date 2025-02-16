@@ -1,15 +1,14 @@
 #pragma once
 
-#include <limits>
 #include <cstdint>
+#include <limits>
 
 namespace esphome::elements {
 
 /// A class that expires and resets after the configured duration passes.
 class Timer {
  public:
-  Timer(uint32_t duration_ms = NEVER)
-      : duration_ms_(duration_ms) {}
+  Timer(uint32_t duration_ms = NEVER) : duration_ms_(duration_ms) {}
 
   /// Sets the duration between timer expiry. Unless the timer is reset, this
   /// will cause it to immediately trigger on the next check.

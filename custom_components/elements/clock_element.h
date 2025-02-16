@@ -37,9 +37,7 @@ class ClockElement : public Element {
   void set_minute_hand(AnalogClockOptions minute_hand) {
     minute_hand_ = minute_hand;
   }
-  void set_hour_hand(AnalogClockOptions hour_hand) {
-    hour_hand_ = hour_hand;
-  }
+  void set_hour_hand(AnalogClockOptions hour_hand) { hour_hand_ = hour_hand; }
 
   void draw(display::Display& display) override;
 

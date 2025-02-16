@@ -15,29 +15,30 @@ class ElementComponent : public Component {
   void setup() override;
   void dump_config() override;
 
-  void set_display(display::Display *display) { display_ = display; }
   void set_root(Element *root);
+  void set_display(display::Display *display) { display_ = display; }
+  void set_aliased(bool aliased) { aliased_ = aliased; }
 
   /// Return the root element of this component.
   Element *get_root() { return root_; }
 
   /// Return the current time in milliseconds at the start of the last update.
-  uint32_t get_current_ms() { return current_ms_;  }
+  uint32_t get_current_ms() { return current_ms_; }
 
   /// Return the delta time in milliseconds since the last update.
   uint32_t get_delta_ms() { return delta_ms_; }
 
-  void draw();
+  /// Draws the element onto the provided display.
   void draw(display::Display &display);
 
  protected:
+  Element *root_ = nullptr;
   display::Display *display_ = nullptr;
-  std::unique_ptr<display::DisplayPage> display_page_ = nullptr;
-  bool request_on_show_ = false;
+  bool aliased_ = false;
 
+  bool request_on_show_ = false;
   uint32_t current_ms_ = millis();
   uint32_t delta_ms_ = 0;
-  Element *root_ = nullptr;
 };
 
 }  // namespace esphome::elements

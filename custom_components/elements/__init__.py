@@ -239,17 +239,17 @@ ELEMENT_SCHEMA = cv.typed_schema({
     CONF_CLOCK: CLOCK_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(ClockElement),
         cv.Optional(CONF_MINUTE_MARKERS, default={}):
-            analog_clock_options_schema(0.9, 1.0, '#0000ff', visible=False),
+            analog_clock_options_schema(0.95, 1.00, '#0000ff', visible=False),
         cv.Optional(CONF_HOUR_MARKERS, default={}):
-            analog_clock_options_schema(0.9, 1.0, '#0000dd'),
+            analog_clock_options_schema(0.90, 1.00, '#0000ff'),
         cv.Optional(CONF_QUARTER_MARKERS, default={}):
-            analog_clock_options_schema(0.8, 1.0, '#0000ff'),
+            analog_clock_options_schema(0.75, 1.00, '#0000ff'),
         cv.Optional(CONF_SECOND_HAND, default={}):
-            analog_clock_options_schema(0.0, 0.8, '#ff0000', smooth=False),
+            analog_clock_options_schema(0.00, 0.75, '#ff0000', smooth=True),
         cv.Optional(CONF_MINUTE_HAND, default={}):
-            analog_clock_options_schema(0.0, 1.0, '#ffffff', smooth=False),
+            analog_clock_options_schema(0.00, 0.95, '#ffffff', smooth=False),
         cv.Optional(CONF_HOUR_HAND, default={}):
-            analog_clock_options_schema(0.0, 0.6, '#ffffff', smooth=True),
+            analog_clock_options_schema(0.00, 0.66, '#ffffff', smooth=True),
     }),
     CONF_HORIZONTAL: CONTAINER_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(HorizontalElement),

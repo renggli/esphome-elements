@@ -21,8 +21,7 @@ void TextElement::set_text(std::string text) {
   request_measurement_ = true;
 }
 
-void TextElement::set_lambda(
-    std::function<std::string()> lambda) {
+void TextElement::set_lambda(std::function<std::string()> lambda) {
   text_ = nullopt;
   lambda_ = lambda;
   scroll_offset_ = 0.0;
@@ -32,7 +31,8 @@ void TextElement::set_lambda(
 void TextElement::draw(display::Display& display) {
   // Update the text, if necessary.
   if (lambda_.has_value()) {
-    if (!text_.has_value() || update_timer_.check(get_component().get_current_ms())) {
+    if (!text_.has_value() ||
+        update_timer_.check(get_component().get_current_ms())) {
       std::string text = (*lambda_)();
       if (!text_.has_value() || *text_ != text) {
         ESP_LOGD(TEXT_ELEMENT_TAG, "Text has changed: %s", text.c_str());
@@ -112,8 +112,7 @@ void TextElement::on_show() {
         break;
       case ScrollMode::BOTTOM_TO_TOP:
         anchor_.fraction.y = 1.0;
-        align_ =
-            TextAlign((int(align_) & ~TEXT_ALIGN_Y) | int(TextAlign::TOP));
+        align_ = TextAlign((int(align_) & ~TEXT_ALIGN_Y) | int(TextAlign::TOP));
         break;
       case ScrollMode::TOP_TO_BOTTOM:
         anchor_.fraction.y = 0.0;

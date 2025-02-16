@@ -61,7 +61,6 @@ sensor:
   - platform: homeassistant
     id: outside_temperature
     entity_id: sensor.meteo_swiss_temperature
-
 text_sensor:
   - platform: homeassistant
     id: outside_weather
@@ -181,46 +180,46 @@ image:
   - id: leaf
     file: https://raw.githubusercontent.com/gammasoft/fatcow/refs/heads/master/32x32/green.png
     type: RGBA
-  - id: holly
-    file: https://raw.githubusercontent.com/gammasoft/fatcow/refs/heads/master/32x32/holly.png
-    type: RGBA
-
 
 elements:
   id: elements_display
   display: led_display
   element:
-    type: sequence
-    duration: 5s
-    elements:
-      - type: text
-        font: font_chunky_8
-        color: yellow
-        scroll_mode: TOP_TO_BOTTOM
-        text: "1"
-      - type: image
-        image: leaf
-      - type: text
-        font: font_chunky_8
-        color: orange
-        scroll_mode: BOTTOM_TO_TOP
-        text: "2"
-      - type: image
-        image: holly
-      - type: text
-        font: font_chunky_8
-        color: violet
-        scroll_mode: LEFT_TO_RIGHT
-        text: "3"
-      - type: image
-        image: cat
-      - type: text
-        font: font_chunky_8
-        color: red
-        scroll_mode: RIGHT_TO_LEFT
-        text: "4"
-      - type: image
-        image: guitar
+    type: clock
+    time: current_time
+
+  # element:
+  #   type: sequence
+  #   duration: 5s
+  #   elements:
+  #     - type: clock
+  #       time: current_time
+  #     - type: text
+  #       font: font_chunky_8
+  #       color: yellow
+  #       scroll_mode: TOP_TO_BOTTOM
+  #       text: "1"
+  #     - type: image
+  #       image: leaf
+  #     - type: text
+  #       font: font_chunky_8
+  #       color: orange
+  #       scroll_mode: BOTTOM_TO_TOP
+  #       text: "2"
+  #     - type: image
+  #       image: cat
+  #     - type: text
+  #       font: font_chunky_8
+  #       color: violet
+  #       scroll_mode: LEFT_TO_RIGHT
+  #       text: "3"
+  #     - type: image
+  #       image: guitar
+  #     - type: text
+  #       font: font_chunky_8
+  #       color: red
+  #       scroll_mode: RIGHT_TO_LEFT
+  #       text: "4"
 
   # # element:
   #   type: sequence

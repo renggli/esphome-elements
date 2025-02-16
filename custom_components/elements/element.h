@@ -7,12 +7,10 @@ namespace esphome::elements {
 
 /// The different types of elements.
 enum class ElementType {
-  ANALOG_CLOCK,
-  DIGITAL_CLOCK,
+  CLOCK,
   HORIZONTAL,
   IMAGE,
   OVERLAY,
-  SCHEDULER,
   SEQUENCE,
   TEXT,
   UNKNOWN,

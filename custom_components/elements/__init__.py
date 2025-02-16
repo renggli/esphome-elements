@@ -4,10 +4,10 @@ import esphome.core as core
 from esphome.components import color, display, font, image, time
 from esphome.const import (CONF_BACKGROUND_COLOR, CONF_COLOR, CONF_DISPLAY,
                            CONF_DURATION, CONF_FONT, CONF_FORMAT, CONF_ID,
-                           CONF_LAMBDA, CONF_TIME, CONF_TYPE,
-                           CONF_UPDATE_INTERVAL, CONF_VISIBLE)
+                           CONF_LAMBDA, CONF_TIME, CONF_UPDATE_INTERVAL,
+                           CONF_VISIBLE)
 
-AUTO_LOAD = ["display", "image"]
+AUTO_LOAD = ['display', 'image']
 CODEOWNERS = ['@renggli']
 DEPENDENCIES = ['display']
 MULTI_CONF = True
@@ -33,8 +33,7 @@ CONF_SMOOTH = 'smooth'
 CONF_START = 'start'
 
 # types
-CONF_ANALOG_CLOCK = 'analog_clock'
-CONF_DIGITAL_CLOCK = 'digital_clock'
+CONF_CLOCK = 'clock'
 CONF_HORIZONTAL = 'horizontal'
 CONF_IMAGE = 'image'
 CONF_OVERLAY = 'overlay'
@@ -52,10 +51,6 @@ ElementComponent = elements_ns.class_('ElementComponent', cg.Component)
 
 Element = elements_ns.class_('Element')
 
-ClockElement = elements_ns.class_('ClockElement', Element)
-AnalogClockElement = elements_ns.class_('AnalogClockElement', ClockElement)
-DigitalClockElement = elements_ns.class_('DigitalClockElement', ClockElement)
-
 ContainerElement = elements_ns.class_('ContainerElement', Element)
 FlowElement = elements_ns.class_('FlowElement', ContainerElement)
 HorizontalElement = elements_ns.class_('HorizontalElement', ContainerElement)
@@ -63,6 +58,7 @@ OverlayElement = elements_ns.class_('OverlayElement', ContainerElement)
 SequenceElement = elements_ns.class_('SequenceElement', ContainerElement)
 VerticalElement = elements_ns.class_('VerticalElement', ContainerElement)
 
+ClockElement = elements_ns.class_('ClockElement', Element)
 TextElement = elements_ns.class_('TextElement', Element)
 ImageElement = elements_ns.class_('ImageElement', Element)
 
@@ -240,8 +236,8 @@ CONTAINER_ELEMENT_SCHEMA = cv.Schema({
 })
 
 ELEMENT_SCHEMA = cv.typed_schema({
-    CONF_ANALOG_CLOCK: CLOCK_ELEMENT_SCHEMA.extend({
-        cv.GenerateID(CONF_ID): cv.declare_id(AnalogClockElement),
+    CONF_CLOCK: CLOCK_ELEMENT_SCHEMA.extend({
+        cv.GenerateID(CONF_ID): cv.declare_id(ClockElement),
         cv.Optional(CONF_MINUTE_MARKERS, default={}):
             analog_clock_options_schema(0.9, 1.0, '#0000ff', visible=False),
         cv.Optional(CONF_HOUR_MARKERS, default={}):
@@ -254,12 +250,6 @@ ELEMENT_SCHEMA = cv.typed_schema({
             analog_clock_options_schema(0.0, 1.0, '#ffffff', smooth=False),
         cv.Optional(CONF_HOUR_HAND, default={}):
             analog_clock_options_schema(0.0, 0.6, '#ffffff', smooth=True),
-    }),
-    CONF_DIGITAL_CLOCK: CLOCK_ELEMENT_SCHEMA.extend({
-        cv.GenerateID(CONF_ID): cv.declare_id(DigitalClockElement),
-        cv.Required(CONF_FONT): cv.use_id(font.Font),
-        cv.Optional(CONF_COLOR): COLOR_SCHEMA,
-        cv.Optional(CONF_FORMAT): cv.string,
     }),
     CONF_HORIZONTAL: CONTAINER_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(HorizontalElement),
@@ -334,12 +324,11 @@ async def element_to_code(config, component, parent=nullptr):
             value = await element_to_code(conf_item, component, var)
             cg.add(var.add_element(value))
 
-    # analog clock
-    if config[CONF_TYPE] == CONF_ANALOG_CLOCK:
-        for name in [CONF_MINUTE_MARKERS, CONF_HOUR_MARKERS,
-                     CONF_QUARTER_MARKERS, CONF_SECOND_HAND, CONF_MINUTE_HAND,
-                     CONF_HOUR_HAND]:
-            value = await analog_clock_options_to_code(config.get(name))
+    # clock
+    for name in [CONF_MINUTE_MARKERS, CONF_HOUR_MARKERS, CONF_QUARTER_MARKERS,
+                 CONF_SECOND_HAND, CONF_MINUTE_HAND, CONF_HOUR_HAND]:
+        if conf := config.get(name):
+            value = await analog_clock_options_to_code(conf)
             cg.add(getattr(var, 'set_' + name)(value))
 
     # anchor

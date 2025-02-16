@@ -4,7 +4,8 @@
 
 namespace esphome::elements {
 
-void AnalogClockElement::draw(display::Display& display) {
+void ClockElement::draw(display::Display& display) {
+  // Center the clock in the middle of the display.
   const int center_x = display.get_width() / 2;
   const int center_y = display.get_height() / 2;
   const int radius = std::min(center_x, center_y);
@@ -56,11 +57,6 @@ void AnalogClockElement::draw(display::Display& display) {
                           radius * second_hand_.start,
                           radius * second_hand_.end, second_hand_.color);
   }
-}
-
-void DigitalClockElement::draw(display::Display& display) {
-  display.strftime(display.get_width() / 2, display.get_height() / 2, font_,
-                   color_, display::TextAlign::CENTER, format_, time_->now());
 }
 
 }  // namespace esphome::elements

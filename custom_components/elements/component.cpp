@@ -17,15 +17,15 @@ void ElementComponent::setup() {
     display_page_ = make_unique<display::DisplayPage>(writer);
     display_->show_page(display_page_.get());
   }
-
-  // Initialize the context.
-  context_.component = this;
-  context_.current_ms = millis();
-  context_.delta_ms = 0;
 }
 
 void ElementComponent::dump_config() {
   ESP_LOGCONFIG(ELEMENT_COMPONENT_TAG, "Elements Component");
+}
+
+void ElementComponent::set_root(Element* root) {
+  root_ = root;
+  request_on_show_ = true;
 }
 
 void ElementComponent::draw() {
@@ -45,8 +45,8 @@ void ElementComponent::draw(display::Display &display) {
 
   // Update the time.
   u_int32_t now = millis();
-  context_.delta_ms = now - context_.current_ms;
-  context_.current_ms = now;
+  delta_ms_ = now - current_ms_;
+  current_ms_ = now;
 
   // Call on-show the first time.
   if (request_on_show_) {

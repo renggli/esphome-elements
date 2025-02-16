@@ -50,9 +50,6 @@ CONF_VERTICAL = 'vertical'
 elements_ns = cg.esphome_ns.namespace('elements')
 ElementComponent = elements_ns.class_('ElementComponent', cg.Component)
 
-Context = elements_ns.class_('Context')
-ContextConstRef = Context.operator('ref').operator('const')
-
 Element = elements_ns.class_('Element')
 
 ClockElement = elements_ns.class_('ClockElement', Element)
@@ -328,11 +325,7 @@ async def element_to_code(config, component, parent=nullptr):
     # lambdas
     for name in [CONF_LAMBDA]:
         if conf := config.get(name):
-            value = await cg.process_lambda(
-                conf,
-                [(ContextConstRef, 'context')],
-                return_type=cg.std_string,
-            )
+            value = await cg.process_lambda(conf, [],return_type=cg.std_string)
             cg.add(getattr(var, 'set_' + name)(value))
 
     # elements

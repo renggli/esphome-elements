@@ -22,7 +22,7 @@ void TextElement::set_text(std::string text) {
 }
 
 void TextElement::set_lambda(
-    std::function<std::string(const Context&)> lambda) {
+    std::function<std::string()> lambda) {
   text_ = nullopt;
   lambda_ = lambda;
   scroll_offset_ = 0.0;
@@ -32,14 +32,14 @@ void TextElement::set_lambda(
 void TextElement::draw(display::Display& display) {
   // Update the text, if necessary.
   if (lambda_.has_value()) {
-    if (!text_.has_value() || update_timer_.check(get_context().current_ms)) {
-      std::string text = (*lambda_)(get_context());
+    if (!text_.has_value() || update_timer_.check(get_component().get_current_ms())) {
+      std::string text = (*lambda_)();
       if (!text_.has_value() || *text_ != text) {
         ESP_LOGD(TEXT_ELEMENT_TAG, "Text has changed: %s", text.c_str());
         text_ = text;
         request_measurement_ = true;
       }
-      last_update_ms_ = get_context().current_ms;
+      last_update_ms_ = get_component().get_current_ms();
     }
   }
 
@@ -54,7 +54,7 @@ void TextElement::draw(display::Display& display) {
 
   // Update the placement, if we scroll.
   if (scroll_mode_ != ScrollMode::NONE) {
-    scroll_offset_ += get_context().delta_ms * scroll_speed_ / 1000.0;
+    scroll_offset_ += get_component().get_delta_ms() * scroll_speed_ / 1000.0;
     switch (scroll_mode_) {
       case ScrollMode::LEFT_TO_RIGHT:
         point.x -= scroll_offset_;
@@ -103,22 +103,22 @@ void TextElement::on_show() {
       case ScrollMode::LEFT_TO_RIGHT:
         anchor_.fraction.x = 1.0;
         align_ =
-            (TextAlign)(((int)align_ & ~TEXT_ALIGN_X) | (int)TextAlign::LEFT);
+            TextAlign((int(align_) & ~TEXT_ALIGN_X) | int(TextAlign::LEFT));
         break;
       case ScrollMode::RIGHT_TO_LEFT:
         anchor_.fraction.x = 0.0;
         align_ =
-            (TextAlign)(((int)align_ & ~TEXT_ALIGN_X) | (int)TextAlign::RIGHT);
+            TextAlign((int(align_) & ~TEXT_ALIGN_X) | int(TextAlign::RIGHT));
         break;
       case ScrollMode::BOTTOM_TO_TOP:
         anchor_.fraction.y = 1.0;
         align_ =
-            (TextAlign)(((int)align_ & ~TEXT_ALIGN_Y) | (int)TextAlign::TOP);
+            TextAlign((int(align_) & ~TEXT_ALIGN_Y) | int(TextAlign::TOP));
         break;
       case ScrollMode::TOP_TO_BOTTOM:
         anchor_.fraction.y = 0.0;
         align_ =
-            (TextAlign)(((int)align_ & ~TEXT_ALIGN_Y) | (int)TextAlign::BOTTOM);
+            TextAlign((int(align_) & ~TEXT_ALIGN_Y) | int(TextAlign::BOTTOM));
         break;
     }
     scroll_offset_ = 0.0;

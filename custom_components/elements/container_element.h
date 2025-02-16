@@ -56,7 +56,7 @@ class SequenceElement : public ContainerElement {
 
   void set_duration(uint32_t duration_ms) {
     timer_.set_duration(duration_ms);
-    timer_.reset(get_context().current_ms);
+    timer_.reset(get_component().get_current_ms());
   }
 
   void draw(display::Display& display) override;

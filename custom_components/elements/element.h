@@ -32,11 +32,8 @@ class Element {
   /// Returns the parent element of this element, if any.
   Element* get_parent() { return parent_; }
 
-  /// Returns the element component of this element.
+  /// Returns the component of this element.
   ElementComponent& get_component() { return component_; }
-
-  /// Returns the current context of this element.
-  Context& get_context() { return component_.get_context(); }
 
   /// Abstract method that draws this element on the given display.
   virtual void draw(display::Display& display) = 0;

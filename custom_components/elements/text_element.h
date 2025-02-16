@@ -36,7 +36,7 @@ class TextElement : public Element {
   }
 
   void set_text(std::string text);
-  void set_lambda(std::function<std::string(const Context&)> lambda);
+  void set_lambda(std::function<std::string()> lambda);
 
   void draw(display::Display& display) override;
 
@@ -55,7 +55,7 @@ class TextElement : public Element {
 
   Timer update_timer_ = Timer(250);
   optional<std::string> text_;
-  optional<std::function<std::string(const Context&)>> lambda_;
+  optional<std::function<std::string()>> lambda_;
 
   uint32_t last_update_ms_;
   bool request_measurement_ = false;

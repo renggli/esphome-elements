@@ -45,7 +45,7 @@ void VerticalElement::draw(display::Display& display) {
 }
 
 void SequenceElement::draw(display::Display& display) {
-  if (timer_.check(get_context().current_ms)) {
+  if (timer_.check(get_component().get_current_ms())) {
     on_next();
   }
   elements_[index_]->draw(display);
@@ -55,13 +55,13 @@ void SequenceElement::go_to(int index) {
   if (index_ == index) return;
   elements_[index_]->on_hide();
   index_ = index;
-  timer_.reset(get_context().current_ms);
+  timer_.reset(get_component().get_current_ms());
   elements_[index_]->on_show();
 }
 
 void SequenceElement::on_show() {
   index_ = 0;
-  timer_.reset(get_context().current_ms);
+  timer_.reset(get_component().get_current_ms());
   elements_[index_]->on_show();
 }
 

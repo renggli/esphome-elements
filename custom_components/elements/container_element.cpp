@@ -67,6 +67,14 @@ void SequenceElement::on_show() {
 
 void SequenceElement::on_hide() { elements_[index_]->on_hide(); }
 
-void SequenceElement::on_next() { go_to((index_ + 1) % elements_.size()); }
+void SequenceElement::on_next() {
+  for (int offset = 1; offset < elements_.size(); offset++) {
+    int new_index = (index_ + offset) % elements_.size();
+    if (elements_[new_index]->is_active()) {
+      go_to(new_index);
+      return;
+    }
+  }
+}
 
 }  // namespace esphome::elements

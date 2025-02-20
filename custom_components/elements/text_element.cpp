@@ -14,40 +14,16 @@ const int TEXT_ALIGN_X = (int)TextAlign::LEFT |
 const int TEXT_ALIGN_Y = (int)TextAlign::TOP | (int)TextAlign::CENTER_VERTICAL |
                          (int)TextAlign::BASELINE | (int)TextAlign::BOTTOM;
 
-void TextElement::set_text(std::string text) {
-  text_ = text;
-  lambda_ = nullopt;
-  scroll_offset_ = 0.0;
-  request_measurement_ = true;
-}
-
-void TextElement::set_lambda(std::function<std::string()> lambda) {
-  text_ = nullopt;
-  lambda_ = lambda;
-  scroll_offset_ = 0.0;
-  request_measurement_ = true;
-}
-
 void TextElement::draw(display::Display& display) {
   // Update the text, if necessary.
-  if (lambda_.has_value()) {
-    if (!text_.has_value() ||
-        update_timer_.check(get_component().get_current_ms())) {
-      std::string text = (*lambda_)();
-      if (!text_.has_value() || *text_ != text) {
-        ESP_LOGD(TEXT_ELEMENT_TAG, "Text has changed: %s", text.c_str());
-        text_ = text;
-        request_measurement_ = true;
-      }
-      last_update_ms_ = get_component().get_current_ms();
-    }
+  std::string new_text = get_text();
+  if (text_ != new_text) {
+    text_ = new_text;
+    request_measurement_ = true;
   }
 
-  // Only continue if we have text.
-  if (!text_.has_value()) {
-    ESP_LOGW(TEXT_ELEMENT_TAG, "Missing text");
-    return;
-  }
+  // Skip, if no text.
+  if (text_.empty()) return;
 
   // Compute the placement of the text.
   Point<int> point = anchor_.get(Point<int>::fromExtent(display));
@@ -74,7 +50,7 @@ void TextElement::draw(display::Display& display) {
 
   // Measure the text, if necessary.
   if (request_measurement_) {
-    display.get_text_bounds(point.x, point.y, text_->c_str(), font_, align_,
+    display.get_text_bounds(point.x, point.y, text_.c_str(), font_, align_,
                             &bounds_x_, &bounds_y_, &bounds_w_, &bounds_h_);
     request_measurement_ = false;
   }
@@ -89,15 +65,11 @@ void TextElement::draw(display::Display& display) {
   }
 
   // Draw the text.
-  display.print(point.x, point.y, font_, color_, align_, text_->c_str(),
+  display.print(point.x, point.y, font_, color_, align_, text_.c_str(),
                 background_color_);
 }
 
 void TextElement::on_show() {
-  // Clear the cached text, if we have a lambda.
-  if (lambda_.has_value()) text_ = nullopt;
-
-  // Reset drawing params, if we scroll.
   if (scroll_mode_ != ScrollMode::NONE) {
     switch (scroll_mode_) {
       case ScrollMode::LEFT_TO_RIGHT:
@@ -122,6 +94,16 @@ void TextElement::on_show() {
     }
     scroll_offset_ = 0.0;
   }
+}
+
+bool TextElement::is_active() { return !text_.empty(); };
+
+std::string StaticTextElement::get_text() { return text_; }
+
+std::string DynamicTextElement::get_text() { return lambda_(); }
+
+std::string TimeTextElement::get_text() {
+  return time_->now().strftime(format_);
 }
 
 }  // namespace esphome::elements

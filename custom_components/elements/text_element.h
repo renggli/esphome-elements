@@ -1,12 +1,14 @@
 #pragma once
 
 #include "element.h"
+#include "esphome/components/time/real_time_clock.h"
 #include "geometry.h"
 #include "timer.h"
 
 namespace esphome::elements {
-
+namespace {
 using display::TextAlign;
+}
 
 enum class ScrollMode {
   NONE,
@@ -18,8 +20,9 @@ enum class ScrollMode {
 
 class TextElement : public Element {
  public:
-  explicit TextElement(ElementComponent* component, Element* parent)
-      : Element(ElementType::TEXT, component, parent) {}
+  TextElement(ElementType elementType, ElementComponent* component,
+              Element* parent)
+      : Element(elementType, component, parent) {}
 
   void set_font(display::BaseFont* font) { font_ = font; }
   void set_color(Color color) { color_ = color; }
@@ -31,18 +34,14 @@ class TextElement : public Element {
 
   void set_scroll_mode(ScrollMode scroll_mode) { scroll_mode_ = scroll_mode; }
   void set_scroll_speed(float scroll_speed) { scroll_speed_ = scroll_speed; }
-  void set_update_interval(uint32_t update_interval_ms) {
-    update_timer_.set_duration(update_interval_ms);
-  }
-
-  void set_text(std::string text);
-  void set_lambda(std::function<std::string()> lambda);
 
   void draw(display::Display& display) override;
-
   void on_show() override;
+  bool is_active() override;
 
  protected:
+  virtual std::string get_text() = 0;
+
   display::BaseFont* font_ = nullptr;
   Color color_ = Color::WHITE;
   Color background_color_ = Color::BLACK;
@@ -53,13 +52,50 @@ class TextElement : public Element {
   float scroll_speed_ = 10.0;  // pixel per second
   float scroll_offset_ = 0.0;
 
-  Timer update_timer_ = Timer(250);
-  optional<std::string> text_;
-  optional<std::function<std::string()>> lambda_;
-
-  uint32_t last_update_ms_;
-  bool request_measurement_ = false;
+  std::string text_;
+  bool request_measurement_ = true;
   int bounds_x_, bounds_y_, bounds_w_, bounds_h_;
+};
+
+class StaticTextElement : public TextElement {
+ public:
+  StaticTextElement(ElementComponent* component, Element* parent)
+      : TextElement(ElementType::STATIC_TEXT, component, parent) {}
+
+  void set_text(std::string text) { text_ = text; }
+
+ protected:
+  std::string get_text() override;
+
+  std::string text_;
+};
+
+class DynamicTextElement : public TextElement {
+ public:
+  DynamicTextElement(ElementComponent* component, Element* parent)
+      : TextElement(ElementType::DYNAMIC_TEXT, component, parent) {}
+
+  void set_lambda(std::function<std::string()> lambda) { lambda_ = lambda; }
+
+ protected:
+  std::string get_text() override;
+
+  std::function<std::string()> lambda_;
+};
+
+class TimeTextElement : public TextElement {
+ public:
+  TimeTextElement(ElementComponent* component, Element* parent)
+      : TextElement(ElementType::TIME_TEXT, component, parent) {}
+
+  void set_time(time::RealTimeClock* time) { time_ = time; }
+  void set_format(std::string format) { format_ = format; }
+
+ protected:
+  std::string get_text() override;
+
+  time::RealTimeClock* time_;
+  std::string format_;
 };
 
 }  // namespace esphome::elements

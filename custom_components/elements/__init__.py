@@ -4,8 +4,7 @@ import esphome.core as core
 from esphome.components import color, display, font, image, time
 from esphome.const import (CONF_BACKGROUND_COLOR, CONF_COLOR, CONF_DISPLAY,
                            CONF_DURATION, CONF_FONT, CONF_FORMAT, CONF_ID,
-                           CONF_LAMBDA, CONF_TIME, CONF_UPDATE_INTERVAL,
-                           CONF_VISIBLE)
+                           CONF_LAMBDA, CONF_TEXT, CONF_TIME, CONF_VISIBLE)
 
 AUTO_LOAD = ['display', 'image']
 CODEOWNERS = ['@renggli']
@@ -34,11 +33,13 @@ CONF_START = 'start'
 
 # types
 CONF_CLOCK = 'clock'
+CONF_DYNAMIC_TEXT = 'dynamic_text'
 CONF_HORIZONTAL = 'horizontal'
 CONF_IMAGE = 'image'
 CONF_OVERLAY = 'overlay'
 CONF_SEQUENCE = 'sequence'
-CONF_TEXT = 'text'
+CONF_STATIC_TEXT = 'static_text'
+CONF_TIME_TEXT = 'time_text'
 CONF_VERTICAL = 'vertical'
 
 # classes
@@ -58,8 +59,12 @@ OverlayElement = elements_ns.class_('OverlayElement', ContainerElement)
 SequenceElement = elements_ns.class_('SequenceElement', ContainerElement)
 VerticalElement = elements_ns.class_('VerticalElement', ContainerElement)
 
-ClockElement = elements_ns.class_('ClockElement', Element)
 TextElement = elements_ns.class_('TextElement', Element)
+StaticTextElement = elements_ns.class_('StaticTextElement', TextElement)
+DynamicTextElement = elements_ns.class_('DynamicTextElement', TextElement)
+TimeTextElement = elements_ns.class_('TimeTextElement', TextElement)
+
+ClockElement = elements_ns.class_('ClockElement', Element)
 ImageElement = elements_ns.class_('ImageElement', Element)
 
 # color struct
@@ -221,23 +226,29 @@ async def anchor_to_code(config):
 def element_schema(value):            # to avoid recursion
     return ELEMENT_SCHEMA(value)
 
-
 BASE_ELEMENT_SCHEMA = cv.Schema({})
 
-CLOCK_ELEMENT_SCHEMA = cv.Schema({
-    cv.Required(CONF_TIME): cv.use_id(time.RealTimeClock),
-})
-
-CONTAINER_ELEMENT_SCHEMA = cv.Schema({
+CONTAINER_ELEMENT_SCHEMA = BASE_ELEMENT_SCHEMA.extend({
     cv.Required(CONF_ELEMENTS): cv.All(
         cv.ensure_list(element_schema),
         cv.Length(min=1),
     )
 })
 
+TEXT_ELEMENT_SCHEMA = BASE_ELEMENT_SCHEMA.extend({
+    cv.Required(CONF_FONT): cv.use_id(font.Font),
+    cv.Optional(CONF_COLOR, default='#ffffff'): COLOR_SCHEMA,
+    cv.Optional(CONF_BACKGROUND_COLOR): COLOR_SCHEMA,
+    cv.Optional(CONF_ANCHOR, default={}): anchor_schema(),
+    cv.Optional(CONF_ALIGN, default='CENTER'): cv.enum(TEXT_ALIGN, upper=True, space='_'),
+    cv.Optional(CONF_SCROLL_MODE): cv.enum(SCROLL_MODE, upper=True, space='_'),
+    cv.Optional(CONF_SCROLL_SPEED): cv.float_range(min=0),
+})
+
 ELEMENT_SCHEMA = cv.typed_schema({
-    CONF_CLOCK: CLOCK_ELEMENT_SCHEMA.extend({
+    CONF_CLOCK: BASE_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(ClockElement),
+        cv.Required(CONF_TIME): cv.use_id(time.RealTimeClock),
         cv.Optional(CONF_MINUTE_MARKERS, default={}):
             analog_clock_options_schema(0.95, 1.00, '#0000ff', visible=False),
         cv.Optional(CONF_HOUR_MARKERS, default={}):
@@ -250,6 +261,10 @@ ELEMENT_SCHEMA = cv.typed_schema({
             analog_clock_options_schema(0.00, 0.95, '#ffffff', smooth=False),
         cv.Optional(CONF_HOUR_HAND, default={}):
             analog_clock_options_schema(0.00, 0.66, '#ffffff', smooth=True),
+    }),
+    CONF_DYNAMIC_TEXT: TEXT_ELEMENT_SCHEMA.extend({
+        cv.GenerateID(CONF_ID): cv.declare_id(DynamicTextElement),
+        cv.Required(CONF_LAMBDA): cv.returning_lambda,
     }),
     CONF_HORIZONTAL: CONTAINER_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(HorizontalElement),
@@ -267,18 +282,14 @@ ELEMENT_SCHEMA = cv.typed_schema({
         cv.GenerateID(CONF_ID): cv.declare_id(SequenceElement),
         cv.Optional(CONF_DURATION): cv.positive_time_period_milliseconds,
     }),
-    CONF_TEXT: BASE_ELEMENT_SCHEMA.extend({
-        cv.GenerateID(CONF_ID): cv.declare_id(TextElement),
-        cv.Required(CONF_FONT): cv.use_id(font.Font),
-        cv.Optional(CONF_COLOR, default='#ffffff'): COLOR_SCHEMA,
-        cv.Optional(CONF_BACKGROUND_COLOR): COLOR_SCHEMA,
-        cv.Optional(CONF_ANCHOR, default={}): anchor_schema(),
-        cv.Optional(CONF_ALIGN, default='CENTER'): cv.enum(TEXT_ALIGN, upper=True, space='_'),
-        cv.Optional(CONF_SCROLL_MODE): cv.enum(SCROLL_MODE, upper=True, space='_'),
-        cv.Optional(CONF_SCROLL_SPEED): cv.float_range(min=0),
-        cv.Optional(CONF_UPDATE_INTERVAL): cv.positive_time_period_milliseconds,
-        cv.Exclusive(CONF_LAMBDA, 'text'): cv.returning_lambda,
-        cv.Exclusive(CONF_TEXT, 'text'): cv.string,
+    CONF_STATIC_TEXT: TEXT_ELEMENT_SCHEMA.extend({
+        cv.GenerateID(CONF_ID): cv.declare_id(StaticTextElement),
+        cv.Required(CONF_TEXT): cv.string,
+    }),
+    CONF_TIME_TEXT: TEXT_ELEMENT_SCHEMA.extend({
+        cv.GenerateID(CONF_ID): cv.declare_id(TimeTextElement),
+        cv.Required(CONF_TIME): cv.use_id(time.RealTimeClock),
+        cv.Optional(CONF_FORMAT, default='%H:%M:%S'): cv.string,
     }),
     CONF_VERTICAL: CONTAINER_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(VerticalElement),
@@ -296,7 +307,7 @@ async def element_to_code(config, component, parent=nullptr):
 
     # literals
     for name in [CONF_DURATION, CONF_FORMAT, CONF_TEXT, CONF_ALIGN,
-                 CONF_SCROLL_MODE, CONF_SCROLL_SPEED, CONF_UPDATE_INTERVAL]:
+                 CONF_SCROLL_MODE, CONF_SCROLL_SPEED]:
         if value := config.get(name):
             cg.add(getattr(var, 'set_' + name)(value))
 

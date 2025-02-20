@@ -8,11 +8,13 @@ namespace esphome::elements {
 /// The different types of elements.
 enum class ElementType {
   CLOCK,
+  DYNAMIC_TEXT,
   HORIZONTAL,
   IMAGE,
   OVERLAY,
   SEQUENCE,
-  TEXT,
+  STATIC_TEXT,
+  TIME_TEXT,
   UNKNOWN,
   VERTICAL,
 };
@@ -47,6 +49,10 @@ class Element {
   /// Event passed up the element tree when an elements wants to pass on control
   /// to a sibling. By default the signal is passed upwards, unless handled.
   virtual void on_next();
+
+  /// Property of an element indicating if it wants to be shown. Parents might
+  /// decide to skip the display of the element if it returns false.
+  virtual bool is_active() { return true; }
 
  protected:
   ElementType type_;

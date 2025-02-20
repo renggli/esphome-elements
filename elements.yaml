@@ -185,8 +185,23 @@ elements:
   id: elements_display
   display: led_display
   element:
-    type: clock
-    time: current_time
+      type: sequence
+      duration: 5s
+      elements:
+      - type: dynamic_text
+        font: font_chunky_8
+        lambda: |-
+          return to_string(millis());
+      - type: static_text
+        font: font_chunky_8
+        text: "Hallo Welt"
+      - type: time_text
+        font: font_chunky_8
+        time: current_time
+      - type: static_text
+        font: font_chunky_8
+        text: ""
+
 
   # element:
   #   type: sequence

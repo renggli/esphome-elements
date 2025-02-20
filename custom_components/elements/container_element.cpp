@@ -26,6 +26,33 @@ void OverlayElement::draw(display::Display& display) {
   }
 }
 
+void PriorityElement::draw(display::Display& display) {
+  int index = find_active_index_();
+  if (index != index_) {
+    on_hide();
+    index_ = index;
+    on_show();
+  }
+  if (index_ != -1) elements_[index_]->draw(display);
+}
+
+void PriorityElement::on_show()  {
+  if (index_ != -1) elements_[index_]->on_show();
+}
+
+void PriorityElement::on_hide() {
+  if (index_ != -1) elements_[index_]->on_hide();
+}
+
+int PriorityElement::find_active_index_() {
+  for (int i = 0; i < elements_.size(); i++) {
+    if (elements_[i]->is_active()) {
+      return i;
+    }
+  }
+  return -1;
+}
+
 void HorizontalElement::draw(display::Display& display) {
   int width = display.get_width() / elements_.size();
   for (int i = 0; i < elements_.size(); i++) {

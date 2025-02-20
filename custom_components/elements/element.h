@@ -12,6 +12,7 @@ enum class ElementType {
   HORIZONTAL,
   IMAGE,
   OVERLAY,
+  PRIORITY,
   SEQUENCE,
   STATIC_TEXT,
   TIME_TEXT,

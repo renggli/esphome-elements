@@ -96,7 +96,7 @@ void TextElement::on_show() {
   }
 }
 
-bool TextElement::is_active() { return !text_.empty(); };
+bool TextElement::is_active() { return !get_text().empty(); };
 
 std::string StaticTextElement::get_text() { return text_; }
 

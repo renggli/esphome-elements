@@ -8,8 +8,8 @@ namespace esphome::elements {
 /// Element that delgates to a list of other elements.
 class ContainerElement : public Element {
  public:
-  explicit ContainerElement(ElementType type, ElementComponent* component,
-                            Element* parent)
+  ContainerElement(ElementType type, ElementComponent* component,
+                   Element* parent)
       : Element(type, component, parent) {}
 
   void add_element(Element* element);
@@ -24,16 +24,32 @@ class ContainerElement : public Element {
 /// Draws multiple elements on top of each other.
 class OverlayElement : public ContainerElement {
  public:
-  explicit OverlayElement(ElementComponent* component, Element* parent)
+  OverlayElement(ElementComponent* component, Element* parent)
       : ContainerElement(ElementType::OVERLAY, component, parent) {}
 
   void draw(display::Display& display) override;
 };
 
+/// Draws the first element that is active.
+class PriorityElement : public ContainerElement {
+ public:
+  PriorityElement(ElementComponent* component, Element* parent)
+      : ContainerElement(ElementType::PRIORITY, component, parent) {}
+
+  void draw(display::Display& display) override;
+
+  void on_show() override;
+  void on_hide() override;
+
+ protected:
+  int index_ = -1;
+  int find_active_index_();
+};
+
 /// Draws multiple elements evenly horizontally spaced next to each other.
 class HorizontalElement : public ContainerElement {
  public:
-  explicit HorizontalElement(ElementComponent* component, Element* parent)
+  HorizontalElement(ElementComponent* component, Element* parent)
       : ContainerElement(ElementType::HORIZONTAL, component, parent) {}
 
   void draw(display::Display& display) override;
@@ -42,7 +58,7 @@ class HorizontalElement : public ContainerElement {
 /// Draws multiple elements evently vertically spaced above each other.
 class VerticalElement : public ContainerElement {
  public:
-  explicit VerticalElement(ElementComponent* component, Element* parent)
+  VerticalElement(ElementComponent* component, Element* parent)
       : ContainerElement(ElementType::VERTICAL, component, parent) {}
 
   void draw(display::Display& display) override;
@@ -51,7 +67,7 @@ class VerticalElement : public ContainerElement {
 /// Draws multiple elements in sequence.
 class SequenceElement : public ContainerElement {
  public:
-  explicit SequenceElement(ElementComponent* component, Element* parent)
+  SequenceElement(ElementComponent* component, Element* parent)
       : ContainerElement(ElementType::SEQUENCE, component, parent) {}
 
   void set_duration(uint32_t duration_ms) {
@@ -68,7 +84,7 @@ class SequenceElement : public ContainerElement {
 
  protected:
   Timer timer_;
-  uint32_t index_ = 0;
+  int index_ = 0;
 };
 
 }  // namespace esphome::elements

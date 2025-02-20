@@ -65,6 +65,13 @@ text_sensor:
   - platform: homeassistant
     id: outside_weather
     entity_id: weather.forecast_home
+  - platform: homeassistant
+    id: timer_state
+    entity_id: timer.default
+  - platform: homeassistant
+    id: timer_remaining
+    entity_id: timer.default
+    attribute: remaining
 
 # Fonts
 font:
@@ -190,17 +197,19 @@ elements:
       elements:
       - type: dynamic_text
         font: font_chunky_8
+        color: "#ff0000"
         lambda: |-
-          return to_string(millis());
+          if (id(timer_state).state == "active") {
+            return id(timer_remaining).state;
+          }
+          return "";
       - type: static_text
         font: font_chunky_8
-        text: "Hallo Welt"
+        color: "#0000ff"
+        text: "Chillax"
       - type: time_text
         font: font_chunky_8
         time: current_time
-      - type: static_text
-        font: font_chunky_8
-        text: ""
 
 
   # element:

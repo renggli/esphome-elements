@@ -52,6 +52,7 @@ elements_ns = cg.esphome_ns.namespace('elements')
 ElementComponent = elements_ns.class_('ElementComponent', cg.Component)
 
 Element = elements_ns.class_('Element')
+ElementRef = Element.operator("ref")
 
 ContainerElement = elements_ns.class_('ContainerElement', Element)
 FlowElement = elements_ns.class_('FlowElement', ContainerElement)
@@ -228,6 +229,7 @@ async def anchor_to_code(config):
 def element_schema(value):            # to avoid recursion
     return ELEMENT_SCHEMA(value)
 
+
 BASE_ELEMENT_SCHEMA = cv.Schema({})
 
 CONTAINER_ELEMENT_SCHEMA = BASE_ELEMENT_SCHEMA.extend({
@@ -331,7 +333,9 @@ async def element_to_code(config, component, parent=nullptr):
     # lambdas
     for name in [CONF_LAMBDA]:
         if conf := config.get(name):
-            value = await cg.process_lambda(conf, [],return_type=cg.std_string)
+            value = await cg.process_lambda(conf,
+                                            [(ElementRef, "element")],
+                                            return_type=cg.std_string)
             cg.add(getattr(var, 'set_' + name)(value))
 
     # elements

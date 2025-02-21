@@ -199,10 +199,7 @@ elements:
         font: font_chunky_8
         color: "#ff0000"
         lambda: |-
-          if (id(timer_state).state == "active") {
-            return id(timer_remaining).state;
-          }
-          return "";
+          return to_string(element.get_component().get_delta_ms());
       - type: static_text
         font: font_chunky_8
         color: "#0000ff"

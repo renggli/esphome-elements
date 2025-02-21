@@ -100,7 +100,7 @@ bool TextElement::is_active() { return !get_text().empty(); };
 
 std::string StaticTextElement::get_text() { return text_; }
 
-std::string DynamicTextElement::get_text() { return lambda_(); }
+std::string DynamicTextElement::get_text() { return lambda_(*this); }
 
 std::string TimeTextElement::get_text() {
   return time_->now().strftime(format_);

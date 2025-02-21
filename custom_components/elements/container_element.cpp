@@ -20,6 +20,13 @@ void ContainerElement::on_hide() {
   }
 }
 
+bool ContainerElement::is_active() {
+  for (Element* element : elements_) {
+    if (!element->is_active()) return false;
+  }
+  return true;
+}
+
 void OverlayElement::draw(display::Display& display) {
   for (Element* element : elements_) {
     element->draw(display);
@@ -36,12 +43,19 @@ void PriorityElement::draw(display::Display& display) {
   if (index_ != -1) elements_[index_]->draw(display);
 }
 
-void PriorityElement::on_show()  {
+void PriorityElement::on_show() {
   if (index_ != -1) elements_[index_]->on_show();
 }
 
 void PriorityElement::on_hide() {
   if (index_ != -1) elements_[index_]->on_hide();
+}
+
+bool PriorityElement::is_active() {
+  for (Element* element : elements_) {
+    if (element->is_active()) return true;
+  }
+  return false;
 }
 
 int PriorityElement::find_active_index_() {
@@ -102,6 +116,13 @@ void SequenceElement::on_next() {
       return;
     }
   }
+}
+
+bool SequenceElement::is_active() {
+  for (Element* element : elements_) {
+    if (element->is_active()) return true;
+  }
+  return false;
 }
 
 }  // namespace esphome::elements

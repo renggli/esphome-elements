@@ -16,6 +16,7 @@ class ContainerElement : public Element {
 
   void on_show() override;
   void on_hide() override;
+  bool is_active() override;
 
  protected:
   std::vector<Element*> elements_ = {};
@@ -40,6 +41,7 @@ class PriorityElement : public ContainerElement {
 
   void on_show() override;
   void on_hide() override;
+  bool is_active() override;
 
  protected:
   int index_ = -1;
@@ -81,6 +83,7 @@ class SequenceElement : public ContainerElement {
   void on_show() override;
   void on_hide() override;
   void on_next() override;
+  bool is_active() override;
 
  protected:
   Timer timer_;

@@ -12,20 +12,14 @@ void ElementComponent::setup() {
   // manually call `Elements::draw(Display&)` with the desired display as
   // argument.
   if (display_) {
-    display::display_writer_t writer;
-    if (aliased_) {
-      auto *aliased_display_ = new AliasedDisplay(*display_);
-      writer = [this, aliased_display_](display::Display &it) {
-        draw(*aliased_display_);
-        aliased_display_->commit();
-      };
-    } else {
-      writer = [this](display::Display &it) { draw(*display_); };
-    }
+    display::display_writer_t writer = [this](display::Display &it) {
+      display_->clear();
+      draw(*display_);
+    };
     display_->show_page(new display::DisplayPage(writer));
   } else {
     ESP_LOGW(ELEMENT_COMPONENT_TAG,
-             "No display setup, drwaing needs to be manually called");
+             "No display setup, drwaing needs to be manually called.");
   }
 }
 
@@ -41,7 +35,7 @@ void ElementComponent::set_root(Element *root) {
 void ElementComponent::draw(display::Display &display) {
   // Check the preconditions.
   if (root_ == nullptr) {
-    ESP_LOGE(ELEMENT_COMPONENT_TAG, "draw() called without a root element");
+    ESP_LOGE(ELEMENT_COMPONENT_TAG, "draw() called without a root element.");
     return;
   }
 

@@ -2,8 +2,36 @@
 
 #include "esphome/components/display/display.h"
 #include "esphome/components/display/display_buffer.h"
+#include "esphome/core/helpers.h"
 
 namespace esphome::elements {
+
+/// An image that is backed by a display buffer.
+class ImageDisplay : public display::Display, public display::BaseImage {
+ public:
+  ImageDisplay(int width, int height);
+  ~ImageDisplay();
+
+  display::DisplayType get_display_type() override {
+    return display::DisplayType::DISPLAY_TYPE_COLOR;
+  }
+  int get_width() const override { return width_; }
+  int get_height() const override { return height_; }
+
+  void HOT draw_pixel_at(int x, int y, Color color);
+  void draw(int x, int y, Display* display, Color color_on,
+            Color color_off) override;
+
+ protected:
+  int width_, height_;
+  RAMAllocator<Color> allocator_;
+  Color* buffer_ = nullptr;
+
+  void update() override {}
+
+  int get_width_internal() override { return width_; }
+  int get_height_internal() override { return height_; }
+};
 
 /// A sub-display of an existing display.
 class SubDisplay : public display::Display {
@@ -33,37 +61,6 @@ class SubDisplay : public display::Display {
 
   int get_width_internal() override { return w_; }
   int get_height_internal() override { return h_; }
-};
-
-/// An aliased display of an existing display.
-class AliasedDisplay : public display::Display {
- public:
-  AliasedDisplay(display::Display& display);
-  ~AliasedDisplay();
-
-  display::DisplayType get_display_type() override {
-    return display_.get_display_type();
-  }
-
-  void HOT draw_pixel_at(int x, int y, Color color) override {
-    if (0 <= x && x < get_width() && 0 <= y && y < get_height()) {
-      buffer_[x + y * get_width()] = color;
-    }
-  }
-
-  void commit();
-
- protected:
-  static const int scale_ = 2;
-  static const int scale_squared_ = scale_ * scale_;
-
-  display::Display& display_;
-  Color* buffer_;
-
-  void update() override {}
-
-  int get_width_internal() override { return scale_ * display_.get_width(); }
-  int get_height_internal() override { return scale_ * display_.get_height(); }
 };
 
 }  // namespace esphome::elements

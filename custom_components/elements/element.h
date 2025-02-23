@@ -8,6 +8,7 @@ namespace esphome::elements {
 /// The different types of elements.
 enum class ElementType {
   CLOCK,
+  CUSTOM,
   DYNAMIC_TEXT,
   HORIZONTAL,
   IMAGE,

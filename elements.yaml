@@ -189,29 +189,27 @@ image:
 elements:
   id: elements_display
   display: led_display
-  element:
-    type: sequence
-    duration: 5s
-    elements:
-      - type: dynamic_text
-        font: font_chunky_8
-        color: "#ff0000"
-        lambda: |-
-          return to_string(element.get_component().get_delta_ms());
-      - type: dynamic_text
-        font: font_chunky_8
-        color: "#00ff00"
-        lambda: |-
-          return id(temperature).has_state() ? to_string(id(temperature).state) : "";
-      - type: dynamic_text
-        font: font_chunky_8
-        color: "#0000ff"
-        lambda: |-
-          return id(illuminance).has_state() ? to_string(id(illuminance).state) : "";
-      - type: time_text
-        font: font_chunky_8
-        time: current_time
 
+  # some sensor values
+  # element:
+  #   type: sequence
+  #   duration: 5s
+  #   elements:
+  #     - type: dynamic_text
+  #       font: font_chunky_8
+  #       color: "#00ff00"
+  #       lambda: |-
+  #         return id(temperature).has_state() ? str_sprintf("%.2f", id(temperature).state) : "";
+  #     - type: dynamic_text
+  #       font: font_chunky_8
+  #       color: "#0000ff"
+  #       lambda: |-
+  #         return id(illuminance).has_state() ? str_sprintf("%.2f", id(illuminance).state) : "";
+  #     - type: time_text
+  #       font: font_chunky_8
+  #       time: current_time
+
+  # text animations
   # element:
   #   type: sequence
   #   duration: 5s
@@ -245,37 +243,36 @@ elements:
   #       scroll_mode: RIGHT_TO_LEFT
   #       text: "4"
 
-  # # element:
-  #   type: sequence
-  #   duration: 5sec
+  # element composition
+  # element:
+  #   type: vertical
   #   elements:
-  #     - type: analog_clock
-  #       time: current_time
-  #     - type: vertical
+  #     - type: horizontal
   #       elements:
-  #         - type: horizontal
+  #         - type: vertical
   #           elements:
-  #             - type: vertical
-  #               elements:
-  #                 - type: digital_clock
-  #                   time: current_time
-  #                   font: font_chunky_6
-  #                   format: "%a"
-  #                 - type: digital_clock
-  #                   time: current_time
-  #                   font: font_chunky_6
-  #                   format: "%b"
-  #             - type: vertical
-  #               elements:
-  #                 - type: digital_clock
-  #                   time: current_time
-  #                   font: font_chunky_6
-  #                   format: "%e"
-  #                 - type: digital_clock
-  #                   time: current_time
-  #                   font: font_chunky_6
-  #                   format: "%Y"
-  #         - type: digital_clock
-  #           time: current_time
-  #           font: font_chunky_8
-  #           format: "%H:%M:%S"
+  #             - type: time_text
+  #               time: current_time
+  #               font: font_chunky_6
+  #               format: "%a"
+  #             - type: time_text
+  #               time: current_time
+  #               font: font_chunky_6
+  #               format: "%b"
+  #         - type: vertical
+  #           elements:
+  #             - type: time_text
+  #               time: current_time
+  #               font: font_chunky_6
+  #               format: "%e"
+  #             - type: time_text
+  #               time: current_time
+  #               font: font_chunky_6
+  #               format: "%Y"
+  #     - type: time_text
+  #       time: current_time
+  #       font: font_chunky_8
+
+  element:
+    type: custom
+

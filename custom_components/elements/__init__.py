@@ -1,3 +1,5 @@
+from abc import ABC, abstractmethod
+
 import esphome.codegen as cg
 import esphome.config_validation as cv
 import esphome.core as core
@@ -30,9 +32,15 @@ CONF_SCROLL_SPEED = 'scroll_speed'
 CONF_SECOND_HAND = 'second_hand'
 CONF_SMOOTH = 'smooth'
 CONF_START = 'start'
+CONF_LAMBDA_DRAW = 'draw'
+CONF_LAMBDA_IS_ACTIVE = 'is_active'
+CONF_LAMBDA_ON_HIDE = 'on_hide'
+CONF_LAMBDA_ON_NEXT = 'on_next'
+CONF_LAMBDA_ON_SHOW = 'on_show'
 
 # types
 CONF_CLOCK = 'clock'
+CONF_CUSTOM = 'custom'
 CONF_DYNAMIC_TEXT = 'dynamic_text'
 CONF_HORIZONTAL = 'horizontal'
 CONF_IMAGE = 'image'
@@ -45,6 +53,11 @@ CONF_VERTICAL = 'vertical'
 
 # classes
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+display_ns = cg.esphome_ns.namespace('display')
+
+Display = display_ns.class_('Display')
+DisplayRef = Display.operator("ref")
 
 # elements
 
@@ -68,6 +81,7 @@ DynamicTextElement = elements_ns.class_('DynamicTextElement', TextElement)
 TimeTextElement = elements_ns.class_('TimeTextElement', TextElement)
 
 ClockElement = elements_ns.class_('ClockElement', Element)
+CustomElement = elements_ns.class_('CustomElement', Element)
 ImageElement = elements_ns.class_('ImageElement', Element)
 
 # color struct
@@ -266,6 +280,14 @@ ELEMENT_SCHEMA = cv.typed_schema({
         cv.Optional(CONF_HOUR_HAND, default={}):
             analog_clock_options_schema(0.00, 0.66, '#ffffff', smooth=True),
     }),
+    CONF_CUSTOM: BASE_ELEMENT_SCHEMA.extend({
+        cv.GenerateID(CONF_ID): cv.declare_id(CustomElement),
+        cv.Optional(CONF_LAMBDA_DRAW): cv.lambda_,
+        cv.Optional(CONF_LAMBDA_ON_SHOW): cv.lambda_,
+        cv.Optional(CONF_LAMBDA_ON_HIDE): cv.lambda_,
+        cv.Optional(CONF_LAMBDA_ON_NEXT): cv.lambda_,
+        cv.Optional(CONF_LAMBDA_IS_ACTIVE): cv.returning_lambda,
+    }),
     CONF_DYNAMIC_TEXT: TEXT_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(DynamicTextElement),
         cv.Required(CONF_LAMBDA): cv.returning_lambda,
@@ -336,6 +358,25 @@ async def element_to_code(config, component, parent=nullptr):
             value = await cg.process_lambda(conf,
                                             [(ElementRef, "element")],
                                             return_type=cg.std_string)
+            cg.add(getattr(var, 'set_' + name)(value))
+    for name in [CONF_LAMBDA_IS_ACTIVE]:
+        if conf := config.get(name):
+            value = await cg.process_lambda(conf,
+                                            [(ElementRef, "element")],
+                                            return_type=cg.boolean)
+            cg.add(getattr(var, 'set_' + name)(value))
+    for name in [CONF_LAMBDA_ON_SHOW, CONF_LAMBDA_ON_HIDE, CONF_LAMBDA_ON_NEXT]:
+        if conf := config.get(name):
+            value = await cg.process_lambda(conf,
+                                            [(ElementRef, "element")],
+                                            return_type=cg.void)
+            cg.add(getattr(var, 'set_' + name)(value))
+    for name in [CONF_LAMBDA_DRAW]:
+        if conf := config.get(name):
+            value = await cg.process_lambda(conf,
+                                            [(ElementRef, "element"),
+                                             (DisplayRef, "display")],
+                                            return_type=cg.void)
             cg.add(getattr(var, 'set_' + name)(value))
 
     # elements

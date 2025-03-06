@@ -1,5 +1,3 @@
-from abc import ABC, abstractmethod
-
 import esphome.codegen as cg
 import esphome.config_validation as cv
 import esphome.core as core
@@ -402,6 +400,7 @@ async def element_to_code(config, component, parent=nullptr):
 
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
+    await cg.register_component(var, config)
 
     if display_config := config.get(CONF_DISPLAY):
         drawing_display = await cg.get_variable(display_config)
@@ -410,5 +409,3 @@ async def to_code(config):
     if root_config := config.get(CONF_ELEMENT):
         root_element = await element_to_code(root_config, var)
         cg.add(var.set_root(root_element))
-
-    await cg.register_component(var, config)

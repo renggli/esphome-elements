@@ -1,6 +1,11 @@
 packages:
   fonts: !include common/fonts.yaml
   colors: !include common/colors.yaml
+external_components:
+  - source: github://renggli/esphome-clock
+  - source:
+      type: local
+      path: components
 
 # Board
 esp32:
@@ -275,4 +280,3 @@ elements:
 
   element:
     type: custom
-

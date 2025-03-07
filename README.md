@@ -6,7 +6,8 @@
 [![GitHub Stars](https://img.shields.io/github/stars/renggli/esphome-elements.svg)](https://github.com/renggli/esphome-elements/stargazers)
 [![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/renggli/esphome-elements/main/LICENSE)
 
-An [ESPHome](https://esphome.io) to configure and customize an LED matrix display with text, images, drawings, and other fun stuff.
+An [ESPHome](https://esphome.io) custom component to configure and customize an
+LED matrix display with text, images, drawings, and other fun stuff.
 
 To add this external component to your configuration add the following code:
 
@@ -15,4 +16,4 @@ external_components:
   - source: github://renggli/esphome-elements
 ```
 
-
+See [example.yaml](example.yaml) for the configuration used by the author.

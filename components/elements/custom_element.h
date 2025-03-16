@@ -10,9 +10,9 @@ class CustomElement : public Element {
   CustomElement(ElementComponent* component, Element* parent)
       : Element(ElementType::CUSTOM, component, parent) {}
 
-  typedef std::function<void(Element&, display::Display&)> DrawFunction;
-  typedef std::function<void(Element&)> EventFunction;
-  typedef std::function<bool(Element&)> PredicateFunction;
+  typedef std::function<void(CustomElement&, display::Display&)> DrawFunction;
+  typedef std::function<void(CustomElement&)> EventFunction;
+  typedef std::function<bool(CustomElement&)> PredicateFunction;
 
   void set_draw(DrawFunction draw) { draw_ = draw; }
   void set_on_show(EventFunction on_show) { on_show_ = on_show; }

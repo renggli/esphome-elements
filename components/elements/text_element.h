@@ -72,14 +72,14 @@ class DynamicTextElement : public TextElement {
   DynamicTextElement(ElementComponent* component, Element* parent)
       : TextElement(ElementType::DYNAMIC_TEXT, component, parent) {}
 
-  void set_lambda(std::function<std::string(Element&)> lambda) {
+  void set_lambda(std::function<std::string(DynamicTextElement&)> lambda) {
     lambda_ = lambda;
   }
 
  protected:
   std::string get_text() override;
 
-  std::function<std::string(Element&)> lambda_;
+  std::function<std::string(DynamicTextElement&)> lambda_;
 };
 
 class TimeTextElement : public TextElement {

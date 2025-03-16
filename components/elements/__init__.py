@@ -63,7 +63,6 @@ elements_ns = cg.esphome_ns.namespace('elements')
 ElementComponent = elements_ns.class_('ElementComponent', cg.Component)
 
 Element = elements_ns.class_('Element')
-ElementRef = Element.operator("ref")
 
 ContainerElement = elements_ns.class_('ContainerElement', Element)
 FlowElement = elements_ns.class_('FlowElement', ContainerElement)
@@ -351,6 +350,7 @@ async def element_to_code(config, component, parent=nullptr):
             cg.add(getattr(var, 'set_' + name)(value))
 
     # lambdas
+    ElementRef = config['id'].type.operator("ref")
     for name in [CONF_LAMBDA]:
         if conf := config.get(name):
             value = await cg.process_lambda(conf,

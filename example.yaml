@@ -1,3 +1,6 @@
+substitutions:
+  device_name: "elements"
+  friendly_name: "Elements"
 packages:
   fonts: !include common/fonts.yaml
   colors: !include common/colors.yaml
@@ -21,9 +24,9 @@ one_wire:
 
 # ESPHome
 esphome:
-  name: elements
-  friendly_name: Elements
-  name_add_mac_suffix: true
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+  name_add_mac_suffix: false
 
 # Logging
 logger:
@@ -48,16 +51,35 @@ wifi:
     password: !secret captive_portal_password
 captive_portal:
 
+# Switch
+switch:
+  - platform: template
+    name: "${friendly_name} Switch"
+    lambda: 'return id(led_display).get_enabled();'
+    turn_on_action:
+      - lambda: 'id(led_display).set_enabled(true);'
+    turn_off_action:
+      - lambda: 'id(led_display).set_enabled(false);'
+number:
+  - platform: template
+    name: "${friendly_name} Brightness"
+    min_value: 0.0
+    max_value: 1.0
+    step: 0.1
+    initial_value: 0.5
+    set_action:
+      - lambda: 'id(led_display)->get_light()->set_correction(x, x, x, x);'
+
 # Sensors
 sensor:
   # Internal Sensors
   - platform: bh1750
     id: illuminance
-    name: "Illuminance"
+    name: ${friendly_name} Illuminance
     address: 0x23
   - platform: dallas_temp
     id: temperature
-    name: "Temperature"
+    name: ${friendly_name} Temperature
     address: 0xbd00000051c98a28
   # External Sensors
   - platform: homeassistant
@@ -77,6 +99,22 @@ text_sensor:
     id: timer_remaining
     entity_id: timer.default
     attribute: remaining
+
+# Timer
+timer:
+  id: default_timer
+  duration:
+    name: Timer Duration
+  start:
+    name: Timer Start
+  pause:
+    name: Timer Pause
+  stop:
+    name: Timer Stop
+  state:
+    name: Timer State
+  remaining:
+    name: Timer Remaining
 
 # Fonts
 font:
@@ -116,7 +154,6 @@ light:
     pin: GPIO16
     num_leds: 512
     type: GRB
-    restore_mode: ALWAYS_OFF
   - platform: neopixelbus
     id: led_grid_2
     variant: WS2812X
@@ -126,7 +163,6 @@ light:
     pin: GPIO17
     num_leds: 512
     type: GRB
-    restore_mode: ALWAYS_OFF
   # Combined light
   - platform: partition
     id: led_grid
@@ -194,6 +230,53 @@ image:
 elements:
   id: elements_display
   display: led_display
+  element:
+    type: sequence
+    duration: 5s
+    elements:
+      # Timer
+      - type: dynamic_text
+        font: font_chunky_8
+        lambda: |-
+          auto state = id(default_timer).get_state();
+          if (state == "Stopped") return "";
+          element.set_color(
+            state == "Expired" ? Color(255, 0, 0) :
+            state == "Paused" ? Color(0, 0, 255) :
+            Color::WHITE);
+          int remaining = id(default_timer).get_remaining() / 1000;
+          int seconds = remaining % 60;
+          int minutes = (remaining - seconds) / 60;
+          const char* sign = remaining >= 0 ? "" : "-";
+          return str_snprintf("%s%d:%02d", 12, sign, abs(minutes), abs(seconds));
+      # Time and Date
+      - type: vertical
+        elements:
+          - type: horizontal
+            elements:
+              - type: vertical
+                elements:
+                  - type: time_text
+                    time: current_time
+                    font: font_chunky_6
+                    format: "%a"
+                  - type: time_text
+                    time: current_time
+                    font: font_chunky_6
+                    format: "%b"
+              - type: vertical
+                elements:
+                  - type: time_text
+                    time: current_time
+                    font: font_chunky_6
+                    format: "%e"
+                  - type: time_text
+                    time: current_time
+                    font: font_chunky_6
+                    format: "%Y"
+          - type: time_text
+            time: current_time
+            font: font_chunky_8
 
   # some sensor values
   # element:
@@ -277,6 +360,3 @@ elements:
   #     - type: time_text
   #       time: current_time
   #       font: font_chunky_8
-
-  element:
-    type: custom

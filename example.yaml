@@ -76,7 +76,7 @@ text:
     name: "${friendly_name} Message"
     mode: text
     restore_value: true
-    lambda: "return id(message_element).get_text();"
+    initial_value: ""
     set_action:
       - lambda: "id(message_element).set_text(x);"
 
@@ -239,7 +239,7 @@ elements:
   display: led_display
   element:
     type: sequence
-    duration: 5s
+    duration: 10s
     elements:
       # Message
       - type: static_text
@@ -247,21 +247,6 @@ elements:
         font: font_chunky_8
         scroll_mode: LEFT_TO_RIGHT
         text: ""
-      # Timer
-      - type: dynamic_text
-        font: font_chunky_8
-        lambda: |-
-          auto state = id(default_timer).get_state();
-          if (state == "Stopped") return "";
-          element.set_color(
-            state == "Expired" ? Color(255, 0, 0) :
-            state == "Paused" ? Color(0, 0, 255) :
-            Color::WHITE);
-          int remaining = id(default_timer).get_remaining() / 1000;
-          int seconds = remaining % 60;
-          int minutes = (remaining - seconds) / 60;
-          const char* sign = remaining >= 0 ? "" : "-";
-          return str_snprintf("%s%d:%02d", 12, sign, abs(minutes), abs(seconds));
       # Time and Date
       - type: vertical
         elements:
@@ -290,6 +275,21 @@ elements:
           - type: time_text
             time: current_time
             font: font_chunky_8
+      # Timer
+      - type: dynamic_text
+        font: font_chunky_8
+        lambda: |-
+          auto state = id(default_timer).get_state();
+          if (state == "Stopped") return "";
+          element.set_color(
+            state == "Expired" ? Color(255, 0, 0) :
+            state == "Paused" ? Color(0, 0, 255) :
+            Color::WHITE);
+          int remaining = id(default_timer).get_remaining() / 1000;
+          int seconds = remaining % 60;
+          int minutes = (remaining - seconds) / 60;
+          const char* sign = remaining >= 0 ? "" : "-";
+          return str_snprintf("%s%d:%02d", 12, sign, abs(minutes), abs(seconds));
       # Weather
       - type: custom
         is_active: |-
@@ -327,6 +327,9 @@ elements:
           } else if (state == "windy") {
             display.image(0, 0, id(windy));
           }
+      # Analog Clock
+      - type: clock
+        time: current_time
       # Temperature
       - type: vertical
         elements:

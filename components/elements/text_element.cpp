@@ -4,7 +4,7 @@
 
 namespace esphome::elements {
 
-const char* TEXT_ELEMENT_TAG = "elements.text";
+const char *TEXT_ELEMENT_TAG = "elements.text";
 
 using display::TextAlign;
 
@@ -14,7 +14,7 @@ const int TEXT_ALIGN_X = (int)TextAlign::LEFT |
 const int TEXT_ALIGN_Y = (int)TextAlign::TOP | (int)TextAlign::CENTER_VERTICAL |
                          (int)TextAlign::BASELINE | (int)TextAlign::BOTTOM;
 
-void TextElement::draw(display::Display& display) {
+void TextElement::draw(display::Display &display) {
   // Update the text, if necessary.
   std::string new_text = get_text();
   if (text_ != new_text) {
@@ -23,7 +23,9 @@ void TextElement::draw(display::Display& display) {
   }
 
   // Skip, if no text.
-  if (text_.empty()) return;
+  if (text_.empty()) {
+    return;
+  }
 
   // Compute the placement of the text.
   Point<int> point = anchor_.get(Point<int>::fromExtent(display));
@@ -32,18 +34,18 @@ void TextElement::draw(display::Display& display) {
   if (scroll_mode_ != ScrollMode::NONE) {
     scroll_offset_ += get_component().get_delta_ms() * scroll_speed_ / 1000.0;
     switch (scroll_mode_) {
-      case ScrollMode::LEFT_TO_RIGHT:
-        point.x -= scroll_offset_;
-        break;
-      case ScrollMode::RIGHT_TO_LEFT:
-        point.x += scroll_offset_;
-        break;
-      case ScrollMode::BOTTOM_TO_TOP:
-        point.y -= scroll_offset_;
-        break;
-      case ScrollMode::TOP_TO_BOTTOM:
-        point.y += scroll_offset_;
-        break;
+    case ScrollMode::LEFT_TO_RIGHT:
+      point.x -= scroll_offset_;
+      break;
+    case ScrollMode::RIGHT_TO_LEFT:
+      point.x += scroll_offset_;
+      break;
+    case ScrollMode::BOTTOM_TO_TOP:
+      point.y -= scroll_offset_;
+      break;
+    case ScrollMode::TOP_TO_BOTTOM:
+      point.y += scroll_offset_;
+      break;
     }
     request_measurement_ = true;
   }
@@ -72,25 +74,23 @@ void TextElement::draw(display::Display& display) {
 void TextElement::on_show() {
   if (scroll_mode_ != ScrollMode::NONE) {
     switch (scroll_mode_) {
-      case ScrollMode::LEFT_TO_RIGHT:
-        anchor_.fraction.x = 1.0;
-        align_ =
-            TextAlign((int(align_) & ~TEXT_ALIGN_X) | int(TextAlign::LEFT));
-        break;
-      case ScrollMode::RIGHT_TO_LEFT:
-        anchor_.fraction.x = 0.0;
-        align_ =
-            TextAlign((int(align_) & ~TEXT_ALIGN_X) | int(TextAlign::RIGHT));
-        break;
-      case ScrollMode::BOTTOM_TO_TOP:
-        anchor_.fraction.y = 1.0;
-        align_ = TextAlign((int(align_) & ~TEXT_ALIGN_Y) | int(TextAlign::TOP));
-        break;
-      case ScrollMode::TOP_TO_BOTTOM:
-        anchor_.fraction.y = 0.0;
-        align_ =
-            TextAlign((int(align_) & ~TEXT_ALIGN_Y) | int(TextAlign::BOTTOM));
-        break;
+    case ScrollMode::LEFT_TO_RIGHT:
+      anchor_.fraction.x = 1.0;
+      align_ = TextAlign((int(align_) & ~TEXT_ALIGN_X) | int(TextAlign::LEFT));
+      break;
+    case ScrollMode::RIGHT_TO_LEFT:
+      anchor_.fraction.x = 0.0;
+      align_ = TextAlign((int(align_) & ~TEXT_ALIGN_X) | int(TextAlign::RIGHT));
+      break;
+    case ScrollMode::BOTTOM_TO_TOP:
+      anchor_.fraction.y = 1.0;
+      align_ = TextAlign((int(align_) & ~TEXT_ALIGN_Y) | int(TextAlign::TOP));
+      break;
+    case ScrollMode::TOP_TO_BOTTOM:
+      anchor_.fraction.y = 0.0;
+      align_ =
+          TextAlign((int(align_) & ~TEXT_ALIGN_Y) | int(TextAlign::BOTTOM));
+      break;
     }
     scroll_offset_ = 0.0;
   }
@@ -106,4 +106,4 @@ std::string TimeTextElement::get_text() {
   return time_->now().strftime(format_);
 }
 
-}  // namespace esphome::elements
+} // namespace esphome::elements

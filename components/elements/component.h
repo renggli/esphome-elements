@@ -11,7 +11,7 @@ class Element;
 
 /// The ESPHome component that displays elements.
 class ElementComponent : public Component {
- public:
+public:
   void setup() override;
   void dump_config() override;
 
@@ -31,7 +31,7 @@ class ElementComponent : public Component {
   /// Draws the element onto the provided display.
   void draw(display::Display &display);
 
- protected:
+protected:
   Element *root_ = nullptr;
   display::Display *display_ = nullptr;
   bool aliased_ = false;
@@ -41,4 +41,4 @@ class ElementComponent : public Component {
   uint32_t delta_ms_ = 0;
 };
 
-}  // namespace esphome::elements
+} // namespace esphome::elements

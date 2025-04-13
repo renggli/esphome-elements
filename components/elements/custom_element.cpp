@@ -6,7 +6,7 @@ namespace {
 using display::Display;
 }
 
-void CustomElement::draw(Display& display) {
+void CustomElement::draw(Display &display) {
   if (draw_) {
     draw_(*this, display);
   } else {
@@ -19,11 +19,13 @@ void CustomElement::on_show() {
     on_show_(*this);
   }
 }
+
 void CustomElement::on_hide() {
   if (on_hide_) {
     on_hide_(*this);
   }
 }
+
 void CustomElement::on_next() {
   if (on_next_) {
     on_next_(*this);
@@ -31,6 +33,7 @@ void CustomElement::on_next() {
     Element::on_next();
   }
 }
+
 bool CustomElement::is_active() {
   if (is_active_) {
     return is_active_(*this);
@@ -39,7 +42,7 @@ bool CustomElement::is_active() {
   }
 }
 
-void CustomElement::test_draw(Display& display) {
+void CustomElement::test_draw(Display &display) {
   int center_x = display.get_width() / 2, center_y = display.get_height() / 2;
   float delta = fmod(get_component().get_current_ms() / 2000.0, 2.0 * PI);
   int x1 = center_x, y1 = center_y * sin(delta) + center_y;
@@ -53,4 +56,4 @@ void CustomElement::test_draw(Display& display) {
     y1 = y2;
   }
 }
-}  // namespace esphome::elements
+} // namespace esphome::elements

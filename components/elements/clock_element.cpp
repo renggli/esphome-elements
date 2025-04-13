@@ -4,7 +4,7 @@
 
 namespace esphome::elements {
 
-void ClockElement::draw(display::Display& display) {
+void ClockElement::draw(display::Display &display) {
   // Center the clock in the middle of the display.
   const int center_x = display.get_width() / 2;
   const int center_y = display.get_height() / 2;
@@ -37,9 +37,13 @@ void ClockElement::draw(display::Display& display) {
     }
   }
   float minutes = time.minute;
-  if (minute_hand_.smooth) minutes += seconds / 60.0;
+  if (minute_hand_.smooth) {
+    minutes += seconds / 60.0;
+  }
   float hours = time.hour % 12;
-  if (hour_hand_.smooth) hours += minutes / 60.0;
+  if (hour_hand_.smooth) {
+    hours += minutes / 60.0;
+  }
 
   // Draw the hands.
   if (hour_hand_.visible) {
@@ -59,4 +63,4 @@ void ClockElement::draw(display::Display& display) {
   }
 }
 
-}  // namespace esphome::elements
+} // namespace esphome::elements

@@ -4,7 +4,7 @@
 
 namespace esphome::elements {
 
-static const char* DISPLAY_TAG = "elements.display";
+static const char *DISPLAY_TAG = "elements.display";
 
 ImageDisplay::ImageDisplay(int width, int height)
     : width_(width), height_(height) {
@@ -26,7 +26,7 @@ void ImageDisplay::draw_pixel_at(int x, int y, Color color) {
   }
 }
 
-void ImageDisplay::draw(int x, int y, display::Display* display, Color color_on,
+void ImageDisplay::draw(int x, int y, display::Display *display, Color color_on,
                         Color color_off) {
   for (int img_x = 0; img_x < width_; img_x++) {
     for (int img_y = 0; img_y < height_; img_y++) {
@@ -35,4 +35,4 @@ void ImageDisplay::draw(int x, int y, display::Display* display, Color color_on,
   }
 }
 
-}  // namespace esphome::elements
+} // namespace esphome::elements

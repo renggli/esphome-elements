@@ -23,22 +23,21 @@ enum class ElementType {
 
 /// Abstract superclass of all elements.
 class Element {
- public:
-  explicit Element(ElementType type, ElementComponent* component,
-                   Element* parent)
+public:
+  Element(ElementType type, ElementComponent *component, Element *parent)
       : type_(type), component_(*component), parent_(parent) {}
 
   /// Returns the type of this element.
   ElementType get_type() { return type_; }
 
   /// Returns the parent element of this element, if any.
-  Element* get_parent() { return parent_; }
+  Element *get_parent() { return parent_; }
 
   /// Returns the component of this element.
-  ElementComponent& get_component() { return component_; }
+  ElementComponent &get_component() { return component_; }
 
   /// Abstract method that draws this element on the given display.
-  virtual void draw(display::Display& display) = 0;
+  virtual void draw(display::Display &display) = 0;
 
   /// Event passed down the element tree when an element is about to be shown,
   /// that is before the `draw` method is being called repeatedly.
@@ -56,10 +55,10 @@ class Element {
   /// decide to skip the display of the element if it returns false.
   virtual bool is_active() { return true; }
 
- protected:
+protected:
   ElementType type_;
-  ElementComponent& component_;
-  Element* parent_;
+  ElementComponent &component_;
+  Element *parent_;
 };
 
-}  // namespace esphome::elements
+} // namespace esphome::elements

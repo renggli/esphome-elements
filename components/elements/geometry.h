@@ -3,14 +3,12 @@
 namespace esphome::elements {
 
 /// A point in the x-y-plane.
-template <typename T>
-struct Point {
+template <typename T> struct Point {
   T x;
   T y;
 
   // Constructs an extent from the width and height of another object.
-  template <typename C>
-  static Point<T> fromExtent(C& object) {
+  template <typename C> static Point<T> fromExtent(C &object) {
     return {.x = object.get_width(), .y = object.get_height()};
   }
 };
@@ -28,4 +26,4 @@ struct Anchor {
   }
 };
 
-}  // namespace esphome::elements
+} // namespace esphome::elements

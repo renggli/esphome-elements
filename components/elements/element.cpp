@@ -7,7 +7,9 @@ void Element::on_show() {}
 void Element::on_hide() {}
 
 void Element::on_next() {
-  if (parent_ != nullptr) parent_->on_next();
+  if (parent_ != nullptr) {
+    parent_->on_next();
+  }
 }
 
-}  // namespace esphome::elements
+} // namespace esphome::elements

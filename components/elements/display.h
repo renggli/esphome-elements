@@ -8,7 +8,7 @@ namespace esphome::elements {
 
 /// An image that is backed by a display buffer.
 class ImageDisplay : public display::Display, public display::BaseImage {
- public:
+public:
   ImageDisplay(int width, int height);
   ~ImageDisplay();
 
@@ -19,13 +19,13 @@ class ImageDisplay : public display::Display, public display::BaseImage {
   int get_height() const override { return height_; }
 
   void HOT draw_pixel_at(int x, int y, Color color);
-  void draw(int x, int y, Display* display, Color color_on,
+  void draw(int x, int y, Display *display, Color color_on,
             Color color_off) override;
 
- protected:
+protected:
   int width_, height_;
   RAMAllocator<Color> allocator_;
-  Color* buffer_ = nullptr;
+  Color *buffer_ = nullptr;
 
   void update() override {}
 
@@ -35,10 +35,9 @@ class ImageDisplay : public display::Display, public display::BaseImage {
 
 /// A sub-display of an existing display.
 class SubDisplay : public display::Display {
- public:
-  SubDisplay(display::Display& display, int x, int y, int w, int h)
-      : display_(display),
-        x_(clamp(x, 0, display.get_width())),
+public:
+  SubDisplay(display::Display &display, int x, int y, int w, int h)
+      : display_(display), x_(clamp(x, 0, display.get_width())),
         y_(clamp(y, 0, display.get_height())),
         w_(clamp(w, 0, display.get_width() - x)),
         h_(clamp(h, 0, display.get_height() - y)) {}
@@ -53,8 +52,8 @@ class SubDisplay : public display::Display {
     }
   }
 
- protected:
-  display::Display& display_;
+protected:
+  display::Display &display_;
   int x_, y_, w_, h_;
 
   void update() override {}
@@ -63,4 +62,4 @@ class SubDisplay : public display::Display {
   int get_height_internal() override { return h_; }
 };
 
-}  // namespace esphome::elements
+} // namespace esphome::elements

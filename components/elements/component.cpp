@@ -54,4 +54,4 @@ void ElementComponent::draw(display::Display &display) {
   root_->draw(display);
 }
 
-}  // namespace esphome::elements
+} // namespace esphome::elements

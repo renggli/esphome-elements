@@ -17,7 +17,7 @@ struct AnalogClockOptions {
 /// Analog clock element.
 class ClockElement : public Element {
  public:
-  explicit ClockElement(ElementComponent* component, Element* parent)
+  ClockElement(ElementComponent* component, Element* parent)
       : Element(ElementType::CLOCK, component, parent) {}
 
   void set_time(time::RealTimeClock* time) { time_ = time; }

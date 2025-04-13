@@ -3,7 +3,6 @@
 #include "element.h"
 #include "esphome/components/time/real_time_clock.h"
 #include "geometry.h"
-#include "timer.h"
 
 namespace esphome::elements {
 

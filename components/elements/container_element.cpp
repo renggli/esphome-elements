@@ -4,58 +4,65 @@
 
 namespace esphome::elements {
 
-void ContainerElement::add_element(Element* element) {
+void ContainerElement::add_element(Element *element) {
   elements_.push_back(element);
 }
 
 void ContainerElement::on_show() {
-  for (Element* element : elements_) {
+  for (Element *element : elements_) {
     element->on_show();
   }
 }
 
 void ContainerElement::on_hide() {
-  for (Element* element : elements_) {
+  for (Element *element : elements_) {
     element->on_hide();
   }
 }
 
 bool ContainerElement::is_active() {
-  for (Element* element : elements_) {
-    if (!element->is_active()) return false;
+  switch (active_mode_) {
+  case ConditionMode::ANY:
+    for (Element *element : elements_) {
+      if (element->is_active())
+        return true;
+    }
+    return false;
+  case ConditionMode::ALL:
+    for (Element *element : elements_) {
+      if (!element->is_active())
+        return false;
+    }
+    return true;
   }
-  return true;
+  return false;
 }
 
-void OverlayElement::draw(display::Display& display) {
-  for (Element* element : elements_) {
+void OverlayElement::draw(display::Display &display) {
+  for (Element *element : elements_) {
     element->draw(display);
   }
 }
 
-void PriorityElement::draw(display::Display& display) {
+void PriorityElement::draw(display::Display &display) {
   int index = find_active_index_();
   if (index != index_) {
     on_hide();
     index_ = index;
     on_show();
   }
-  if (index_ != -1) elements_[index_]->draw(display);
+  if (index_ != -1)
+    elements_[index_]->draw(display);
 }
 
 void PriorityElement::on_show() {
-  if (index_ != -1) elements_[index_]->on_show();
+  if (index_ != -1)
+    elements_[index_]->on_show();
 }
 
 void PriorityElement::on_hide() {
-  if (index_ != -1) elements_[index_]->on_hide();
-}
-
-bool PriorityElement::is_active() {
-  for (Element* element : elements_) {
-    if (element->is_active()) return true;
-  }
-  return false;
+  if (index_ != -1)
+    elements_[index_]->on_hide();
 }
 
 int PriorityElement::find_active_index_() {
@@ -67,7 +74,7 @@ int PriorityElement::find_active_index_() {
   return -1;
 }
 
-void HorizontalElement::draw(display::Display& display) {
+void HorizontalElement::draw(display::Display &display) {
   int width = display.get_width() / elements_.size();
   for (int i = 0; i < elements_.size(); i++) {
     auto sub_display =
@@ -76,16 +83,16 @@ void HorizontalElement::draw(display::Display& display) {
   }
 }
 
-void VerticalElement::draw(display::Display& display) {
+void VerticalElement::draw(display::Display &display) {
   int height = display.get_height() / elements_.size();
   for (int i = 0; i < elements_.size(); i++) {
     auto sub_display =
-        SubDisplay(display, 0, i * height, display.get_height(), height);
+        SubDisplay(display, 0, i * height, display.get_width(), height);
     elements_[i]->draw(sub_display);
   }
 }
 
-void SequenceElement::draw(display::Display& display) {
+void SequenceElement::draw(display::Display &display) {
   if (timer_.check(get_component().get_current_ms())) {
     on_next();
   }
@@ -93,7 +100,8 @@ void SequenceElement::draw(display::Display& display) {
 }
 
 void SequenceElement::go_to(int index) {
-  if (index_ == index) return;
+  if (index_ == index)
+    return;
   elements_[index_]->on_hide();
   index_ = index;
   timer_.reset(get_component().get_current_ms());
@@ -118,11 +126,4 @@ void SequenceElement::on_next() {
   }
 }
 
-bool SequenceElement::is_active() {
-  for (Element* element : elements_) {
-    if (element->is_active()) return true;
-  }
-  return false;
-}
-
-}  // namespace esphome::elements
+} // namespace esphome::elements

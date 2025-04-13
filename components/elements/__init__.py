@@ -361,7 +361,7 @@ async def element_to_code(config, component, parent=nullptr):
         if conf := config.get(name):
             value = await cg.process_lambda(conf,
                                             [(ElementRef, "element")],
-                                            return_type=cg.boolean)
+                                            return_type=cg.bool_)
             cg.add(getattr(var, 'set_' + name)(value))
     for name in [CONF_LAMBDA_ON_SHOW, CONF_LAMBDA_ON_HIDE, CONF_LAMBDA_ON_NEXT]:
         if conf := config.get(name):

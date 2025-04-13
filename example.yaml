@@ -119,29 +119,6 @@ timer:
   remaining:
     name: Timer Remaining
 
-# Fonts
-font:
-  # https://pictogrammers.com/library/mdi/
-  - file: assets/fonts/materialdesignicons-webfont.ttf
-    id: font_mdi_32
-    size: 32
-    glyphs:
-      - "\U000F0594" # mdi:weather-night
-      - "\U000F0590" # mdi:weather-cloudy
-      - "\U000F05D6" # mdi:alert-circle-outline
-      - "\U000F0591" # mdi:weather-fog
-      - "\U000F0592" # mdi:weather-hail
-      - "\U000F0593" # mdi:weather-lightning
-      - "\U000F067E" # mdi:weather-lightning-rainy
-      - "\U000F0596" # mdi:weather-pouring
-      - "\U000F0597" # mdi:weather-rainy
-      - "\U000F0598" # mdi:weather-snowy
-      - "\U000F067F" # mdi:weather-snowy-rainy
-      - "\U000F0599" # mdi:weather-sunny
-      - "\U000F059D" # mdi:weather-windy
-      - "\U000F059E" # mdi:weather-windy-variant
-      - "\U000F0595" # mdi:weather-partly-cloudy
-
 light:
   # Physical grids
   - platform: neopixelbus
@@ -219,12 +196,36 @@ display:
 
 image:
   rgb:
-    - id: cat
-      file: https://raw.githubusercontent.com/gammasoft/fatcow/refs/heads/master/32x32/cat.png
-    - id: guitar
-      file: https://raw.githubusercontent.com/gammasoft/fatcow/refs/heads/master/32x32/acoustic_guitar.png
-    - id: leaf
-      file: https://raw.githubusercontent.com/gammasoft/fatcow/refs/heads/master/32x32/green.png
+    - id: clear_night
+      file: assets/weather/clear-night.png
+    - id: cloudy
+      file: assets/weather/cloudy.png
+    - id: fog
+      file: assets/weather/fog.png
+    - id: hail
+      file: assets/weather/hail.png
+    - id: lightning_rainy
+      file: assets/weather/lightning-rainy.png
+    - id: lightning
+      file: assets/weather/lightning.png
+    - id: partlycloudy_night
+      file: assets/weather/partlycloudy-night.png
+    - id: partlycloudy
+      file: assets/weather/partlycloudy.png
+    - id: pouring
+      file: assets/weather/pouring.png
+    - id: rainy
+      file: assets/weather/rainy.png
+    - id: snowy_rainy
+      file: assets/weather/snowy-rainy.png
+    - id: snowy
+      file: assets/weather/snowy.png
+    - id: sunny
+      file: assets/weather/sunny.png
+    - id: windy_variant
+      file: assets/weather/windy-variant.png
+    - id: windy
+      file: assets/weather/windy.png
 
 elements:
   id: elements_display
@@ -277,46 +278,42 @@ elements:
             time: current_time
             font: font_chunky_8
       # Weather
-      - type: dynamic_text
-        font: font_mdi_32
-        lambda: |-
-          if (id(outside_weather).has_state()) {
-            auto state = id(outside_weather).state;
-            if (state == "clear-night") {
-              return "\U000F0594";
-            } else if (state == "cloudy") {
-              return "\U000F0590";
-            } else if (state == "fog") {
-              return "\U000F0591";
-            } else if (state == "hail") {
-              return "\U000F0592";
-            } else if (state == "lightning") {
-              return "\U000F0593";
-            } else if (state == "lightning-rainy") {
-              return "\U000F067E";
-            } else if (state == "partlycloudy") {
-              return "\U000F0595";
-            } else if (state == "pouring") {
-              return "\U000F0596";
-            } else if (state == "rainy") {
-              return "\U000F0597";
-            } else if (state == "snowy") {
-              return "\U000F0598";
-            } else if (state == "snowy-rainy") {
-              return "\U000F067F";
-            } else if (state == "sunny") {
-              return "\U000F0599";
-            } else if (state == "windy") {
-              return "\U000F059D";
-            } else if (state == "windy-variant") {
-              return "\U000F059E";
-            } else if (state == "exceptional") {
-              return "\U000F0F2F";
-            } else if (state == "sunny-off") {
-              return "\U000F14E4";
-            }
+      - type: custom
+        is_active: |-
+          return id(outside_weather).has_state();
+        draw: |-
+          auto state = id(outside_weather).state;
+          if (state == "clear-night") {
+            display.image(0, 0, id(clear_night));
+          } else if (state == "cloudy") {
+            display.image(0, 0, id(cloudy));
+          } else if (state == "fog") {
+            display.image(0, 0, id(fog));
+          } else if (state == "hail") {
+             display.image(0, 0, id(hail));
+          } else if (state == "lightning-rainy") {
+            display.image(0, 0, id(lightning_rainy));
+          } else if (state == "lightning") {
+            display.image(0, 0, id(lightning));
+          } else if (state == "partlycloudy-night") {
+            display.image(0, 0, id(partlycloudy_night));
+          } else if (state == "partlycloudy") {
+            display.image(0, 0, id(partlycloudy));
+          } else if (state == "pouring") {
+            display.image(0, 0, id(pouring));
+          } else if (state == "rainy") {
+            display.image(0, 0, id(rainy));
+          } else if (state == "snowy") {
+            display.image(0, 0, id(snowy));
+          } else if (state == "snowy-rainy") {
+            display.image(0, 0, id(snowy_rainy));
+          } else if (state == "sunny") {
+            display.image(0, 0, id(sunny));
+          } else if (state == "windy-variant") {
+            display.image(0, 0, id(windy_variant));
+          } else if (state == "windy") {
+            display.image(0, 0, id(windy));
           }
-          return "";
       # Temperature
       - type: vertical
         elements:

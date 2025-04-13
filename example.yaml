@@ -51,7 +51,7 @@ wifi:
     password: !secret captive_portal_password
 captive_portal:
 
-# Switch
+# Values
 switch:
   - platform: template
     name: "${friendly_name} Switch"
@@ -61,7 +61,6 @@ switch:
       - lambda: "id(led_display).set_enabled(true);"
     turn_off_action:
       - lambda: "id(led_display).set_enabled(false);"
-
 number:
   - platform: template
     name: "${friendly_name} Brightness"
@@ -72,6 +71,14 @@ number:
     restore_value: true
     set_action:
       - lambda: "id(led_display)->get_light()->set_correction(x, x, x, x);"
+text:
+  - platform: template
+    name: "${friendly_name} Message"
+    mode: text
+    restore_value: true
+    lambda: "return id(message_element).get_text();"
+    set_action:
+      - lambda: "id(message_element).set_text(x);"
 
 # Sensors
 sensor:
@@ -234,6 +241,12 @@ elements:
     type: sequence
     duration: 5s
     elements:
+      # Message
+      - type: static_text
+        id: message_element
+        font: font_chunky_8
+        scroll_mode: LEFT_TO_RIGHT
+        text: ""
       # Timer
       - type: dynamic_text
         font: font_chunky_8

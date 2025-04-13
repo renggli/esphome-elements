@@ -15,12 +15,13 @@ enum class ScrollMode {
 };
 
 class TextElement : public Element {
- public:
-  TextElement(ElementType elementType, ElementComponent* component,
-              Element* parent)
+public:
+  TextElement(ElementType elementType, ElementComponent *component,
+              Element *parent)
       : Element(elementType, component, parent) {}
+  virtual std::string get_text() = 0;
 
-  void set_font(display::BaseFont* font) { font_ = font; }
+  void set_font(display::BaseFont *font) { font_ = font; }
   void set_color(Color color) { color_ = color; }
   void set_background_color(Color background_color) {
     background_color_ = background_color;
@@ -31,21 +32,19 @@ class TextElement : public Element {
   void set_scroll_mode(ScrollMode scroll_mode) { scroll_mode_ = scroll_mode; }
   void set_scroll_speed(float scroll_speed) { scroll_speed_ = scroll_speed; }
 
-  void draw(display::Display& display) override;
+  void draw(display::Display &display) override;
   void on_show() override;
   bool is_active() override;
 
- protected:
-  virtual std::string get_text() = 0;
-
-  display::BaseFont* font_ = nullptr;
+protected:
+  display::BaseFont *font_ = nullptr;
   Color color_ = Color::WHITE;
   Color background_color_ = Color::BLACK;
   Anchor anchor_;
   display::TextAlign align_;
 
   ScrollMode scroll_mode_ = ScrollMode::NONE;
-  float scroll_speed_ = 10.0;  // pixel per second
+  float scroll_speed_ = 10.0; // pixel per second
   float scroll_offset_ = 0.0;
 
   std::string text_;
@@ -54,46 +53,45 @@ class TextElement : public Element {
 };
 
 class StaticTextElement : public TextElement {
- public:
-  StaticTextElement(ElementComponent* component, Element* parent)
+public:
+  StaticTextElement(ElementComponent *component, Element *parent)
       : TextElement(ElementType::STATIC_TEXT, component, parent) {}
 
   void set_text(std::string text) { text_ = text; }
-
- protected:
   std::string get_text() override;
 
+protected:
   std::string text_;
 };
 
 class DynamicTextElement : public TextElement {
- public:
-  DynamicTextElement(ElementComponent* component, Element* parent)
+public:
+  DynamicTextElement(ElementComponent *component, Element *parent)
       : TextElement(ElementType::DYNAMIC_TEXT, component, parent) {}
 
-  void set_lambda(std::function<std::string(DynamicTextElement&)> lambda) {
+  std::string get_text() override;
+
+  void set_lambda(std::function<std::string(DynamicTextElement &)> lambda) {
     lambda_ = lambda;
   }
 
- protected:
-  std::string get_text() override;
-
-  std::function<std::string(DynamicTextElement&)> lambda_;
+protected:
+  std::function<std::string(DynamicTextElement &)> lambda_;
 };
 
 class TimeTextElement : public TextElement {
- public:
-  TimeTextElement(ElementComponent* component, Element* parent)
+public:
+  TimeTextElement(ElementComponent *component, Element *parent)
       : TextElement(ElementType::TIME_TEXT, component, parent) {}
 
-  void set_time(time::RealTimeClock* time) { time_ = time; }
-  void set_format(std::string format) { format_ = format; }
-
- protected:
   std::string get_text() override;
 
-  time::RealTimeClock* time_;
+  void set_time(time::RealTimeClock *time) { time_ = time; }
+  void set_format(std::string format) { format_ = format; }
+
+protected:
+  time::RealTimeClock *time_;
   std::string format_;
 };
 
-}  // namespace esphome::elements
+} // namespace esphome::elements

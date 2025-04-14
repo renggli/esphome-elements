@@ -54,7 +54,7 @@ captive_portal:
 # Values
 switch:
   - platform: template
-    name: "${friendly_name} Switch"
+    name: "Switch"
     restore_mode: RESTORE_DEFAULT_OFF
     lambda: "return id(led_display).get_enabled();"
     turn_on_action:
@@ -63,7 +63,7 @@ switch:
       - lambda: "id(led_display).set_enabled(false);"
 number:
   - platform: template
-    name: "${friendly_name} Brightness"
+    name: "Brightness"
     min_value: 0.0
     max_value: 1.0
     step: 0.1
@@ -73,7 +73,7 @@ number:
       - lambda: "id(led_display)->get_light()->set_correction(x, x, x, x);"
 text:
   - platform: template
-    name: "${friendly_name} Message"
+    name: "Message"
     mode: text
     restore_value: true
     initial_value: ""
@@ -85,11 +85,11 @@ sensor:
   # Internal Sensors
   - platform: bh1750
     id: illuminance
-    name: ${friendly_name} Illuminance
+    name: "Illuminance"
     address: 0x23
   - platform: dallas_temp
     id: temperature
-    name: ${friendly_name} Temperature
+    name: "Temperature"
     address: 0xbd00000051c98a28
   # External Sensors
   - platform: homeassistant
@@ -99,16 +99,16 @@ sensor:
     id: outside_temperature
     entity_id: sensor.meteo_swiss_temperature
 text_sensor:
+  # External Sensors
   - platform: homeassistant
     id: outside_weather
     entity_id: weather.forecast_home
   - platform: homeassistant
-    id: timer_state
-    entity_id: timer.default
+    id: calendar_current_event
+    entity_id: input_text.calendar_current_event
   - platform: homeassistant
-    id: timer_remaining
-    entity_id: timer.default
-    attribute: remaining
+    id: calendar_next_event
+    entity_id: input_text.calendar_next_event
 
 # Timer
 timer:
@@ -244,8 +244,9 @@ elements:
       # Message
       - type: static_text
         id: message_element
-        font: font_chunky_8
+        font: font_light_8
         scroll_mode: LEFT_TO_RIGHT
+        color: slate_dark
         text: ""
       # Time and Date
       - type: vertical
@@ -256,40 +257,31 @@ elements:
                 elements:
                   - type: time_text
                     time: current_time
-                    font: font_chunky_6
-                    format: "%a"
+                    font: font_light_6
+                    color: orange_dark
+                    format: "%a" # abbr weekday name
                   - type: time_text
                     time: current_time
-                    font: font_chunky_6
-                    format: "%b"
+                    font: font_light_6
+                    color: violet_dark
+                    format: "%b" # abbr month name
               - type: vertical
                 elements:
                   - type: time_text
                     time: current_time
-                    font: font_chunky_6
-                    format: "%e"
+                    font: font_light_6
+                    color: orange_dark
+                    format: "%e" # day of month
                   - type: time_text
                     time: current_time
-                    font: font_chunky_6
-                    format: "%Y"
+                    font: font_light_6
+                    color: violet_dark
+                    format: "%Y" # year
           - type: time_text
             time: current_time
-            font: font_chunky_8
-      # Timer
-      - type: dynamic_text
-        font: font_chunky_8
-        lambda: |-
-          auto state = id(default_timer).get_state();
-          if (state == "Stopped") return "";
-          element.set_color(
-            state == "Expired" ? Color(255, 0, 0) :
-            state == "Paused" ? Color(0, 0, 255) :
-            Color::WHITE);
-          int remaining = id(default_timer).get_remaining() / 1000;
-          int seconds = remaining % 60;
-          int minutes = (remaining - seconds) / 60;
-          const char* sign = remaining >= 0 ? "" : "-";
-          return str_snprintf("%s%d:%02d", 12, sign, abs(minutes), abs(seconds));
+            font: font_light_8
+            color: aluminium_dark
+            format: "%H:%M:%S"
       # Weather
       - type: custom
         is_active: |-
@@ -327,14 +319,50 @@ elements:
           } else if (state == "windy") {
             display.image(0, 0, id(windy));
           }
-      # Analog Clock
-      - type: clock
-        time: current_time
+      # Calendar
+      - type: vertical
+        active_mode: any
+        elements:
+          - type: dynamic_text
+            font: font_chunky_8
+            color: yellow_dark
+            scroll_mode: LEFT_TO_RIGHT
+            lambda: |-
+              if (id(calendar_current_event).has_state()) {
+                return id(calendar_current_event).state;
+              } else {
+                return "";
+              }
+          - type: dynamic_text
+            font: font_light_8
+            color: green_dark
+            scroll_mode: LEFT_TO_RIGHT
+            lambda: |-
+              if (id(calendar_next_event).has_state()) {
+                return id(calendar_next_event).state;
+              } else {
+                return "";
+              }
+      # Timer
+      - type: dynamic_text
+        font: font_chunky_8
+        lambda: |-
+          auto state = id(default_timer).get_state();
+          if (state == "Stopped") return "";
+          element.set_color(
+            state == "Expired" ? Color(0xcc, 0x00, 0x00) :
+            state == "Paused" ? Color(0x34, 0x65, 0xa4) :
+            Color::WHITE);
+          int remaining = id(default_timer).get_remaining() / 1000;
+          int seconds = remaining % 60;
+          int minutes = (remaining - seconds) / 60;
+          const char* sign = remaining >= 0 ? "" : "-";
+          return str_snprintf("%s%d:%02d", 12, sign, abs(minutes), abs(seconds));
       # Temperature
       - type: vertical
         elements:
           - type: dynamic_text
-            font: font_chunky_8
+            font: font_light_8
             lambda: |-
               if (id(outside_temperature).has_state()) {
                 float temp = id(outside_temperature).state;
@@ -345,7 +373,7 @@ elements:
               }
               return "";
           - type: dynamic_text
-            font: font_chunky_8
+            font: font_light_8
             lambda: |-
               if (id(inside_temperature).has_state()) {
                 float temp = id(inside_temperature).state;
@@ -355,3 +383,18 @@ elements:
                 return str_snprintf("%.1f °C", 12, id(inside_temperature).state);
               }
               return "";
+      # Analog Clock
+      - type: clock
+        time: current_time
+        minute_markers:
+          color: blue_dark
+        hour_markers:
+          color: blue_dark
+        quarter_markers:
+          color: blue_dark
+        second_hand:
+          color: red_dark
+        minute_hand:
+          color: aluminium_dark
+        hour_hand:
+          color: aluminium_dark

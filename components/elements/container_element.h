@@ -5,25 +5,28 @@
 
 namespace esphome::elements {
 
-// The modes to check conditions on.
-enum class ConditionMode {
+// The strategy to infer the activeness of the container based on the state
+// of its children.
+enum class ActiveMode {
+  // The container is always active.
+  ALWAYS,
+  // The container is active, if any of its children are.
   ANY,
+  // The container is active, if all of its children are.
   ALL,
+  // The container is never active.
+  NEVER,
 };
 
 /// Element that delgates to a list of other elements.
 class ContainerElement : public Element {
 public:
   ContainerElement(ElementType type, ElementComponent *component,
-                   Element *parent, ConditionMode active_mode)
+                   Element *parent, ActiveMode active_mode)
       : Element(type, component, parent), active_mode_(active_mode) {}
 
-  // The strategy to infer the activeness of the container based on its
-  // children.
-  void set_active_mode(ConditionMode active_mode) {
-    active_mode_ = active_mode;
-  };
-  ConditionMode get_active_mode() { return active_mode_; }
+  void set_active_mode(ActiveMode active_mode) { active_mode_ = active_mode; };
+  ActiveMode get_active_mode() { return active_mode_; }
 
   void add_element(Element *element);
 
@@ -33,7 +36,7 @@ public:
 
 protected:
   std::vector<Element *> elements_ = {};
-  ConditionMode active_mode_;
+  ActiveMode active_mode_;
 };
 
 /// Draws multiple elements on top of each other.
@@ -41,7 +44,7 @@ class OverlayElement : public ContainerElement {
 public:
   OverlayElement(ElementComponent *component, Element *parent)
       : ContainerElement(ElementType::OVERLAY, component, parent,
-                         ConditionMode::ANY) {}
+                         ActiveMode::ANY) {}
 
   void draw(display::Display &display) override;
 };
@@ -51,7 +54,7 @@ class PriorityElement : public ContainerElement {
 public:
   PriorityElement(ElementComponent *component, Element *parent)
       : ContainerElement(ElementType::PRIORITY, component, parent,
-                         ConditionMode::ANY) {}
+                         ActiveMode::ANY) {}
 
   void draw(display::Display &display) override;
 
@@ -68,7 +71,7 @@ class HorizontalElement : public ContainerElement {
 public:
   HorizontalElement(ElementComponent *component, Element *parent)
       : ContainerElement(ElementType::HORIZONTAL, component, parent,
-                         ConditionMode::ALL) {}
+                         ActiveMode::ALL) {}
 
   void draw(display::Display &display) override;
 };
@@ -78,7 +81,7 @@ class VerticalElement : public ContainerElement {
 public:
   VerticalElement(ElementComponent *component, Element *parent)
       : ContainerElement(ElementType::VERTICAL, component, parent,
-                         ConditionMode::ALL) {}
+                         ActiveMode::ALL) {}
 
   void draw(display::Display &display) override;
 };
@@ -88,7 +91,7 @@ class SequenceElement : public ContainerElement {
 public:
   SequenceElement(ElementComponent *component, Element *parent)
       : ContainerElement(ElementType::SEQUENCE, component, parent,
-                         ConditionMode::ANY) {}
+                         ActiveMode::ANY) {}
 
   void set_duration(uint32_t duration_ms) {
     timer_.set_duration(duration_ms);

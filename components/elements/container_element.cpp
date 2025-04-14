@@ -22,18 +22,22 @@ void ContainerElement::on_hide() {
 
 bool ContainerElement::is_active() {
   switch (active_mode_) {
-  case ConditionMode::ANY:
+  case ActiveMode::ALWAYS:
+    return true;
+  case ActiveMode::ANY:
     for (Element *element : elements_) {
       if (element->is_active())
         return true;
     }
     return false;
-  case ConditionMode::ALL:
+  case ActiveMode::ALL:
     for (Element *element : elements_) {
       if (!element->is_active())
         return false;
     }
     return true;
+  case ActiveMode::NEVER:
+    return false;
   }
   return false;
 }

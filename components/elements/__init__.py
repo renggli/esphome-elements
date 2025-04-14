@@ -15,6 +15,7 @@ MULTI_CONF = True
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # properties
+CONF_ACTIVE_MODE = 'active_mode'
 CONF_ALIGN = 'align'
 CONF_ANCHOR = 'anchor'
 CONF_ELEMENT = 'element'
@@ -22,6 +23,11 @@ CONF_ELEMENTS = 'elements'
 CONF_END = 'end'
 CONF_HOUR_HAND = 'hour_hand'
 CONF_HOUR_MARKERS = 'hour_markers'
+CONF_LAMBDA_DRAW = 'draw'
+CONF_LAMBDA_IS_ACTIVE = 'is_active'
+CONF_LAMBDA_ON_HIDE = 'on_hide'
+CONF_LAMBDA_ON_NEXT = 'on_next'
+CONF_LAMBDA_ON_SHOW = 'on_show'
 CONF_MINUTE_HAND = 'minute_hand'
 CONF_MINUTE_MARKERS = 'minute_markers'
 CONF_QUARTER_MARKERS = 'quarter_markers'
@@ -30,11 +36,6 @@ CONF_SCROLL_SPEED = 'scroll_speed'
 CONF_SECOND_HAND = 'second_hand'
 CONF_SMOOTH = 'smooth'
 CONF_START = 'start'
-CONF_LAMBDA_DRAW = 'draw'
-CONF_LAMBDA_IS_ACTIVE = 'is_active'
-CONF_LAMBDA_ON_HIDE = 'on_hide'
-CONF_LAMBDA_ON_NEXT = 'on_next'
-CONF_LAMBDA_ON_SHOW = 'on_show'
 
 # types
 CONF_CLOCK = 'clock'
@@ -178,6 +179,18 @@ SCROLL_MODE = {
     'TOP_TO_BOTTOM': ScrollMode.TOP_TO_BOTTOM,
 }
 
+# active mode enum
+
+active_mode_ns = elements_ns.namespace('ActiveMode')
+ActiveMode = active_mode_ns.enum('ActiveMode')
+
+ACTIVE_MODE = {
+    'ALWAYS': ActiveMode.ALWAYS,
+    'ANY': ActiveMode.ANY,
+    'ALL': ActiveMode.ALL,
+    'NEVER': ActiveMode.NEVER,
+}
+
 # other
 
 nullptr = cg.esphome_ns.class_('nullptr')
@@ -247,7 +260,8 @@ CONTAINER_ELEMENT_SCHEMA = BASE_ELEMENT_SCHEMA.extend({
     cv.Required(CONF_ELEMENTS): cv.All(
         cv.ensure_list(element_schema),
         cv.Length(min=1),
-    )
+    ),
+    cv.Optional(CONF_ACTIVE_MODE): cv.enum(ACTIVE_MODE, upper=True, space='_'),
 })
 
 TEXT_ELEMENT_SCHEMA = BASE_ELEMENT_SCHEMA.extend({
@@ -333,7 +347,7 @@ async def element_to_code(config, component, parent=nullptr):
 
     # literals
     for name in [CONF_DURATION, CONF_FORMAT, CONF_TEXT, CONF_ALIGN,
-                 CONF_SCROLL_MODE, CONF_SCROLL_SPEED]:
+                 CONF_SCROLL_MODE, CONF_SCROLL_SPEED, CONF_ACTIVE_MODE]:
         if value := config.get(name):
             cg.add(getattr(var, 'set_' + name)(value))
 

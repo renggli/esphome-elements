@@ -16,11 +16,11 @@ struct AnalogClockOptions {
 
 /// Analog clock element.
 class ClockElement : public Element {
- public:
-  ClockElement(ElementComponent* component, Element* parent)
+public:
+  ClockElement(ElementComponent *component, Element *parent)
       : Element(ElementType::CLOCK, component, parent) {}
 
-  void set_time(time::RealTimeClock* time) { time_ = time; }
+  void set_time(time::RealTimeClock *time) { time_ = time; }
 
   void set_minute_markers(AnalogClockOptions minute_markers) {
     minute_markers_ = minute_markers;
@@ -39,10 +39,10 @@ class ClockElement : public Element {
   }
   void set_hour_hand(AnalogClockOptions hour_hand) { hour_hand_ = hour_hand; }
 
-  void draw(display::Display& display) override;
+  void draw(display::Display &display) override;
 
- protected:
-  time::RealTimeClock* time_;
+protected:
+  time::RealTimeClock *time_;
   AnalogClockOptions minute_markers_;
   AnalogClockOptions hour_markers_;
   AnalogClockOptions quarter_markers_;
@@ -51,4 +51,4 @@ class ClockElement : public Element {
   AnalogClockOptions hour_hand_;
 };
 
-}  // namespace esphome::elements
+} // namespace esphome::elements

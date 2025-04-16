@@ -18,6 +18,7 @@ MULTI_CONF = True
 CONF_ACTIVE_MODE = 'active_mode'
 CONF_ALIGN = 'align'
 CONF_ANCHOR = 'anchor'
+CONF_COUNT = 'count'
 CONF_ELEMENT = 'element'
 CONF_ELEMENTS = 'elements'
 CONF_END = 'end'
@@ -40,6 +41,7 @@ CONF_START = 'start'
 # types
 CONF_CLOCK = 'clock'
 CONF_CUSTOM = 'custom'
+CONF_DELAY = 'delay'
 CONF_DYNAMIC_TEXT = 'dynamic_text'
 CONF_HORIZONTAL = 'horizontal'
 CONF_IMAGE = 'image'
@@ -48,6 +50,7 @@ CONF_PRIORITY = 'priority'
 CONF_SEQUENCE = 'sequence'
 CONF_STATIC_TEXT = 'static_text'
 CONF_TIME_TEXT = 'time_text'
+CONF_TIMEOUT = 'timeout'
 CONF_VERTICAL = 'vertical'
 
 # classes
@@ -72,6 +75,10 @@ OverlayElement = elements_ns.class_('OverlayElement', ContainerElement)
 PriorityElement = elements_ns.class_('PriorityElement', ContainerElement)
 SequenceElement = elements_ns.class_('SequenceElement', ContainerElement)
 VerticalElement = elements_ns.class_('VerticalElement', ContainerElement)
+
+DelegateElement = elements_ns.class_('DelegateElement', Element)
+DelayElement = elements_ns.class_('DelayElement', DelegateElement)
+TimeoutElement = elements_ns.class_('TimeoutElement', DelegateElement)
 
 TextElement = elements_ns.class_('TextElement', Element)
 StaticTextElement = elements_ns.class_('StaticTextElement', TextElement)
@@ -237,8 +244,16 @@ Anchor = elements_ns.class_('Anchor')
 
 def anchor_schema(offset_x=0, offset_y=0, fraction_x=0.5, fraction_y=0.5):
     return cv.Schema({
-        cv.Optional('offset', default={}): point_schema(x=offset_x, y=offset_y, validation=cv.int_),
-        cv.Optional('fraction', default={}): point_schema(x=fraction_x, y=fraction_y, validation=cv.float_range(min=0.0, max=1.0)),
+        cv.Optional('offset', default={}): point_schema(
+            x=offset_x,
+            y=offset_y,
+            validation=cv.int_,
+        ),
+        cv.Optional('fraction', default={}): point_schema(
+            x=fraction_x,
+            y=fraction_y,
+            validation=cv.float_range(min=0.0, max=1.0),
+        ),
     })
 
 async def anchor_to_code(config):
@@ -262,6 +277,10 @@ CONTAINER_ELEMENT_SCHEMA = BASE_ELEMENT_SCHEMA.extend({
         cv.Length(min=1),
     ),
     cv.Optional(CONF_ACTIVE_MODE): cv.enum(ACTIVE_MODE, upper=True, space='_'),
+})
+
+DELEGATE_ELEMENT_SCHEMA = BASE_ELEMENT_SCHEMA.extend({
+    cv.Required(CONF_ELEMENT): element_schema,
 })
 
 TEXT_ELEMENT_SCHEMA = BASE_ELEMENT_SCHEMA.extend({
@@ -299,6 +318,10 @@ ELEMENT_SCHEMA = cv.typed_schema({
         cv.Optional(CONF_LAMBDA_ON_NEXT): cv.lambda_,
         cv.Optional(CONF_LAMBDA_IS_ACTIVE): cv.returning_lambda,
     }),
+    CONF_DELAY: DELEGATE_ELEMENT_SCHEMA.extend({
+        cv.GenerateID(CONF_ID): cv.declare_id(DelayElement),
+        cv.Optional(CONF_COUNT): cv.positive_int,
+    }),
     CONF_DYNAMIC_TEXT: TEXT_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(DynamicTextElement),
         cv.Required(CONF_LAMBDA): cv.returning_lambda,
@@ -320,7 +343,6 @@ ELEMENT_SCHEMA = cv.typed_schema({
     }),
     CONF_SEQUENCE: CONTAINER_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(SequenceElement),
-        cv.Optional(CONF_DURATION): cv.positive_time_period_milliseconds,
     }),
     CONF_STATIC_TEXT: TEXT_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(StaticTextElement),
@@ -330,6 +352,10 @@ ELEMENT_SCHEMA = cv.typed_schema({
         cv.GenerateID(CONF_ID): cv.declare_id(TimeTextElement),
         cv.Required(CONF_TIME): cv.use_id(time.RealTimeClock),
         cv.Optional(CONF_FORMAT, default='%H:%M:%S'): cv.string,
+    }),
+    CONF_TIMEOUT: DELEGATE_ELEMENT_SCHEMA.extend({
+        cv.GenerateID(CONF_ID): cv.declare_id(TimeoutElement),
+        cv.Optional(CONF_DURATION): cv.positive_time_period_milliseconds,
     }),
     CONF_VERTICAL: CONTAINER_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(VerticalElement),
@@ -347,7 +373,7 @@ async def element_to_code(config, component, parent=nullptr):
 
     # literals
     for name in [CONF_DURATION, CONF_FORMAT, CONF_TEXT, CONF_ALIGN,
-                 CONF_SCROLL_MODE, CONF_SCROLL_SPEED, CONF_ACTIVE_MODE]:
+                 CONF_SCROLL_MODE, CONF_SCROLL_SPEED, CONF_ACTIVE_MODE, CONF_COUNT]:
         if value := config.get(name):
             cg.add(getattr(var, 'set_' + name)(value))
 
@@ -392,6 +418,10 @@ async def element_to_code(config, component, parent=nullptr):
             cg.add(getattr(var, 'set_' + name)(value))
 
     # elements
+    for name in [CONF_ELEMENT]:
+        if conf := config.get(name):
+            value = await element_to_code(conf, component, var)
+            cg.add(getattr(var, 'set_' + name)(value))
     if conf := config.get(CONF_ELEMENTS):
         for conf_item in conf:
             value = await element_to_code(conf_item, component, var)

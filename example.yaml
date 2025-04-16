@@ -239,162 +239,182 @@ elements:
   display: led_display
   element:
     type: sequence
-    duration: 10s
     elements:
       # Message
-      - type: static_text
-        id: message_element
-        font: font_light_8
-        scroll_mode: LEFT_TO_RIGHT
-        color: slate_dark
-        text: ""
+      - type: delay
+        count: 2
+        element:
+          type: static_text
+          id: message_element
+          font: font_chunky_8
+          scroll_mode: LEFT_TO_RIGHT
+          color: aluminium_dark
+          text: ""
       # Time and Date
-      - type: vertical
-        elements:
-          - type: horizontal
-            elements:
-              - type: vertical
-                elements:
-                  - type: time_text
-                    time: current_time
-                    font: font_light_6
-                    color: orange_dark
-                    format: "%a" # abbr weekday name
-                  - type: time_text
-                    time: current_time
-                    font: font_light_6
-                    color: violet_dark
-                    format: "%b" # abbr month name
-              - type: vertical
-                elements:
-                  - type: time_text
-                    time: current_time
-                    font: font_light_6
-                    color: orange_dark
-                    format: "%e" # day of month
-                  - type: time_text
-                    time: current_time
-                    font: font_light_6
-                    color: violet_dark
-                    format: "%Y" # year
-          - type: time_text
-            time: current_time
-            font: font_light_8
-            color: aluminium_dark
-            format: "%H:%M:%S"
+      - type: timeout
+        duration: 10s
+        element:
+          type: vertical
+          elements:
+            - type: horizontal
+              elements:
+                - type: vertical
+                  elements:
+                    - type: time_text
+                      time: current_time
+                      font: font_chunky_6
+                      color: orange_dark
+                      format: "%a" # abbr weekday name
+                    - type: time_text
+                      time: current_time
+                      font: font_chunky_6
+                      color: violet_dark
+                      format: "%b" # abbr month name
+                - type: vertical
+                  elements:
+                    - type: time_text
+                      time: current_time
+                      font: font_chunky_6
+                      color: orange_dark
+                      format: "%e" # day of month
+                    - type: time_text
+                      time: current_time
+                      font: font_chunky_6
+                      color: violet_dark
+                      format: "%Y" # year
+            - type: time_text
+              time: current_time
+              font: font_chunky_8
+              color: aluminium_dark
+              format: "%H:%M:%S"
       # Weather
-      - type: custom
-        is_active: |-
-          return id(outside_weather).has_state();
-        draw: |-
-          auto state = id(outside_weather).state;
-          if (state == "clear-night") {
-            display.image(0, 0, id(clear_night));
-          } else if (state == "cloudy") {
-            display.image(0, 0, id(cloudy));
-          } else if (state == "fog") {
-            display.image(0, 0, id(fog));
-          } else if (state == "hail") {
-             display.image(0, 0, id(hail));
-          } else if (state == "lightning-rainy") {
-            display.image(0, 0, id(lightning_rainy));
-          } else if (state == "lightning") {
-            display.image(0, 0, id(lightning));
-          } else if (state == "partlycloudy-night") {
-            display.image(0, 0, id(partlycloudy_night));
-          } else if (state == "partlycloudy") {
-            display.image(0, 0, id(partlycloudy));
-          } else if (state == "pouring") {
-            display.image(0, 0, id(pouring));
-          } else if (state == "rainy") {
-            display.image(0, 0, id(rainy));
-          } else if (state == "snowy") {
-            display.image(0, 0, id(snowy));
-          } else if (state == "snowy-rainy") {
-            display.image(0, 0, id(snowy_rainy));
-          } else if (state == "sunny") {
-            display.image(0, 0, id(sunny));
-          } else if (state == "windy-variant") {
-            display.image(0, 0, id(windy_variant));
-          } else if (state == "windy") {
-            display.image(0, 0, id(windy));
-          }
+      - type: timeout
+        duration: 10s
+        element:
+          type: custom
+          is_active: |-
+            return id(outside_weather).has_state();
+          draw: |-
+            auto state = id(outside_weather).state;
+            if (state == "clear-night") {
+              display.image(0, 0, id(clear_night));
+            } else if (state == "cloudy") {
+              display.image(0, 0, id(cloudy));
+            } else if (state == "fog") {
+              display.image(0, 0, id(fog));
+            } else if (state == "hail") {
+              display.image(0, 0, id(hail));
+            } else if (state == "lightning-rainy") {
+              display.image(0, 0, id(lightning_rainy));
+            } else if (state == "lightning") {
+              display.image(0, 0, id(lightning));
+            } else if (state == "partlycloudy-night") {
+              display.image(0, 0, id(partlycloudy_night));
+            } else if (state == "partlycloudy") {
+              display.image(0, 0, id(partlycloudy));
+            } else if (state == "pouring") {
+              display.image(0, 0, id(pouring));
+            } else if (state == "rainy") {
+              display.image(0, 0, id(rainy));
+            } else if (state == "snowy") {
+              display.image(0, 0, id(snowy));
+            } else if (state == "snowy-rainy") {
+              display.image(0, 0, id(snowy_rainy));
+            } else if (state == "sunny") {
+              display.image(0, 0, id(sunny));
+            } else if (state == "windy-variant") {
+              display.image(0, 0, id(windy_variant));
+            } else if (state == "windy") {
+              display.image(0, 0, id(windy));
+            }
       # Calendar
-      - type: vertical
-        active_mode: any
-        elements:
-          - type: dynamic_text
-            font: font_chunky_8
-            color: yellow_dark
-            scroll_mode: LEFT_TO_RIGHT
-            lambda: |-
-              if (id(calendar_current_event).has_state()) {
-                return id(calendar_current_event).state;
-              } else {
-                return "";
-              }
-          - type: dynamic_text
-            font: font_light_8
-            color: green_dark
-            scroll_mode: LEFT_TO_RIGHT
-            lambda: |-
-              if (id(calendar_next_event).has_state()) {
-                return id(calendar_next_event).state;
-              } else {
-                return "";
-              }
+      - type: delay
+        count: 4
+        element:
+          type: vertical
+          active_mode: any
+          elements:
+            - type: dynamic_text
+              font: font_chunky_8
+              color: yellow_dark
+              scroll_mode: LEFT_TO_RIGHT
+              lambda: |-
+                if (id(calendar_current_event).has_state()) {
+                  return id(calendar_current_event).state;
+                } else {
+                  return "";
+                }
+            - type: dynamic_text
+              font: font_chunky_8
+              color: green_dark
+              scroll_mode: LEFT_TO_RIGHT
+              lambda: |-
+                if (id(calendar_next_event).has_state()) {
+                  return id(calendar_next_event).state;
+                } else {
+                  return "";
+                }
       # Timer
-      - type: dynamic_text
-        font: font_chunky_8
-        lambda: |-
-          auto state = id(default_timer).get_state();
-          if (state == "Stopped") return "";
-          element.set_color(
-            state == "Expired" ? Color(0xcc, 0x00, 0x00) :
-            state == "Paused" ? Color(0x34, 0x65, 0xa4) :
-            Color::WHITE);
-          int remaining = id(default_timer).get_remaining() / 1000;
-          int seconds = remaining % 60;
-          int minutes = (remaining - seconds) / 60;
-          const char* sign = remaining >= 0 ? "" : "-";
-          return str_snprintf("%s%d:%02d", 12, sign, abs(minutes), abs(seconds));
+      - type: timeout
+        duration: 10s
+        element:
+          type: dynamic_text
+          font: font_chunky_8
+          lambda: |-
+            auto state = id(default_timer).get_state();
+            if (state == "Stopped") return "";
+            element.set_color(
+              state == "Expired" ? id(red) :
+              state == "Paused" ? id(blue) :
+              id(aluminium));
+            int remaining = id(default_timer).get_remaining() / 1000;
+            int seconds = remaining % 60;
+            int minutes = (remaining - seconds) / 60;
+            const char* sign = remaining >= 0 ? "" : "-";
+            return str_snprintf("%s%d:%02d", 12, sign, abs(minutes), abs(seconds));
       # Temperature
-      - type: vertical
-        elements:
-          - type: dynamic_text
-            font: font_light_8
-            lambda: |-
-              if (id(outside_temperature).has_state()) {
-                float temp = id(outside_temperature).state;
-                const float min = 0, max = 40;
-                uint8_t hue = remap(clamp(temp, min, max), min, max, 0x7f, 0xff);
-                element.set_color(ESPHSVColor(hue, 0xff, 0xff).to_rgb());
-                return str_snprintf("%.1f °C", 12, temp);
-              }
-              return "";
-          - type: dynamic_text
-            font: font_light_8
-            lambda: |-
-              if (id(inside_temperature).has_state()) {
-                float temp = id(inside_temperature).state;
-                const float min = 18, max = 30;
-                uint8_t hue = remap(clamp(temp, min, max), min, max, 0x7f, 0xff);
-                element.set_color(ESPHSVColor(hue, 0xff, 0xff).to_rgb());
-                return str_snprintf("%.1f °C", 12, id(inside_temperature).state);
-              }
-              return "";
+      - type: timeout
+        duration: 5s
+        element:
+          type: vertical
+          elements:
+            - type: dynamic_text
+              font: font_chunky_8
+              lambda: |-
+                if (id(outside_temperature).has_state()) {
+                  float temp = id(outside_temperature).state;
+                  const float min = 0, max = 40;
+                  uint8_t hue = round(remap<float, float>(clamp(temp, min, max), min, max, 0x7f, 0xff));
+                  element.set_color(ESPHSVColor(hue, 0xff, 0xff).to_rgb());
+                  return str_snprintf("%.1f °C", 12, temp);
+                }
+                return "";
+            - type: dynamic_text
+              font: font_chunky_8
+              lambda: |-
+                if (id(inside_temperature).has_state()) {
+                  float temp = id(inside_temperature).state;
+                  const float min = 20, max = 30;
+                  uint8_t hue = round(remap<float, float>(clamp(temp, min, max), min, max, 0x7f, 0xff));
+                  element.set_color(ESPHSVColor(hue, 0xff, 0xff).to_rgb());
+                  return str_snprintf("%.1f °C", 12, id(inside_temperature).state);
+                }
+                return "";
       # Analog Clock
-      - type: clock
-        time: current_time
-        minute_markers:
-          color: blue_dark
-        hour_markers:
-          color: blue_dark
-        quarter_markers:
-          color: blue_dark
-        second_hand:
-          color: red_dark
-        minute_hand:
-          color: aluminium_dark
-        hour_hand:
-          color: aluminium_dark
+      - type: timeout
+        duration: 10s
+        element:
+          type: clock
+          time: current_time
+          minute_markers:
+            color: blue_dark
+          hour_markers:
+            color: blue_dark
+          quarter_markers:
+            color: blue_dark
+          second_hand:
+            color: red_dark
+          minute_hand:
+            color: aluminium_dark
+          hour_hand:
+            color: aluminium_dark

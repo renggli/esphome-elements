@@ -25,6 +25,9 @@ void ElementComponent::setup() {
 
 void ElementComponent::dump_config() {
   ESP_LOGCONFIG(ELEMENT_COMPONENT_TAG, "Elements Component");
+  if (root_ != nullptr) {
+    root_->dump_config(0);
+  }
 }
 
 void ElementComponent::set_root(Element *root) {

@@ -8,6 +8,13 @@ void ContainerElement::add_element(Element *element) {
   elements_.push_back(element);
 }
 
+void ContainerElement::dump_config(int level) {
+  Element::dump_config(level);
+  for (Element *element : elements_) {
+    element->dump_config(level + 1);
+  }
+}
+
 void ContainerElement::on_show() {
   for (Element *element : elements_) {
     element->on_show();
@@ -48,25 +55,31 @@ void OverlayElement::draw(display::Display &display) {
   }
 }
 
+static const char *PRIORITY_ELEMENT_TAG = "elements.priority";
+
 void PriorityElement::draw(display::Display &display) {
   int index = find_active_index_();
   if (index != index_) {
+    ESP_LOGI(PRIORITY_ELEMENT_TAG, "Switching from %i to %i", index_, index);
     on_hide();
     index_ = index;
     on_show();
   }
-  if (index_ != -1)
+  if (index_ != -1) {
     elements_[index_]->draw(display);
+  }
 }
 
 void PriorityElement::on_show() {
-  if (index_ != -1)
+  if (index_ != -1) {
     elements_[index_]->on_show();
+  }
 }
 
 void PriorityElement::on_hide() {
-  if (index_ != -1)
+  if (index_ != -1) {
     elements_[index_]->on_hide();
+  }
 }
 
 int PriorityElement::find_active_index_() {
@@ -96,29 +109,37 @@ void VerticalElement::draw(display::Display &display) {
   }
 }
 
+static const char *SEQUENCE_ELEMENT_TAG = "elements.sequence";
+
 void SequenceElement::draw(display::Display &display) {
-  if (timer_.check(get_component().get_current_ms())) {
+  if (index_ == -1) {
     on_next();
   }
-  elements_[index_]->draw(display);
+  if (index_ != -1) {
+    elements_[index_]->draw(display);
+  }
 }
 
 void SequenceElement::go_to(int index) {
-  if (index_ == index)
-    return;
-  elements_[index_]->on_hide();
-  index_ = index;
-  timer_.reset(get_component().get_current_ms());
-  elements_[index_]->on_show();
+  if (index_ != index) {
+    ESP_LOGI(SEQUENCE_ELEMENT_TAG, "Switching from %i to %i", index_, index);
+    on_hide();
+    index_ = index;
+    on_show();
+  }
 }
 
 void SequenceElement::on_show() {
-  index_ = 0;
-  timer_.reset(get_component().get_current_ms());
-  elements_[index_]->on_show();
+  if (index_ != -1) {
+    elements_[index_]->on_show();
+  }
 }
 
-void SequenceElement::on_hide() { elements_[index_]->on_hide(); }
+void SequenceElement::on_hide() {
+  if (index_ != -1) {
+    elements_[index_]->on_hide();
+  }
+}
 
 void SequenceElement::on_next() {
   for (int offset = 1; offset < elements_.size(); offset++) {

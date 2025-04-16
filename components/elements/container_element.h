@@ -1,7 +1,6 @@
 #pragma once
 
 #include "element.h"
-#include "timer.h"
 
 namespace esphome::elements {
 
@@ -29,6 +28,8 @@ public:
   ActiveMode get_active_mode() { return active_mode_; }
 
   void add_element(Element *element);
+
+  void dump_config(int level) override;
 
   void on_show() override;
   void on_hide() override;
@@ -93,11 +94,6 @@ public:
       : ContainerElement(ElementType::SEQUENCE, component, parent,
                          ActiveMode::ANY) {}
 
-  void set_duration(uint32_t duration_ms) {
-    timer_.set_duration(duration_ms);
-    timer_.reset(get_component().get_current_ms());
-  }
-
   void draw(display::Display &display) override;
   void go_to(int index);
 
@@ -106,8 +102,7 @@ public:
   void on_next() override;
 
 protected:
-  Timer timer_;
-  int index_ = 0;
+  int index_ = -1;
 };
 
 } // namespace esphome::elements

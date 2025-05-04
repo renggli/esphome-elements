@@ -33,7 +33,7 @@ display:
     ...
 ```
 
-Finally, define the `elements` configuration block. This is where you'll bring your display to life. Here's an example showing the default animation:
+Finally, define the `elements` configuration block. This is where you'll bring your display to life. Here's an example showing a default animation of the [custom element](#custom):
 
 ```yaml
 elements:
@@ -47,11 +47,11 @@ elements:
 
 For a complete configuration example demonstrating various features, refer to [example.yaml](example.yaml).
 
-## Elements Documentation
+## Elements
 
 _ESPHome Elements_ provides a variety of configurable elements to dynamically compose and sequence content on your LED matrix, allowing for sophisticated displays with text, images, and advanced visualizations.
 
-### Text
+### Text Elements
 
 _Displays textual information, labels, or dynamic messages._
 
@@ -107,7 +107,7 @@ font: font_chunky_8
 format: "%H:%M:%S"
 ```
 
-### Image
+### Image Element
 
 Shows static or animated images on the display.
 
@@ -124,7 +124,7 @@ type: image
 image: cat
 ```
 
-### Clock
+### Clock Element
 
 Shows a configurable analog clock on the display.
 
@@ -186,7 +186,7 @@ hour_hand:
   smooth: true
 ```
 
-### Custom
+### Custom Element
 
 Allows for user-defined, highly specific visual elements or behaviors beyond the built-in options.
 
@@ -198,7 +198,7 @@ The following configuration variables are supported:
 - **on_next** (Optional, lambda): A lambda function that is executed when the element should transition to its next state or frame in a sequence. The variable `element` refers to the custom element.
 - **is_active** (Optional, lambda): A lambda that returns a boolean which determines whether the element is currently active and should be displayed. The variable `element` refers to the custom element.
 
-The following example displays a yellow circle when the weather is sunny, otherwise a blue rectangle:
+The following example displays a yellow circle when the weather is sunny, and otherwise a blue rectangle:
 
 ```yaml
 type: custom
@@ -217,9 +217,32 @@ draw: |-
 
 Arranges multiple elements within the display area to create a cohesive visual layout.
 
-- horizontal: #TODO
-- vertical: #TODO
-- overlay: #TODO
+1. `horizontal` displays its children evenly spaced horizontally from left to right.
+2. `vertical` displays its children evenly spaced horizontally from top to bottom.
+3. `overlay` displays its children on top of each other.
+
+The following configuration variables are supported:
+
+- **active_mode** (Optional, enum): Specifies how the activity state of the children should propagate to the container. Possible values are:
+  - `ALWAYS`: the container is always active;
+  - `ANY`: the container is active, if any of its children are (default for `overlay`);
+  - `ALL`: the container is active, if all of its children are (default for `horizontal` and `vertical`); and
+  - `NEVER`: the container is never active.
+- **elements** (Required, Array&lt;Element&gt;): A list of child elements in the desired drawing order.
+
+The following example displays the string "Time" above the current time:
+
+```yaml
+type: vertical
+elements:
+  - type: static_text
+    font: font_chunky_8
+    text: "Time"
+  - type: time_text
+    time: current_time
+    font: font_chunky_8
+    format: "%H:%M:%S"
+```
 
 ### Sequencing
 

@@ -45,7 +45,7 @@ elements:
 
 [![ESPHome Elements Lissajous Animation](assets/lissajous.png)](https://www.youtube.com/shorts/Ih7tS33tRmk)
 
-For a complete configuration example demonstrating various features, refer to the [example.yaml](example.yaml) file.
+For a complete configuration example demonstrating various features, refer to [example.yaml](example.yaml).
 
 ## Elements Documentation
 
@@ -127,6 +127,29 @@ The following example displays the image of a cat:
 ### Custom
 
 Allows for user-defined, highly specific visual elements or behaviors beyond the built-in options.
+
+The following configuration variables are supported:
+
+- **draw** (Optional, lambda): A lambda function that defines how the element is rendered on the display. This is the core of a custom element, allowing you to draw anything you want using the [Display](https://esphome.io/components/display/index.html#display-rendering-engine) drawing primitives. The variable `element` refers to the custom element, `display` to the render display. If the lambda is not set, the [default lissajous animation](#basic-setup) is display.
+- **on_show** (Optional, lambda): A lambda function that is executed when the element becomes visible on the display. This is useful for performing setup tasks, starting animations, or loading data. The variable `element` refers to the custom element.
+- **on_hide** (Optional, lambda): A lambda function that is executed when the element is no longer visible on the display. This can be used to clean up resources, stop animations, or save data. The variable `element` refers to the custom element.
+- **on_next** (Optional, lambda): A lambda function that is executed when the element should transition to its next state or frame in a sequence. The variable `element` refers to the custom element.
+- **is_active** (Optional, lambda): A lambda that returns a boolean which determines whether the element is currently active and should be displayed. The variable `element` refers to the custom element.
+
+The following example displays a yellow circle when the weather is sunny, otherwise a blue rectangle:
+
+```yaml
+- type: custom
+  is_active: |-
+    return id(outside_weather).has_state();
+  draw: |-
+    auto state = id(outside_weather).state;
+    if (state == "sunny") {
+      display.filled_circle(16, 16, 8, Color(0xffff00));
+    } else {
+      display.filled_rectangle(8, 8, 16, 16, Color(0x0000ff));
+    }
+```
 
 ### Composition
 

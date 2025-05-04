@@ -6,7 +6,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/renggli/esphome-elements.svg)](https://github.com/renggli/esphome-elements/stargazers)
 [![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/renggli/esphome-elements/main/LICENSE)
 
-Control and personalize your LED matrix display with [ESPHome](https://esphome.io) Elements, a custom component for configuring dynamic text, images, animations, and more.
+Personalize your LED matrix with [ESPHome](https://esphome.io) Elements, a custom component to easily combine text, images, and custom visualizations.
 
 ## Basic Setup
 
@@ -73,7 +73,7 @@ All text elements support the following configuration variables:
 - **anchor** (Optional, Anchor): Specifies the reference point of the text box with an absolute `offset` and/or a relative `fraction`. This is used in conjunction with align to position the text.
 - **align** (Optional, enum): Specifies how the text is aligned at the point defined by the anchor. Possible values are
   `TOP`, `CENTER_VERTICAL`, `BASELINE`, `BOTTOM`, `LEFT`, `CENTER_HORIZONTAL`, `RIGHT`, `TOP_LEFT`, `TOP_CENTER`, `TOP_RIGHT`, `CENTER_LEFT`, `CENTER` (default), `CENTER_RIGHT`, `BASELINE_LEFT`, `BASELINE_CENTER`, `BASELINE_RIGHT`, `BOTTOM_LEFT`, `BOTTOM_CENTER`, and `BOTTOM_RIGHT`.
-- **scroll_mode** (Optional, enum): Specifies the scrolling behavior of the text, if any. Useful for long texts that exceed the display area. Possible values are `NONE` (default), `LEFT_TO_RIGHT`, `RIGHT_TO_LEFT`, `BOTTOM_TO_TOP`, and `TOP_TO_BOTTOM`.
+- **scroll_mode** (Optional, enum): Specifies the scrolling behavior of the text, if any. Useful for long texts that exceed the display area. Possible values are `NONE` (default), `LEFT_TO_RIGHT`, `RIGHT_TO_LEFT`, `BOTTOM_TO_TOP`, and `TOP_TO_BOTTOM`. If scrolling is enabled, an `on_next` event is sent to the parent element on completion of the animation.
 - **scroll_speed** (Optional, float): Specifies the speed of the scrolling animation in pixel per second.
 
 The following example scrolls the string "Hello World" over the display:
@@ -213,7 +213,7 @@ draw: |-
   }
 ```
 
-### Composition
+### Composition Elements
 
 Arranges multiple elements within the display area to create a cohesive visual layout.
 
@@ -225,7 +225,7 @@ The following configuration variables are supported:
 
 - **active_mode** (Optional, enum): Specifies how the activity state of the children should propagate to the container. Possible values are:
   - `ALWAYS`: the container is always active;
-  - `ANY`: the container is active, if any of its children are (default for `overlay`);
+  - `ANY`: the container is active, if any of its children are (default for `overlay`, `priority`, and `sequence`);
   - `ALL`: the container is active, if all of its children are (default for `horizontal` and `vertical`); and
   - `NEVER`: the container is never active.
 - **elements** (Required, Array&lt;Element&gt;): A list of child elements in the desired drawing order.
@@ -244,16 +244,24 @@ elements:
     format: "%H:%M:%S"
 ```
 
-### Sequencing
+### Sequence Elements
 
-Controls the order and timing of how elements appear or change on the display over time.
+This category of elements governs how child elements are displayed over time, allowing for dynamic and interactive displays.
 
-- priority: #TODO
-- sequence: #TODO
+- `priority`: This element displays the first child element within its list that is currently determined to be active based on its individual `is_active` state.
+- `sequence`: This element presents its child elements in a defined order. It progresses to the next active child element upon receiving an `on_next` call. Additionally, it can jump to a specific child element when a `go_to` action with the target index is invoked.
 
-### Decorating
+The same configuration variables as [Composition Elements](#composition-elements) are supported.
+
+### Delegate Elements
 
 Changes the default behavior of elements by wrapping them.
 
-- delay: #TODO
-- timeout: #TODO
+- `delay`: This element generates a _next_ event after observing a specified count of _next_ events from its child element. Resets the counter when being shown.
+  - **count** (Optional, int): The number of events before the _next_ event should be triggered. If unset, swallow all _next_ events from its child element.
+- `timeout`: This element generates a _next_ event after a specified timeout. It passes through _next_ events from its child element. Resets the timer when being shown.
+  - **duration** (Optional, duration): The time after which a _next_ event should be triggered.
+
+The following configuration variable is supported:
+
+- **element** (Required, Element): A single child element.

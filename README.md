@@ -62,7 +62,7 @@ There are three text elements with the following specific configuration variable
 2. `dynamic_text` uses a lambda function to generate the string
    - **lambda** (Required, lambda): A lambda function that returns the string to be displayed. This allows the text to update dynamically based on sensor values, variables, or other changing conditions. The lambda function should return a value of type string, possibly an empty string.
 3. `time_text` uses a format string to display date and time
-   - **time** (Required, ID): The ID of a time provider component. This specifies the source of the date/time information. Typically, this would be a time component like SNTP.
+   - **time** (Required, ID): The ID of a [time component](https://esphome.io/components/time/index.html). This specifies the source of the time for the clock.
    - **format** (Required, string): A format string that defines how the date and time should be displayed. This string uses format specifiers (e.g., `%Y` for year, `%m` for month, `%H` for hour) as defined by the C `strftime` function.
 
 All text elements support the following configuration variables:
@@ -79,32 +79,32 @@ All text elements support the following configuration variables:
 The following example scrolls the string "Hello World" over the display:
 
 ```yaml
-- type: static_text
-  font: font_chunky_8
-  scroll_mode: LEFT_TO_RIGHT
-  text: "Hello World"
+type: static_text
+font: font_chunky_8
+scroll_mode: LEFT_TO_RIGHT
+text: "Hello World"
 ```
 
 The following example displays a sensor value:
 
 ```yaml
-- type: dynamic_text
-  font: font_chunky_8
-  lambda: |-
-    if (id(outside_temperature).has_state()) {
-      float temp = id(outside_temperature).state;
-      return str_snprintf("%.1f °C", 12, temp);
-    }
-    return "";
+type: dynamic_text
+font: font_chunky_8
+lambda: |-
+  if (id(outside_temperature).has_state()) {
+    float temp = id(outside_temperature).state;
+    return str_snprintf("%.1f °C", 12, temp);
+  }
+  return "";
 ```
 
 The following example displays the current time:
 
 ```yaml
-- type: time_text
-  time: current_time
-  font: font_chunky_8
-  format: "%H:%M:%S"
+type: time_text
+time: current_time
+font: font_chunky_8
+format: "%H:%M:%S"
 ```
 
 ### Image
@@ -120,8 +120,70 @@ The following configuration variables are supported:
 The following example displays the image of a cat:
 
 ```yaml
-- type: image
-  image: cat
+type: image
+image: cat
+```
+
+### Clock
+
+Shows a configurable analog clock on the display.
+
+The following configuration variables are supported:
+
+- **time** (Required, ID): The ID of a [time component](https://esphome.io/components/time/index.html). This specifies the source of the time for the clock.
+- **minute_markers** (Optional, AnalogClockOptions): Configuration options for the minute markers. This allows you to customize the appearance of the small lines or dots that indicate the minutes on the clock face.
+- **hour_markers** (Optional, AnalogClockOptions): Configuration options for the hour markers. This allows you to customize the appearance of the lines or numbers that indicate the hours on the clock face.
+- **quarter_markers** (Optional, AnalogClockOptions): Configuration options for the quarter-hour markers. This allows you to customize the appearance of the markers that indicate the 15-minute intervals.
+- **second_hand** (Optional, AnalogClockOptions): Configuration options for the second hand.
+- **minute_hand** (Optional, AnalogClockOptions): Configuration options for the minute hand.
+- **hour_hand** (Optional, AnalogClockOptions): Configuration options for the hour hand.
+
+For each of the `AnalogClockOptions` the following fields can be defined:
+
+- **start** (Optional, float): The starting position of the marker or hand as a fraction of the clock radius. A value of 0 indicates the center of the clock, and 1 indicates the edge.
+- **end** (Optional, float): The ending position of the marker or hand, expressed as a fraction of the clock radius, using the same scale as start.
+- **color** (Optional, ID or #rrggbb): The color of the marker or hand. This can be specified as an ID reference to a color defined elsewhere or as a hexadecimal color code.
+- **visible** (Optional, boolean): Whether the marker or hand is visible. If set to `false`, the marker or hand will not be displayed.
+- **smooth** (Optional, boolean): Whether the hand moves smoothly. If set to `false`, the hand steps to the next increment.
+
+The following example configures the default clock settings. Use this as a template to create your own unique clock face:
+
+```yaml
+type: clock
+time: current_time
+minute_markers:
+  start: 0.95
+  end: 1.00
+  color: "#0000ff"
+  visible: false
+hour_markers:
+  start: 0.90
+  end: 1.00
+  color: "#0000ff"
+  visible: true
+quarter_markers:
+  start: 0.75
+  end: 1.00
+  color: "#0000ff"
+  visible: true
+second_hand:
+  start: 0.00
+  end: 0.75
+  color: "#ff0000"
+  visible: true
+  smooth: true
+minute_hand:
+  start: 0.00
+  end: 0.95
+  color: "#ffffff"
+  visible: true
+  smooth: false
+hour_hand:
+  start: 0.00
+  end: 0.66
+  color: "#ffffff"
+  visible: true
+  smooth: true
 ```
 
 ### Custom
@@ -139,26 +201,36 @@ The following configuration variables are supported:
 The following example displays a yellow circle when the weather is sunny, otherwise a blue rectangle:
 
 ```yaml
-- type: custom
-  is_active: |-
-    return id(outside_weather).has_state();
-  draw: |-
-    auto state = id(outside_weather).state;
-    if (state == "sunny") {
-      display.filled_circle(16, 16, 8, Color(0xffff00));
-    } else {
-      display.filled_rectangle(8, 8, 16, 16, Color(0x0000ff));
-    }
+type: custom
+is_active: |-
+  return id(outside_weather).has_state();
+draw: |-
+  auto state = id(outside_weather).state;
+  if (state == "sunny") {
+    display.filled_circle(16, 16, 8, Color(0xffff00));
+  } else {
+    display.filled_rectangle(8, 8, 16, 16, Color(0x0000ff));
+  }
 ```
 
 ### Composition
 
 Arranges multiple elements within the display area to create a cohesive visual layout.
 
+- horizontal: #TODO
+- vertical: #TODO
+- overlay: #TODO
+
 ### Sequencing
 
 Controls the order and timing of how elements appear or change on the display over time.
 
+- priority: #TODO
+- sequence: #TODO
+
 ### Decorating
 
 Changes the default behavior of elements by wrapping them.
+
+- delay: #TODO
+- timeout: #TODO

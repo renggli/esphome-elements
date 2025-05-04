@@ -43,7 +43,19 @@ const char *Element::get_type_string() {
 }
 
 void Element::dump_config(int level) {
-  ESP_LOGCONFIG(ELEMENT_TAG, "%s @ %i", get_type_string(), level);
+  dump_config(level, "- type: %s", get_type_string());
+}
+
+void Element::dump_config(int level, const char *format, ...) {
+  va_list arg;
+  va_start(arg, format);
+  char buffer[256];
+  int ret = vsnprintf(buffer, sizeof(buffer), format, arg);
+  if (ret > 0) {
+    std::string indent(2 * level, ' ');
+    ESP_LOGCONFIG(ELEMENT_TAG, "%s%s", indent.c_str(), buffer);
+  }
+  va_end(arg);
 }
 
 void Element::on_show() {}

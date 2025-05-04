@@ -257,30 +257,28 @@ elements:
           elements:
             - type: horizontal
               elements:
-                - type: vertical
-                  elements:
-                    - type: time_text
-                      time: current_time
-                      font: font_chunky_6
-                      color: orange_dark
-                      format: "%a" # abbr weekday name
-                    - type: time_text
-                      time: current_time
-                      font: font_chunky_6
-                      color: violet_dark
-                      format: "%b" # abbr month name
-                - type: vertical
-                  elements:
-                    - type: time_text
-                      time: current_time
-                      font: font_chunky_6
-                      color: orange_dark
-                      format: "%e" # day of month
-                    - type: time_text
-                      time: current_time
-                      font: font_chunky_6
-                      color: violet_dark
-                      format: "%Y" # year
+                - type: time_text
+                  time: current_time
+                  font: font_chunky_6
+                  color: orange_dark
+                  format: "%a" # abbr weekday name
+                - type: time_text
+                  time: current_time
+                  font: font_chunky_6
+                  color: orange_dark
+                  format: "%e" # day of month
+            - type: horizontal
+              elements:
+                - type: time_text
+                  time: current_time
+                  font: font_chunky_6
+                  color: violet_dark
+                  format: "%b" # abbr month name
+                - type: time_text
+                  time: current_time
+                  font: font_chunky_6
+                  color: violet_dark
+                  format: "%Y" # year
             - type: time_text
               time: current_time
               font: font_chunky_8

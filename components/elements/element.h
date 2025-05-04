@@ -43,6 +43,10 @@ public:
   /// Abstract method that dumps this element configuration.
   virtual void dump_config(int level);
 
+  /// Helper to indent and log the dump configuration from `dump_config`.
+  void dump_config(int level, const char *format, ...)
+      __attribute__((format(printf, 3, 4)));
+
   /// Abstract method that draws this element on the given display.
   virtual void draw(display::Display &display) = 0;
 

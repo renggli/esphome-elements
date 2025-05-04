@@ -6,6 +6,8 @@ const char *ELEMENT_TAG = "elements.element";
 
 const char *element_type_get_type_string(ElementType type) {
   switch (type) {
+  case ElementType::UNKNOWN:
+    return "unknown";
   case ElementType::CLOCK:
     return "clock";
   case ElementType::CUSTOM:
@@ -30,8 +32,6 @@ const char *element_type_get_type_string(ElementType type) {
     return "time_text";
   case ElementType::TIMEOUT:
     return "timeout";
-  case ElementType::UNKNOWN:
-    return "unknown";
   case ElementType::VERTICAL:
     return "vertical";
   }

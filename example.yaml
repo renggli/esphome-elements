@@ -75,8 +75,7 @@ text:
   - platform: template
     name: "Message"
     mode: text
-    restore_value: true
-    initial_value: ""
+    lambda: "return id(message_element).get_text();"
     set_action:
       - lambda: "id(message_element).set_text(x);"
 
@@ -328,8 +327,8 @@ elements:
               display.image(0, 0, id(windy));
             }
       # Calendar
-      - type: delay
-        count: 4
+      - type: timeout
+        duration: 10s
         element:
           type: vertical
           active_mode: any

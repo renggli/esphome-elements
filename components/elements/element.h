@@ -17,6 +17,7 @@ enum class ElementType {
   IMAGE,
   OVERLAY,
   PRIORITY,
+  RANDOM,
   SEQUENCE,
   STATIC_TEXT,
   TIME_TEXT,

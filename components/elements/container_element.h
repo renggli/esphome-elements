@@ -87,6 +87,24 @@ public:
   void draw(display::Display &display) override;
 };
 
+/// Draws multiple elements in random sequence.
+class RandomElement : public ContainerElement {
+public:
+  RandomElement(ElementComponent *component, Element *parent)
+      : ContainerElement(ElementType::RANDOM, component, parent,
+                         ActiveMode::ANY) {}
+
+  void draw(display::Display &display) override;
+  void go_to(int index);
+
+  void on_show() override;
+  void on_hide() override;
+  void on_next() override;
+
+protected:
+  int index_ = -1;
+};
+
 /// Draws multiple elements in sequence.
 class SequenceElement : public ContainerElement {
 public:

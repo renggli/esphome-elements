@@ -47,6 +47,7 @@ CONF_HORIZONTAL = 'horizontal'
 CONF_IMAGE = 'image'
 CONF_OVERLAY = 'overlay'
 CONF_PRIORITY = 'priority'
+CONF_RANDOM = 'random'
 CONF_SEQUENCE = 'sequence'
 CONF_STATIC_TEXT = 'static_text'
 CONF_TIME_TEXT = 'time_text'
@@ -73,6 +74,7 @@ FlowElement = elements_ns.class_('FlowElement', ContainerElement)
 HorizontalElement = elements_ns.class_('HorizontalElement', ContainerElement)
 OverlayElement = elements_ns.class_('OverlayElement', ContainerElement)
 PriorityElement = elements_ns.class_('PriorityElement', ContainerElement)
+RandomElement = elements_ns.class_('RandomElement', ContainerElement)
 SequenceElement = elements_ns.class_('SequenceElement', ContainerElement)
 VerticalElement = elements_ns.class_('VerticalElement', ContainerElement)
 
@@ -340,6 +342,9 @@ ELEMENT_SCHEMA = cv.typed_schema({
     }),
     CONF_PRIORITY: CONTAINER_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(PriorityElement),
+    }),
+    CONF_RANDOM: CONTAINER_ELEMENT_SCHEMA.extend({
+        cv.GenerateID(CONF_ID): cv.declare_id(RandomElement),
     }),
     CONF_SEQUENCE: CONTAINER_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(SequenceElement),

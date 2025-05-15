@@ -109,6 +109,49 @@ void VerticalElement::draw(display::Display &display) {
   }
 }
 
+static const char *RANDOM_ELEMENT_TAG = "elements.random";
+
+void RandomElement::draw(display::Display &display) {
+  if (index_ == -1) {
+    on_next();
+  }
+  if (index_ != -1) {
+    elements_[index_]->draw(display);
+  }
+}
+
+void RandomElement::go_to(int index) {
+  if (index_ != index) {
+    ESP_LOGI(RANDOM_ELEMENT_TAG, "Switching from %i to %i", index_, index);
+    on_hide();
+    index_ = index;
+    on_show();
+  }
+}
+
+void RandomElement::on_show() {
+  if (index_ != -1) {
+    elements_[index_]->on_show();
+  }
+}
+
+void RandomElement::on_hide() {
+  if (index_ != -1) {
+    elements_[index_]->on_hide();
+  }
+}
+
+void RandomElement::on_next() {
+  int start = get_component().get_current_ms() % elements_.size();
+  for (int offset = 0; offset < elements_.size(); offset++) {
+    int new_index = (start + offset) % elements_.size();
+    if (new_index != index_ && elements_[new_index]->is_active()) {
+      go_to(new_index);
+      return;
+    }
+  }
+}
+
 static const char *SEQUENCE_ELEMENT_TAG = "elements.sequence";
 
 void SequenceElement::draw(display::Display &display) {

@@ -248,8 +248,9 @@ elements:
 
 This category of elements governs how child elements are displayed over time, allowing for dynamic and interactive displays.
 
-- `priority`: This element displays the first child element within its list that is currently determined to be active based on its individual `is_active` state.
-- `sequence`: This element presents its child elements in a defined order. It progresses to the next active child element upon receiving an `on_next` call. Additionally, it can jump to a specific child element when a `go_to` action with the target index is invoked.
+- `priority`: Displays the first active child element in its list, determined by each child's individual `is_active` state.
+- `sequence`: Presents its children in a defined order. An `on_next` call advances to the next active child. A `go_to` action with a target index jumps to a specific child.
+- `random`: Shows its active children in a random order. An `on_next` call attempts to display another random active child.
 
 The same configuration variables as [Composition Elements](#composition-elements) are supported.
 

@@ -24,6 +24,8 @@ const char *element_type_get_type_string(ElementType type) {
     return "overlay";
   case ElementType::PRIORITY:
     return "priority";
+  case ElementType::RANDOM:
+    return "random";
   case ElementType::SEQUENCE:
     return "sequence";
   case ElementType::STATIC_TEXT:

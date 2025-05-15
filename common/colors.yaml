@@ -1,11 +1,11 @@
 color:
   # Tango Color Palette:
   # https://en.wikipedia.org/wiki/Tango_Desktop_Project#Palette
-  - id: aluminium_bright
+  - id: aluminum_bright
     hex: "eeeeec"
-  - id: aluminium
+  - id: aluminum
     hex: "d3d7cf"
-  - id: aluminium_dark
+  - id: aluminum_dark
     hex: "babdb6"
   - id: slate_bright
     hex: "888a85"

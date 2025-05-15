@@ -247,7 +247,7 @@ elements:
           id: message_element
           font: font_chunky_8
           scroll_mode: LEFT_TO_RIGHT
-          color: aluminium_dark
+          color: aluminum_dark
           text: ""
       # Time and Date
       - type: timeout
@@ -255,34 +255,20 @@ elements:
         element:
           type: vertical
           elements:
-            - type: horizontal
-              elements:
-                - type: time_text
-                  time: current_time
-                  font: font_chunky_6
-                  color: orange_dark
-                  format: "%a" # abbr weekday name
-                - type: time_text
-                  time: current_time
-                  font: font_chunky_6
-                  color: orange_dark
-                  format: "%e" # day of month
-            - type: horizontal
-              elements:
-                - type: time_text
-                  time: current_time
-                  font: font_chunky_6
-                  color: violet_dark
-                  format: "%b" # abbr month name
-                - type: time_text
-                  time: current_time
-                  font: font_chunky_6
-                  color: violet_dark
-                  format: "%Y" # year
+            - type: time_text
+              time: current_time
+              font: font_chunky_6
+              color: orange_dark
+              format: "%a %e" # abbr weekday name, day of month
+            - type: time_text
+              time: current_time
+              font: font_chunky_6
+              color: violet_dark
+              format: "%b %Y" # abbr month name, year
             - type: time_text
               time: current_time
               font: font_chunky_8
-              color: aluminium_dark
+              color: aluminum_dark
               format: "%H:%M:%S"
       # Weather
       - type: timeout
@@ -363,7 +349,7 @@ elements:
             element.set_color(
               state == "Expired" ? id(red) :
               state == "Paused" ? id(blue) :
-              id(aluminium));
+              id(aluminum));
             int remaining = id(default_timer).get_remaining() / 1000;
             int seconds = remaining % 60;
             int minutes = (remaining - seconds) / 60;
@@ -412,6 +398,6 @@ elements:
           second_hand:
             color: red_dark
           minute_hand:
-            color: aluminium_dark
+            color: aluminum_dark
           hour_hand:
-            color: aluminium_dark
+            color: aluminum_dark

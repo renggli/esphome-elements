@@ -17,7 +17,7 @@ enum class ActiveMode {
   NEVER,
 };
 
-/// Element that delgates to a list of other elements.
+/// Element that delegates to a list of other elements.
 class ContainerElement : public Element {
 public:
   ContainerElement(ElementType type, ElementComponent *component,
@@ -77,7 +77,7 @@ public:
   void draw(display::Display &display) override;
 };
 
-/// Draws multiple elements evently vertically spaced above each other.
+/// Draws multiple elements evenly vertically spaced above each other.
 class VerticalElement : public ContainerElement {
 public:
   VerticalElement(ElementComponent *component, Element *parent)

@@ -19,7 +19,7 @@ void ElementComponent::setup() {
     display_->show_page(new display::DisplayPage(writer));
   } else {
     ESP_LOGW(ELEMENT_COMPONENT_TAG,
-             "No display setup, drwaing needs to be manually called.");
+             "No display setup, drawing needs to be manually called.");
   }
 }
 

@@ -393,6 +393,37 @@ elements:
                   return str_snprintf("%.1f °C", 12, id(inside_temperature).state);
                 }
                 return "";
+      # Wind and Sun
+      - type: timeout
+        duration: 5s
+        element:
+          type: custom
+          is_active: |-
+            return id(wind_direction).has_state()
+                && id(wind_speed).has_state()
+                && id(sun_elevation).has_state()
+                && id(sun_azimuth).has_state();
+          draw: |-
+            const float offset = 3;
+            int center_x = display.get_width() / 2;
+            int center_y = display.get_height() / 2;
+            int radius = std::min(center_x, center_y) - offset;
+            // draw wind direction and print speed
+            display.circle(center_x, center_y, radius, id(blue_dark));
+            display.line_at_angle(center_x, center_y, id(wind_direction).state - 90,
+                radius - offset, radius + offset, id(blue));
+            display.printf(center_x, center_y - offset, id(font_chunky_6),
+                id(blue), TextAlign::BOTTOM_CENTER, "%.0f", id(wind_speed).state);
+            // print sun elevation and draw azimuth
+            float elevation = id(sun_elevation).state;
+            display.printf(center_x, center_y + offset, id(font_chunky_6),
+                id(yellow), TextAlign::TOP_CENTER, "%.0f°", elevation);
+            float azimuth = id(sun_azimuth).state - 90;
+            if (elevation >= 0) {
+              int sun_x = (radius * cos(azimuth * M_PI / 180)) + center_x;
+              int sun_y = (radius * sin(azimuth * M_PI / 180)) + center_y;
+              display.filled_circle(sun_x, sun_y, offset, id(yellow_dark));
+            }
       # Analog Clock
       - type: timeout
         duration: 10s

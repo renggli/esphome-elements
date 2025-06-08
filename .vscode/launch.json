@@ -5,7 +5,7 @@
       "name": "esphome run",
       "type": "node-terminal",
       "command": "esphome run ${file}",
-      "request": "launch",
+      "request": "launch"
     }
   ]
 }

@@ -82,21 +82,33 @@ text:
 # Sensors
 sensor:
   # Internal Sensors
-  - platform: bh1750
-    id: illuminance
+  - id: illuminance
     name: "Illuminance"
+    platform: bh1750
     address: 0x23
-  - platform: dallas_temp
-    id: temperature
+  - id: temperature
     name: "Temperature"
+    platform: dallas_temp
     address: 0xbd00000051c98a28
   # External Sensors
-  - platform: homeassistant
-    id: inside_temperature
+  - id: inside_temperature
+    platform: homeassistant
     entity_id: sensor.apollo_air_1_sen55_temperature
-  - platform: homeassistant
-    id: outside_temperature
+  - id: outside_temperature
+    platform: homeassistant
     entity_id: sensor.meteo_swiss_temperature
+  - id: wind_direction
+    platform: homeassistant
+    entity_id: sensor.meteo_swiss_wind_direction
+  - id: wind_speed
+    platform: homeassistant
+    entity_id: sensor.meteo_swiss_wind_speed
+  - id: sun_azimuth
+    platform: homeassistant
+    entity_id: sensor.sun_solar_azimuth
+  - id: sun_elevation
+    platform: homeassistant
+    entity_id: sensor.sun_solar_elevation
 text_sensor:
   # External Sensors
   - platform: homeassistant

@@ -15,7 +15,8 @@ for file in *.svg; do
   magick \
     "${file%.svg}.png" \
     -fill black \
-    -colorize 30% \
+    -trim +repage \
+    -colorize 25% \
     "${file%.svg}.png"
 
 done

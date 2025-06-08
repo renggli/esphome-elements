@@ -333,7 +333,7 @@ ELEMENT_SCHEMA = cv.typed_schema({
     }),
     CONF_IMAGE: BASE_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(ImageElement),
-        cv.Required(CONF_IMAGE): cv.use_id(image.Image_),
+        cv.Optional(CONF_IMAGE): cv.use_id(image.Image_),
         cv.Optional(CONF_ANCHOR, default={}): anchor_schema(),
         cv.Optional(CONF_ALIGN, default='CENTER'): cv.enum(IMAGE_ALIGN, upper=True, space='_'),
     }),

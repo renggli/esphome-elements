@@ -2,6 +2,8 @@
 
 namespace esphome::elements {
 
+bool ImageElement::is_active() { return image_ != nullptr; }
+
 void ImageElement::draw(display::Display &display) {
   if (image_ == nullptr) {
     return;

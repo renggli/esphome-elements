@@ -1,0 +1,11 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "esphome run",
+      "type": "node-terminal",
+      "command": "esphome run ${file}",
+      "request": "launch",
+    }
+  ]
+}

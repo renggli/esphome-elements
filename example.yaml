@@ -102,6 +102,44 @@ text_sensor:
   - platform: homeassistant
     id: outside_weather
     entity_id: weather.forecast_home
+    on_value:
+      then:
+        - lambda: |-
+            auto state = id(outside_weather).state;
+            auto element = id(weather_image_element);
+            if (state == "clear-night") {
+              element->set_image(id(clear_night));
+            } else if (state == "cloudy") {
+              element->set_image(id(cloudy));
+            } else if (state == "fog") {
+              element->set_image(id(fog));
+            } else if (state == "hail") {
+              element->set_image(id(hail));
+            } else if (state == "lightning-rainy") {
+              element->set_image(id(lightning_rainy));
+            } else if (state == "lightning") {
+              element->set_image(id(lightning));
+            } else if (state == "partlycloudy-night") {
+              element->set_image(id(partlycloudy_night));
+            } else if (state == "partlycloudy") {
+              element->set_image(id(partlycloudy));
+            } else if (state == "pouring") {
+              element->set_image(id(pouring));
+            } else if (state == "rainy") {
+              element->set_image(id(rainy));
+            } else if (state == "snowy") {
+              element->set_image(id(snowy));
+            } else if (state == "snowy-rainy") {
+              element->set_image(id(snowy_rainy));
+            } else if (state == "sunny") {
+              element->set_image(id(sunny));
+            } else if (state == "windy-variant") {
+              element->set_image(id(windy_variant));
+            } else if (state == "windy") {
+              element->set_image(id(windy));
+            } else {
+              element->clear_image();
+            }
   - platform: homeassistant
     id: calendar_current_event
     entity_id: input_text.calendar_current_event
@@ -274,42 +312,8 @@ elements:
       - type: timeout
         duration: 10s
         element:
-          type: custom
-          is_active: |-
-            return id(outside_weather).has_state();
-          draw: |-
-            auto state = id(outside_weather).state;
-            if (state == "clear-night") {
-              display.image(0, 0, id(clear_night));
-            } else if (state == "cloudy") {
-              display.image(0, 0, id(cloudy));
-            } else if (state == "fog") {
-              display.image(0, 0, id(fog));
-            } else if (state == "hail") {
-              display.image(0, 0, id(hail));
-            } else if (state == "lightning-rainy") {
-              display.image(0, 0, id(lightning_rainy));
-            } else if (state == "lightning") {
-              display.image(0, 0, id(lightning));
-            } else if (state == "partlycloudy-night") {
-              display.image(0, 0, id(partlycloudy_night));
-            } else if (state == "partlycloudy") {
-              display.image(0, 0, id(partlycloudy));
-            } else if (state == "pouring") {
-              display.image(0, 0, id(pouring));
-            } else if (state == "rainy") {
-              display.image(0, 0, id(rainy));
-            } else if (state == "snowy") {
-              display.image(0, 0, id(snowy));
-            } else if (state == "snowy-rainy") {
-              display.image(0, 0, id(snowy_rainy));
-            } else if (state == "sunny") {
-              display.image(0, 0, id(sunny));
-            } else if (state == "windy-variant") {
-              display.image(0, 0, id(windy_variant));
-            } else if (state == "windy") {
-              display.image(0, 0, id(windy));
-            }
+          type: image
+          id: weather_image_element
       # Calendar
       - type: timeout
         duration: 10s

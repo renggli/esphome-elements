@@ -105,47 +105,51 @@ text_sensor:
     on_value:
       then:
         - lambda: |-
-            auto state = id(outside_weather).state;
-            auto element = id(weather_image_element);
-            if (state == "clear-night") {
-              element->set_image(id(clear_night));
-            } else if (state == "cloudy") {
-              element->set_image(id(cloudy));
-            } else if (state == "fog") {
-              element->set_image(id(fog));
-            } else if (state == "hail") {
-              element->set_image(id(hail));
-            } else if (state == "lightning-rainy") {
-              element->set_image(id(lightning_rainy));
-            } else if (state == "lightning") {
-              element->set_image(id(lightning));
-            } else if (state == "partlycloudy-night") {
-              element->set_image(id(partlycloudy_night));
-            } else if (state == "partlycloudy") {
-              element->set_image(id(partlycloudy));
-            } else if (state == "pouring") {
-              element->set_image(id(pouring));
-            } else if (state == "rainy") {
-              element->set_image(id(rainy));
-            } else if (state == "snowy") {
-              element->set_image(id(snowy));
-            } else if (state == "snowy-rainy") {
-              element->set_image(id(snowy_rainy));
-            } else if (state == "sunny") {
-              element->set_image(id(sunny));
-            } else if (state == "windy-variant") {
-              element->set_image(id(windy_variant));
-            } else if (state == "windy") {
-              element->set_image(id(windy));
+            if (x == "clear-night") {
+              id(weather_image_element).set_image(id(clear_night));
+            } else if (x == "cloudy") {
+              id(weather_image_element).set_image(id(cloudy));
+            } else if (x == "fog") {
+              id(weather_image_element).set_image(id(fog));
+            } else if (x == "hail") {
+              id(weather_image_element).set_image(id(hail));
+            } else if (x == "lightning-rainy") {
+              id(weather_image_element).set_image(id(lightning_rainy));
+            } else if (x == "lightning") {
+              id(weather_image_element).set_image(id(lightning));
+            } else if (x == "partlycloudy-night") {
+              id(weather_image_element).set_image(id(partlycloudy_night));
+            } else if (x == "partlycloudy") {
+              id(weather_image_element).set_image(id(partlycloudy));
+            } else if (x == "pouring") {
+              id(weather_image_element).set_image(id(pouring));
+            } else if (x == "rainy") {
+              id(weather_image_element).set_image(id(rainy));
+            } else if (x == "snowy") {
+              id(weather_image_element).set_image(id(snowy));
+            } else if (x == "snowy-rainy") {
+              id(weather_image_element).set_image(id(snowy_rainy));
+            } else if (x == "sunny") {
+              id(weather_image_element).set_image(id(sunny));
+            } else if (x == "windy-variant") {
+              id(weather_image_element).set_image(id(windy_variant));
+            } else if (x == "windy") {
+              id(weather_image_element).set_image(id(windy));
             } else {
-              element->clear_image();
+              id(weather_image_element).clear_image();
             }
   - platform: homeassistant
     id: calendar_current_event
     entity_id: input_text.calendar_current_event
+    on_value:
+      then:
+        - lambda: id(calendar_current_event_text_element).set_text(x);
   - platform: homeassistant
     id: calendar_next_event
     entity_id: input_text.calendar_next_event
+    on_value:
+      then:
+        - lambda: id(calendar_next_event_text_element).set_text(x);
 
 # Timer
 timer:
@@ -321,26 +325,16 @@ elements:
           type: vertical
           active_mode: any
           elements:
-            - type: dynamic_text
+            - type: static_text
+              id: calendar_current_event_text_element
               font: font_chunky_8
               color: yellow_dark
               scroll_mode: LEFT_TO_RIGHT
-              lambda: |-
-                if (id(calendar_current_event).has_state()) {
-                  return id(calendar_current_event).state;
-                } else {
-                  return "";
-                }
-            - type: dynamic_text
+            - type: static_text
+              id: calendar_next_event_text_element
               font: font_chunky_8
               color: green_dark
               scroll_mode: LEFT_TO_RIGHT
-              lambda: |-
-                if (id(calendar_next_event).has_state()) {
-                  return id(calendar_next_event).state;
-                } else {
-                  return "";
-                }
       # Timer
       - type: timeout
         duration: 10s

@@ -351,7 +351,7 @@ ELEMENT_SCHEMA = cv.typed_schema({
     }),
     CONF_STATIC_TEXT: TEXT_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(StaticTextElement),
-        cv.Required(CONF_TEXT): cv.string,
+        cv.Optional(CONF_TEXT): cv.string,
     }),
     CONF_TIME_TEXT: TEXT_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(TimeTextElement),

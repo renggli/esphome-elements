@@ -91,24 +91,47 @@ sensor:
     platform: dallas_temp
     address: 0xbd00000051c98a28
   # External Sensors
-  - id: inside_temperature
-    platform: homeassistant
-    entity_id: sensor.apollo_air_1_sen55_temperature
   - id: outside_temperature
     platform: homeassistant
     entity_id: sensor.meteo_swiss_temperature
-  - id: wind_direction
+    on_value:
+      then:
+        - lambda: |-
+            const float min = 0, max = 40;
+            uint8_t hue = remap<int, float>(clamp(x, min, max), min, max, 0x7f, 0xff);
+            id(outside_temperature_text_element).set_color(ESPHSVColor(hue, 0xff, 0xff).to_rgb());
+            id(outside_temperature_text_element).set_text(str_snprintf("%.1f °C", 12, x));
+  - id: inside_temperature
     platform: homeassistant
-    entity_id: sensor.meteo_swiss_wind_direction
-  - id: wind_speed
-    platform: homeassistant
-    entity_id: sensor.meteo_swiss_wind_speed
+    entity_id: sensor.apollo_air_1_sen55_temperature
+    on_value:
+      then:
+        - lambda: |-
+            const float min = 20, max = 30;
+            uint8_t hue = remap<int, float>(clamp(x, min, max), min, max, 0x7f, 0xff);
+            id(inside_temperature_text_element).set_color(ESPHSVColor(hue, 0xff, 0xff).to_rgb());
+            id(inside_temperature_text_element).set_text(str_snprintf("%.1f °C", 12, x));
   - id: sun_azimuth
     platform: homeassistant
     entity_id: sensor.sun_solar_azimuth
   - id: sun_elevation
     platform: homeassistant
     entity_id: sensor.sun_solar_elevation
+  - id: moon_azimuth
+    platform: homeassistant
+    entity_id: sensor.zurich_moon_azimuth
+  - id: moon_elevation
+    platform: homeassistant
+    entity_id: sensor.zurich_moon_altitude
+  - id: moon_illumination
+    platform: homeassistant
+    entity_id: sensor.zurich_moon_illumination_fraction
+  - id: wind_direction
+    platform: homeassistant
+    entity_id: sensor.meteo_swiss_wind_direction
+  - id: wind_speed
+    platform: homeassistant
+    entity_id: sensor.meteo_swiss_wind_speed
 text_sensor:
   # External Sensors
   - platform: homeassistant
@@ -311,7 +334,7 @@ elements:
           elements:
             - type: time_text
               time: current_time
-              font: font_chunky_6
+              font: font_chunky_8
               color: orange_dark
               format: "%a %e" # abbr weekday name, day of month
             - type: time_text
@@ -371,58 +394,67 @@ elements:
         element:
           type: vertical
           elements:
-            - type: dynamic_text
+            - id: outside_temperature_text_element
+              type: static_text
               font: font_chunky_8
-              lambda: |-
-                if (id(outside_temperature).has_state()) {
-                  float temp = id(outside_temperature).state;
-                  const float min = 0, max = 40;
-                  uint8_t hue = round(remap<float, float>(clamp(temp, min, max), min, max, 0x7f, 0xff));
-                  element.set_color(ESPHSVColor(hue, 0xff, 0xff).to_rgb());
-                  return str_snprintf("%.1f °C", 12, temp);
-                }
-                return "";
-            - type: dynamic_text
+            - id: inside_temperature_text_element
+              type: static_text
               font: font_chunky_8
-              lambda: |-
-                if (id(inside_temperature).has_state()) {
-                  float temp = id(inside_temperature).state;
-                  const float min = 20, max = 30;
-                  uint8_t hue = round(remap<float, float>(clamp(temp, min, max), min, max, 0x7f, 0xff));
-                  element.set_color(ESPHSVColor(hue, 0xff, 0xff).to_rgb());
-                  return str_snprintf("%.1f °C", 12, id(inside_temperature).state);
-                }
-                return "";
-      # Wind and Sun
+      # Sun, Moon, and Wind
       - type: timeout
         duration: 10s
         element:
           type: custom
           is_active: |-
-            return id(wind_direction).has_state()
-                && id(wind_speed).has_state()
-                && id(sun_elevation).has_state()
-                && id(sun_azimuth).has_state();
+            return (id(sun_azimuth).has_state() && id(sun_elevation).has_state())
+                || (id(moon_azimuth).has_state() && id(moon_elevation).has_state())
+                || (id(wind_direction).has_state() && id(wind_speed).has_state());
           draw: |-
-            const float offset = 3;
+            const float offset = 2;
             int center_x = display.get_width() / 2;
             int center_y = display.get_height() / 2;
             int radius = std::min(center_x, center_y) - offset;
-            // draw wind direction and print speed
-            display.circle(center_x, center_y, radius, id(blue_dark));
-            display.line_at_angle(center_x, center_y, id(wind_direction).state - 90,
-                radius - offset, radius + offset, id(blue));
-            display.printf(center_x, center_y - offset, id(font_chunky_6),
-                id(blue), TextAlign::BOTTOM_CENTER, "%.0f", id(wind_speed).state);
-            // print sun elevation and draw azimuth
-            float elevation = id(sun_elevation).state;
-            display.printf(center_x, center_y + offset, id(font_chunky_6),
-                id(yellow), TextAlign::TOP_CENTER, "%.0f°", elevation);
-            if (elevation >= 0) {
+            bool has_sun = id(sun_azimuth).has_state()
+                        && id(sun_elevation).has_state()
+                        && id(sun_elevation).state > 0;
+            bool has_moon = id(moon_azimuth).has_state()
+                        && id(moon_elevation).has_state()
+                        && id(moon_elevation).state > 0;
+            bool has_wind = id(wind_direction).has_state()
+                        && id(wind_speed).has_state();
+            // draw sun
+            if (has_sun) {
               float azimuth = id(sun_azimuth).state - 90;
-              int sun_x = (radius * cos(azimuth * M_PI / 180)) + center_x;
-              int sun_y = (radius * sin(azimuth * M_PI / 180)) + center_y;
-              display.filled_circle(sun_x, sun_y, offset, id(yellow_dark));
+              int pos_x = (radius * cos(azimuth * M_PI / 180)) + center_x;
+              int pos_y = (radius * sin(azimuth * M_PI / 180)) + center_y;
+              display.filled_circle(pos_x, pos_y, offset, id(yellow));
+              display.printf(center_x, center_y + offset, id(font_chunky_6),
+                id(yellow), TextAlign::TOP_CENTER, "%.0f°", id(sun_elevation).state);
+            }
+            // draw moon
+            if (has_moon) {
+              float azimuth = id(moon_azimuth).state - 90;
+              int pos_x = (radius * cos(azimuth * M_PI / 180)) + center_x;
+              int pos_y = (radius * sin(azimuth * M_PI / 180)) + center_y;
+              if (id(moon_illumination).has_state()) {
+                uint8_t value = remap<int, float>(id(moon_illumination).state, 0.0, 1.0, 0x00, 0xff);
+                display.filled_circle(pos_x, pos_y, offset, ESPHSVColor(0x00, 0x00, value).to_rgb());
+              }
+              display.circle(pos_x, pos_y, offset, id(aluminum));
+              if (!has_sun) {
+                display.printf(center_x, center_y + offset, id(font_chunky_6),
+                  id(aluminum), TextAlign::TOP_CENTER, "%.0f°", id(moon_elevation).state);
+              }
+            }
+            // draw wind
+            if (id(wind_direction).has_state() && id(wind_speed).has_state()) {
+              for (int i = -1; i <= 1; i++) {
+                float angle = id(wind_direction).state + 10 * i - 90;
+                display.line_at_angle(center_x, center_y, angle,
+                    radius - offset, radius + offset, id(blue));
+              }
+              display.printf(center_x, center_y - offset, id(font_chunky_6),
+                  id(blue), TextAlign::BOTTOM_CENTER, "%.0f", id(wind_speed).state);
             }
       # Analog Clock
       - type: timeout

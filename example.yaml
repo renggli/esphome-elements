@@ -98,7 +98,7 @@ sensor:
       then:
         - lambda: |-
             const float min = 0, max = 40;
-            uint8_t hue = remap<int, float>(clamp(x, min, max), min, max, 0x7f, 0xff);
+            uint8_t hue = remap<int, float>(clamp(x, min, max), min, max, 0x80, 0xff);
             id(outside_temperature_text_element).set_color(ESPHSVColor(hue, 0xff, 0xff).to_rgb());
             id(outside_temperature_text_element).set_text(str_snprintf("%.1f °C", 12, x));
   - id: inside_temperature
@@ -108,7 +108,7 @@ sensor:
       then:
         - lambda: |-
             const float min = 20, max = 30;
-            uint8_t hue = remap<int, float>(clamp(x, min, max), min, max, 0x7f, 0xff);
+            uint8_t hue = remap<int, float>(clamp(x, min, max), min, max, 0x80, 0xff);
             id(inside_temperature_text_element).set_color(ESPHSVColor(hue, 0xff, 0xff).to_rgb());
             id(inside_temperature_text_element).set_text(str_snprintf("%.1f °C", 12, x));
   - id: outside_particles
@@ -345,7 +345,6 @@ elements:
           font: font_chunky_8
           scroll_mode: LEFT_TO_RIGHT
           color: aluminum_dark
-          text: ""
       # Time and Date
       - type: timeout
         duration: 10s
@@ -354,18 +353,18 @@ elements:
           elements:
             - type: time_text
               time: current_time
-              font: font_chunky_8
+              font: font_chunky_6
               color: orange_dark
               format: "%a %e" # abbr weekday name, day of month
             - type: time_text
               time: current_time
               font: font_chunky_6
-              color: violet_dark
+              color: aluminum_dark
               format: "%b %Y" # abbr month name, year
             - type: time_text
               time: current_time
-              font: font_chunky_8
-              color: aluminum_dark
+              font: font_chunky_6
+              color: violet_dark
               format: "%H:%M:%S"
       # Weather
       - type: timeout
@@ -442,7 +441,7 @@ elements:
                 || (id(moon_azimuth).has_state() && id(moon_elevation).has_state())
                 || (id(wind_direction).has_state() && id(wind_speed).has_state());
           draw: |-
-            const float offset = 2;
+            const float offset = 3;
             int center_x = display.get_width() / 2;
             int center_y = display.get_height() / 2;
             int radius = std::min(center_x, center_y) - offset;
@@ -460,7 +459,7 @@ elements:
               int pos_x = (radius * cos(azimuth * M_PI / 180)) + center_x;
               int pos_y = (radius * sin(azimuth * M_PI / 180)) + center_y;
               display.filled_circle(pos_x, pos_y, offset, id(yellow));
-              display.printf(center_x, center_y + offset, id(font_chunky_6),
+              display.printf(center_x, center_y + 1, id(font_chunky_6),
                 id(yellow), TextAlign::TOP_CENTER, "%.0f°", id(sun_elevation).state);
             }
             // draw moon
@@ -474,7 +473,7 @@ elements:
               }
               display.circle(pos_x, pos_y, offset, id(aluminum));
               if (!has_sun) {
-                display.printf(center_x, center_y + offset, id(font_chunky_6),
+                display.printf(center_x, center_y - 1, id(font_chunky_6),
                   id(aluminum), TextAlign::TOP_CENTER, "%.0f°", id(moon_elevation).state);
               }
             }

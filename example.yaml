@@ -111,6 +111,26 @@ sensor:
             uint8_t hue = remap<int, float>(clamp(x, min, max), min, max, 0x7f, 0xff);
             id(inside_temperature_text_element).set_color(ESPHSVColor(hue, 0xff, 0xff).to_rgb());
             id(inside_temperature_text_element).set_text(str_snprintf("%.1f °C", 12, x));
+  - id: outside_particles
+    platform: homeassistant
+    entity_id: sensor.zurich_wiedikon_pm2_5_to_10
+    on_value:
+      then:
+        - lambda: |-
+            const float min = 2, max = 20;
+            uint8_t hue = remap<int, float>(clamp(x, min, max), min, max, 0x2f, 0x00);
+            id(outside_particles_text_element).set_color(ESPHSVColor(hue, 0xff, 0xff).to_rgb());
+            id(outside_particles_text_element).set_text(str_snprintf("%.1f", 12, x));
+  - id: inside_particles
+    platform: homeassistant
+    entity_id: sensor.apollo_air_1_pm_10_m_weight_concentration
+    on_value:
+      then:
+        - lambda: |-
+            const float min = 2, max = 20;
+            uint8_t hue = remap<int, float>(clamp(x, min, max), min, max, 0x2f, 0x00);
+            id(inside_particles_text_element).set_color(ESPHSVColor(hue, 0xff, 0xff).to_rgb());
+            id(inside_particles_text_element).set_text(str_snprintf("%.1f", 12, x));
   - id: sun_azimuth
     platform: homeassistant
     entity_id: sensor.sun_solar_azimuth
@@ -398,6 +418,18 @@ elements:
               type: static_text
               font: font_chunky_8
             - id: inside_temperature_text_element
+              type: static_text
+              font: font_chunky_8
+      # Particles
+      - type: timeout
+        duration: 10s
+        element:
+          type: vertical
+          elements:
+            - id: outside_particles_text_element
+              type: static_text
+              font: font_chunky_8
+            - id: inside_particles_text_element
               type: static_text
               font: font_chunky_8
       # Sun, Moon, and Wind

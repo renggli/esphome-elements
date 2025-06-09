@@ -395,7 +395,7 @@ elements:
                 return "";
       # Wind and Sun
       - type: timeout
-        duration: 5s
+        duration: 10s
         element:
           type: custom
           is_active: |-
@@ -418,8 +418,8 @@ elements:
             float elevation = id(sun_elevation).state;
             display.printf(center_x, center_y + offset, id(font_chunky_6),
                 id(yellow), TextAlign::TOP_CENTER, "%.0f°", elevation);
-            float azimuth = id(sun_azimuth).state - 90;
             if (elevation >= 0) {
+              float azimuth = id(sun_azimuth).state - 90;
               int sun_x = (radius * cos(azimuth * M_PI / 180)) + center_x;
               int sun_y = (radius * sin(azimuth * M_PI / 180)) + center_y;
               display.filled_circle(sun_x, sun_y, offset, id(yellow_dark));

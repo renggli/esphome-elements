@@ -59,7 +59,7 @@ static const char *PRIORITY_ELEMENT_TAG = "elements.priority";
 
 void PriorityElement::draw(display::Display &display) {
   int index = find_active_index_();
-  if (index != index_) {
+  if (index_ != index) {
     ESP_LOGI(PRIORITY_ELEMENT_TAG, "Switching from %i to %i", index_, index);
     on_hide();
     index_ = index;
@@ -142,13 +142,37 @@ void RandomElement::on_hide() {
 }
 
 void RandomElement::on_next() {
-  int start = get_component().get_current_ms() % elements_.size();
-  for (int offset = 0; offset < elements_.size(); offset++) {
-    int new_index = (start + offset) % elements_.size();
-    if (new_index != index_ && elements_[new_index]->is_active()) {
-      go_to(new_index);
-      return;
+  // Find active elements not shown recently.
+  std::vector<int> eligible_indices;
+  for (int i = 0; i < elements_.size(); i++) {
+    if (elements_[i]->is_active()) {
+      bool in_history = false;
+      for (int j : history_) {
+        if (i == j) {
+          in_history = true;
+          break;
+        }
+      }
+      if (!in_history) {
+        eligible_indices.push_back(i);
+      }
     }
+  }
+  // No eligible indices, reset the history.
+  if (eligible_indices.empty()) {
+    history_.clear();
+    for (int i = 0; i < elements_.size(); i++) {
+      if (elements_[i]->is_active() && i != index_) {
+        eligible_indices.push_back(i);
+      }
+    }
+  }
+  // Pick an index, if we have candidates.
+  if (!eligible_indices.empty()) {
+    int index = eligible_indices[get_component().get_current_ms() %
+                                 eligible_indices.size()];
+    history_.push_back(index);
+    go_to(index);
   }
 }
 

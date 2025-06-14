@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "element.h"
 
 namespace esphome::elements {
@@ -103,6 +105,7 @@ public:
 
 protected:
   int index_ = -1;
+  std::vector<int> history_;
 };
 
 /// Draws multiple elements in sequence.

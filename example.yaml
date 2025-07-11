@@ -468,7 +468,7 @@ elements:
               int pos_x = (radius * cos(azimuth * M_PI / 180)) + center_x;
               int pos_y = (radius * sin(azimuth * M_PI / 180)) + center_y;
               if (id(moon_illumination).has_state()) {
-                uint8_t value = remap<int, float>(id(moon_illumination).state, 0.0, 1.0, 0x00, 0xff);
+                uint8_t value = remap<int, float>(id(moon_illumination).state, 0.0, 100.0, 0x00, 0xff);
                 display.filled_circle(pos_x, pos_y, offset, ESPHSVColor(0x00, 0x00, value).to_rgb());
               }
               display.circle(pos_x, pos_y, offset, id(aluminum));

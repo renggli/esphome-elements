@@ -4,12 +4,12 @@
 
 namespace esphome::elements {
 
-static const char *DISPLAY_TAG = "elements.display";
+static const char *const IMAGE_DISPLAY_TAG = "elements.display";
 
 ImageDisplay::ImageDisplay(int width, int height) : width_(width), height_(height) {
   buffer_ = allocator_.allocate(width_ * height_);
   if (buffer_ == nullptr) {
-    ESP_LOGE(DISPLAY_TAG, "Could not allocate buffer of ImageDisplay.");
+    ESP_LOGE(IMAGE_DISPLAY_TAG, "Could not allocate buffer of ImageDisplay.");
     return;
   }
   clear();

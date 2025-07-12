@@ -8,7 +8,7 @@ void ImageElement::draw(display::Display &display) {
   if (image_ == nullptr) {
     return;
   }
-  Point<int> point = anchor_.get(Point<int>::fromExtent(display));
+  Point<int> point = anchor_.get(Point<int>::from_extent(display));
   display.image(point.x, point.y, image_, align_);
 }
 

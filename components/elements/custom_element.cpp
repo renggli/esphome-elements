@@ -33,9 +33,8 @@ void CustomElement::on_next() {
 bool CustomElement::is_active() {
   if (is_active_) {
     return is_active_(*this);
-  } else {
-    return Element::is_active();
   }
+  return Element::is_active();
 }
 
 void CustomElement::test_draw(display::Display &display) {

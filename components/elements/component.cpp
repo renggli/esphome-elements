@@ -5,7 +5,7 @@
 
 namespace esphome::elements {
 
-static const char *ELEMENT_COMPONENT_TAG = "elements.component";
+static const char *const ELEMENT_COMPONENT_TAG = "elements.component";
 
 void ElementComponent::setup() {
   // If we have a display, setup automatic drawing. Otherwise users need to

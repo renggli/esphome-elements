@@ -4,7 +4,7 @@
 
 namespace esphome::elements {
 
-const char *TEXT_ELEMENT_TAG = "elements.text";
+static const char *const TEXT_ELEMENT_TAG = "elements.text";
 
 using display::TextAlign;
 
@@ -26,7 +26,7 @@ void TextElement::draw(display::Display &display) {
   }
 
   // Compute the placement of the text.
-  Point<int> point = anchor_.get(Point<int>::fromExtent(display));
+  Point<int> point = anchor_.get(Point<int>::from_extent(display));
 
   // Update the placement, if we scroll.
   if (scroll_mode_ != ScrollMode::NONE) {

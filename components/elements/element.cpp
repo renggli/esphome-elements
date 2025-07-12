@@ -2,9 +2,9 @@
 
 namespace esphome::elements {
 
-const char *ELEMENT_TAG = "elements.element";
+static const char *const ELEMENT_TAG = "elements.element";
 
-const char *element_type_get_type_string(ElementType type) {
+static const char *element_type_get_type_string(ElementType type) {
   switch (type) {
     case ElementType::UNKNOWN:
       return "unknown";

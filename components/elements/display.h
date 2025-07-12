@@ -16,7 +16,7 @@ class ImageDisplay : public display::Display, public display::BaseImage {
   int get_width() const override { return width_; }
   int get_height() const override { return height_; }
 
-  void HOT draw_pixel_at(int x, int y, Color color);
+  void HOT draw_pixel_at(int x, int y, Color color) override;
   void draw(int x, int y, Display *display, Color color_on, Color color_off) override;
 
  protected:

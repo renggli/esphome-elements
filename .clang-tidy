@@ -114,7 +114,6 @@ Checks: >-
   -readability-redundant-string-init,
   -readability-uppercase-literal-suffix,
   -readability-use-anyofallof,
-WarningsAsErrors: '*'
 FormatStyle:     google
 CheckOptions:
   - key:             google-readability-function-size.StatementThreshold

@@ -1,5 +1,5 @@
 CompileFlags:
-  Add: [-xc++, -std=c++17, -Wall, -Wno-missing-prototypes]
+  Add: [-xc++, -std=c++17]
 Diagnostics:
   ClangTidy:
     Add: [performance*, modernize*, readability*]

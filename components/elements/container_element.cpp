@@ -53,7 +53,7 @@ void OverlayElement::draw(display::Display &display) {
   }
 }
 
-static const char *PRIORITY_ELEMENT_TAG = "elements.priority";
+static const char *const PRIORITY_ELEMENT_TAG = "elements.priority";
 
 void PriorityElement::draw(display::Display &display) {
   int index = find_active_index_();
@@ -105,7 +105,7 @@ void VerticalElement::draw(display::Display &display) {
   }
 }
 
-static const char *RANDOM_ELEMENT_TAG = "elements.random";
+static const char *const RANDOM_ELEMENT_TAG = "elements.random";
 
 void RandomElement::draw(display::Display &display) {
   if (index_ == -1) {
@@ -171,7 +171,7 @@ void RandomElement::on_next() {
   }
 }
 
-static const char *SEQUENCE_ELEMENT_TAG = "elements.sequence";
+static const char *const SEQUENCE_ELEMENT_TAG = "elements.sequence";
 
 void SequenceElement::draw(display::Display &display) {
   if (index_ == -1) {

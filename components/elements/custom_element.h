@@ -33,7 +33,7 @@ class CustomElement : public Element {
   EventFunction on_next_;
   PredicateFunction is_active_;
 
-  void test_draw(display::Display &display);
+  void test_draw_(display::Display &display);
 };
 
 }  // namespace esphome::elements

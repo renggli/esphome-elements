@@ -1,7 +1,5 @@
 #include "text_element.h"
 
-#include "esphome/core/log.h"
-
 namespace esphome::elements {
 
 static const char *const TEXT_ELEMENT_TAG = "elements.text";
@@ -32,6 +30,8 @@ void TextElement::draw(display::Display &display) {
   if (scroll_mode_ != ScrollMode::NONE) {
     scroll_offset_ += get_component().get_delta_ms() * scroll_speed_ / 1000.0;
     switch (scroll_mode_) {
+      case ScrollMode::NONE:
+        break;
       case ScrollMode::LEFT_TO_RIGHT:
         point.x -= scroll_offset_;
         break;

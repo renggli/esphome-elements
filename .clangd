@@ -3,4 +3,4 @@ CompileFlags:
 Diagnostics:
   ClangTidy:
     Add: [performance*, modernize*, readability*]
-    Remove: [modernize-use-trailing-return-type]
+    Remove: [modernize-use-trailing-return-type, readability-magic-numbers]

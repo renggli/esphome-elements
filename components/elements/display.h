@@ -1,7 +1,6 @@
 #pragma once
 
 #include "esphome/components/display/display.h"
-#include "esphome/components/display/display_buffer.h"
 #include "esphome/core/helpers.h"
 
 namespace esphome::elements {

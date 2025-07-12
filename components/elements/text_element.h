@@ -18,8 +18,7 @@ enum class ScrollMode : std::uint8_t {
 
 class TextElement : public Element {
  public:
-  TextElement(ElementType elementType, ElementComponent *component, Element *parent)
-      : Element(elementType, component, parent) {}
+  TextElement(ElementType type, ElementComponent *component, Element *parent) : Element(type, component, parent) {}
   virtual std::string get_text() = 0;
 
   void set_font(display::BaseFont *font) { font_ = font; }
@@ -56,7 +55,7 @@ class StaticTextElement : public TextElement {
   StaticTextElement(ElementComponent *component, Element *parent)
       : TextElement(ElementType::STATIC_TEXT, component, parent) {}
 
-  void set_text(std::string text) { text_ = text; }
+  void set_text(std::string text) { text_ = std::move(text); }
   std::string get_text() override;
 
  protected:
@@ -70,7 +69,7 @@ class DynamicTextElement : public TextElement {
 
   std::string get_text() override;
 
-  void set_lambda(std::function<std::string(DynamicTextElement &)> lambda) { lambda_ = lambda; }
+  void set_lambda(std::function<std::string(DynamicTextElement &)> lambda) { lambda_ = std::move(lambda); }
 
  protected:
   std::function<std::string(DynamicTextElement &)> lambda_;

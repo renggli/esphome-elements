@@ -32,14 +32,14 @@ class Element {
       : type_(type), component_(*component), parent_(parent) {}
 
   /// Returns the type of this element.
-  ElementType get_type() const { return type_; }
-  const char *get_type_string() const;
+  [[nodiscard]] ElementType get_type() const { return type_; }
+  [[nodiscard]] const char *get_type_string() const;
 
   /// Returns the parent element of this element, if any.
-  Element *get_parent() const { return parent_; }
+  [[nodiscard]] Element *get_parent() const { return parent_; }
 
   /// Returns the component of this element.
-  ElementComponent &get_component() const { return component_; }
+  [[nodiscard]] ElementComponent &get_component() const { return component_; }
 
   /// Abstract method that dumps this element configuration.
   virtual void dump_config(int level);

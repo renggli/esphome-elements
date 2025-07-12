@@ -44,15 +44,15 @@ void ClockElement::draw(display::Display &display) {
 
   // Draw the hands.
   if (hour_hand_.visible) {
-    display.line_at_angle(center_x, center_y, 360.0 * hours / 12.0 - 90.0, radius * hour_hand_.start,
+    display.line_at_angle(center_x, center_y, (360.0 * hours / 12.0) - 90.0, radius * hour_hand_.start,
                           radius * hour_hand_.end, hour_hand_.color);
   }
   if (minute_hand_.visible) {
-    display.line_at_angle(center_x, center_y, 360.0 * minutes / 60.0 - 90.0, radius * minute_hand_.start,
+    display.line_at_angle(center_x, center_y, (360.0 * minutes / 60.0) - 90.0, radius * minute_hand_.start,
                           radius * minute_hand_.end, minute_hand_.color);
   }
   if (second_hand_.visible) {
-    display.line_at_angle(center_x, center_y, 360.0 * seconds / 60.0 - 90.0, radius * second_hand_.start,
+    display.line_at_angle(center_x, center_y, (360.0 * seconds / 60.0) - 90.0, radius * second_hand_.start,
                           radius * second_hand_.end, second_hand_.color);
   }
 }

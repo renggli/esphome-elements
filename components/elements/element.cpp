@@ -50,8 +50,7 @@ void Element::dump_config(int level, const char *format, ...) {
   char buffer[256];
   int ret = vsnprintf(buffer, sizeof(buffer), format, arg);
   if (ret > 0) {
-    std::string indent(2 * level, ' ');
-    ESP_LOGCONFIG(ELEMENT_TAG, "%s%s", indent.c_str(), buffer);
+    ESP_LOGCONFIG(ELEMENT_TAG, "%s%s", std::string(2 * level, ' ').c_str(), buffer);
   }
   va_end(arg);
 }

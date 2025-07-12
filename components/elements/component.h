@@ -20,13 +20,13 @@ public:
   void set_aliased(bool aliased) { aliased_ = aliased; }
 
   /// Return the root element of this component.
-  Element *get_root() { return root_; }
+  Element *get_root() const { return root_; }
 
   /// Return the current time in milliseconds at the start of the last update.
-  uint32_t get_current_ms() { return current_ms_; }
+  uint32_t get_current_ms() const { return current_ms_; }
 
   /// Return the delta time in milliseconds since the last update.
-  uint32_t get_delta_ms() { return delta_ms_; }
+  uint32_t get_delta_ms() const { return delta_ms_; }
 
   /// Draws the element onto the provided display.
   void draw(display::Display &display);

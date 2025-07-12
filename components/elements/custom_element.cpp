@@ -2,11 +2,7 @@
 
 namespace esphome::elements {
 
-namespace {
-using display::Display;
-}
-
-void CustomElement::draw(Display &display) {
+void CustomElement::draw(display::Display &display) {
   if (draw_) {
     draw_(*this, display);
   } else {
@@ -42,7 +38,7 @@ bool CustomElement::is_active() {
   }
 }
 
-void CustomElement::test_draw(Display &display) {
+void CustomElement::test_draw(display::Display &display) {
   int center_x = display.get_width() / 2, center_y = display.get_height() / 2;
   float delta = fmod(get_component().get_current_ms() / 2000.0, 2.0 * PI);
   int x1 = center_x, y1 = center_y * sin(delta) + center_y;

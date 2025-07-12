@@ -1,6 +1,7 @@
 #pragma once
 
 #include "element.h"
+#include "esphome/components/display/display.h"
 #include "esphome/components/time/real_time_clock.h"
 
 namespace esphome::elements {

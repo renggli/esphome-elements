@@ -18,7 +18,7 @@ struct Anchor {
   Point<int> offset;
   Point<float> fraction;
 
-  Point<int> get(Point<int> extent) {
+  Point<int> get(const Point<int> &extent) const {
     return {
         .x = offset.x + (int)(fraction.x * extent.x),
         .y = offset.y + (int)(fraction.y * extent.y),

@@ -8,7 +8,7 @@ namespace esphome::elements {
 
 // The strategy to infer the activeness of the container based on the state
 // of its children.
-enum class ActiveMode {
+enum class ActiveMode : std::uint8_t {
   // The container is always active.
   ALWAYS,
   // The container is active, if any of its children are.
@@ -38,7 +38,7 @@ public:
   bool is_active() override;
 
 protected:
-  std::vector<Element *> elements_ = {};
+  std::vector<Element *> elements_;
   ActiveMode active_mode_;
 };
 

@@ -72,28 +72,27 @@ void TextElement::draw(display::Display &display) {
 }
 
 void TextElement::on_show() {
-  if (scroll_mode_ != ScrollMode::NONE) {
-    switch (scroll_mode_) {
-    case ScrollMode::LEFT_TO_RIGHT:
-      anchor_.fraction.x = 1.0;
-      align_ = TextAlign((int(align_) & ~TEXT_ALIGN_X) | int(TextAlign::LEFT));
-      break;
-    case ScrollMode::RIGHT_TO_LEFT:
-      anchor_.fraction.x = 0.0;
-      align_ = TextAlign((int(align_) & ~TEXT_ALIGN_X) | int(TextAlign::RIGHT));
-      break;
-    case ScrollMode::BOTTOM_TO_TOP:
-      anchor_.fraction.y = 1.0;
-      align_ = TextAlign((int(align_) & ~TEXT_ALIGN_Y) | int(TextAlign::TOP));
-      break;
-    case ScrollMode::TOP_TO_BOTTOM:
-      anchor_.fraction.y = 0.0;
-      align_ =
-          TextAlign((int(align_) & ~TEXT_ALIGN_Y) | int(TextAlign::BOTTOM));
-      break;
-    }
-    scroll_offset_ = 0.0;
+  switch (scroll_mode_) {
+  case ScrollMode::NONE:
+    break;
+  case ScrollMode::LEFT_TO_RIGHT:
+    anchor_.fraction.x = 1.0;
+    align_ = TextAlign((int(align_) & ~TEXT_ALIGN_X) | int(TextAlign::LEFT));
+    break;
+  case ScrollMode::RIGHT_TO_LEFT:
+    anchor_.fraction.x = 0.0;
+    align_ = TextAlign((int(align_) & ~TEXT_ALIGN_X) | int(TextAlign::RIGHT));
+    break;
+  case ScrollMode::BOTTOM_TO_TOP:
+    anchor_.fraction.y = 1.0;
+    align_ = TextAlign((int(align_) & ~TEXT_ALIGN_Y) | int(TextAlign::TOP));
+    break;
+  case ScrollMode::TOP_TO_BOTTOM:
+    anchor_.fraction.y = 0.0;
+    align_ = TextAlign((int(align_) & ~TEXT_ALIGN_Y) | int(TextAlign::BOTTOM));
+    break;
   }
+  scroll_offset_ = 0.0;
 }
 
 bool TextElement::is_active() { return !get_text().empty(); };

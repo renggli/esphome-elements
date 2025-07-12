@@ -6,7 +6,7 @@
 namespace esphome::elements {
 
 /// The different types of elements.
-enum class ElementType {
+enum class ElementType : std::uint8_t {
   UNKNOWN = 0,
   // Alphabetically sorted.
   CLOCK,

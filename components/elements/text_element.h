@@ -1,12 +1,14 @@
 #pragma once
 
 #include "element.h"
+
 #include "esphome/components/time/real_time_clock.h"
 #include "geometry.h"
+#include <utility>
 
 namespace esphome::elements {
 
-enum class ScrollMode {
+enum class ScrollMode : std::uint8_t {
   NONE,
   LEFT_TO_RIGHT,
   RIGHT_TO_LEFT,
@@ -87,7 +89,7 @@ public:
   std::string get_text() override;
 
   void set_time(time::RealTimeClock *time) { time_ = time; }
-  void set_format(std::string format) { format_ = format; }
+  void set_format(std::string format) { format_ = std::move(format); }
 
 protected:
   time::RealTimeClock *time_;

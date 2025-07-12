@@ -1,6 +1,6 @@
 #include "component.h"
 
-#include "esphome.h"
+#include "element.h"
 #include <cstdint>
 
 namespace esphome::elements {
@@ -11,7 +11,7 @@ void ElementComponent::setup() {
   // If we have a display, setup automatic drawing. Otherwise users need to
   // manually call `Elements::draw(Display&)` with the desired display as
   // argument.
-  if (display_) {
+  if (display_ != nullptr) {
     display::display_writer_t writer = [this](display::Display &it) {
       display_->clear();
       draw(*display_);

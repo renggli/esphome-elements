@@ -35,7 +35,7 @@ static const char *TIMEOUT_ELEMENT_TAG = "elements.timeout";
 
 void TimeoutElement::draw(display::Display &display) {
   if (next_ms_ <= get_component().get_current_ms()) {
-    ESP_LOGI(TIMEOUT_ELEMENT_TAG, "Dispatching `on_next` after %u ms",
+    ESP_LOGI(get_type_string(), "Dispatching `on_next` after %u ms",
              duration_ms_);
     DelegateElement::on_next();
   }

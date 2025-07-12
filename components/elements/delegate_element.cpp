@@ -57,7 +57,7 @@ void DelayElement::on_show() {
 void DelayElement::on_next() {
   counter_++;
   if (0 < count_ && count_ <= counter_) {
-    ESP_LOGI(TIMEOUT_ELEMENT_TAG, "Dispatching `on_next` after %u events",
+    ESP_LOGI(DELAY_ELEMENT_TAG, "Dispatching `on_next` after %u events",
              counter_);
     DelegateElement::on_next();
   }

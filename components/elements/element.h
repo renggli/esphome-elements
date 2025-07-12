@@ -32,14 +32,14 @@ public:
       : type_(type), component_(*component), parent_(parent) {}
 
   /// Returns the type of this element.
-  ElementType get_type() { return type_; }
-  const char *get_type_string();
+  ElementType get_type() const { return type_; }
+  const char *get_type_string() const;
 
   /// Returns the parent element of this element, if any.
-  Element *get_parent() { return parent_; }
+  Element *get_parent() const { return parent_; }
 
   /// Returns the component of this element.
-  ElementComponent &get_component() { return component_; }
+  ElementComponent &get_component() const { return component_; }
 
   /// Abstract method that dumps this element configuration.
   virtual void dump_config(int level);
@@ -61,7 +61,7 @@ public:
   virtual void on_hide();
 
   /// Event passed up the element tree when an elements wants to pass on
-  /// control to a sibling. By default the signal is passed upwards, unless
+  /// control to a sibling. By default, the signal is passed upwards, unless
   /// handled.
   virtual void on_next();
 

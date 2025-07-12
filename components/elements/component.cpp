@@ -1,7 +1,7 @@
 #include "component.h"
 
-#include "display.h"
 #include "esphome.h"
+#include <cstdint>
 
 namespace esphome::elements {
 
@@ -43,7 +43,7 @@ void ElementComponent::draw(display::Display &display) {
   }
 
   // Update the time.
-  u_int32_t now = millis();
+  uint32_t now = millis();
   delta_ms_ = now - current_ms_;
   current_ms_ = now;
 

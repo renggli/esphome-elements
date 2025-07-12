@@ -1,6 +1,7 @@
 #pragma once
 
 #include "element.h"
+#include <utility>
 
 namespace esphome::elements {
 
@@ -10,15 +11,17 @@ public:
   CustomElement(ElementComponent *component, Element *parent)
       : Element(ElementType::CUSTOM, component, parent) {}
 
-  typedef std::function<void(CustomElement &, display::Display &)> DrawFunction;
-  typedef std::function<void(CustomElement &)> EventFunction;
-  typedef std::function<bool(CustomElement &)> PredicateFunction;
+  using DrawFunction = std::function<void(CustomElement &, display::Display &)>;
+  using EventFunction = std::function<void(CustomElement &)>;
+  using PredicateFunction = std::function<bool(CustomElement &)>;
 
-  void set_draw(DrawFunction draw) { draw_ = draw; }
-  void set_on_show(EventFunction on_show) { on_show_ = on_show; }
-  void set_on_hide(EventFunction on_hide) { on_hide_ = on_hide; }
-  void set_on_next(EventFunction on_next) { on_next_ = on_next; }
-  void set_is_active(PredicateFunction is_active) { is_active_ = is_active; }
+  void set_draw(DrawFunction draw) { draw_ = std::move(draw); }
+  void set_on_show(EventFunction on_show) { on_show_ = std::move(on_show); }
+  void set_on_hide(EventFunction on_hide) { on_hide_ = std::move(on_hide); }
+  void set_on_next(EventFunction on_next) { on_next_ = std::move(on_next); }
+  void set_is_active(PredicateFunction is_active) {
+    is_active_ = std::move(is_active);
+  }
 
   void draw(display::Display &display) override;
   void on_show() override;

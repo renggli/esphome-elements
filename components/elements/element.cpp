@@ -40,7 +40,7 @@ const char *element_type_get_type_string(ElementType type) {
   return "unknown";
 }
 
-const char *Element::get_type_string() {
+const char *Element::get_type_string() const {
   return element_type_get_type_string(get_type());
 }
 

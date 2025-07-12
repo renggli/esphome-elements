@@ -32,7 +32,7 @@ void ClockElement::draw(display::Display &display) {
   float seconds = time.second;
   if (second_hand_.smooth) {
     struct timeval tv;
-    if (gettimeofday(&tv, NULL) == 0) {
+    if (gettimeofday(&tv, nullptr) == 0) {
       seconds += tv.tv_usec / 1000000.0;
     }
   }

@@ -27,7 +27,7 @@ enum class ElementType : std::uint8_t {
 
 /// Abstract superclass of all elements.
 class Element {
-public:
+ public:
   Element(ElementType type, ElementComponent *component, Element *parent)
       : type_(type), component_(*component), parent_(parent) {}
 
@@ -45,8 +45,7 @@ public:
   virtual void dump_config(int level);
 
   /// Helper to indent and log the dump configuration from `dump_config`.
-  void dump_config(int level, const char *format, ...)
-      __attribute__((format(printf, 3, 4)));
+  void dump_config(int level, const char *format, ...) __attribute__((format(printf, 3, 4)));
 
   /// Abstract method that draws this element on the given display.
   virtual void draw(display::Display &display) = 0;
@@ -69,10 +68,10 @@ public:
   /// might decide to skip the display of the element if it returns false.
   virtual bool is_active() { return true; }
 
-protected:
+ protected:
   ElementType type_;
   ElementComponent &component_;
   Element *parent_;
 };
 
-} // namespace esphome::elements
+}  // namespace esphome::elements

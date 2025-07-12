@@ -18,8 +18,7 @@ void ElementComponent::setup() {
     };
     display_->show_page(new display::DisplayPage(writer));
   } else {
-    ESP_LOGW(ELEMENT_COMPONENT_TAG,
-             "No display setup, drawing needs to be manually called.");
+    ESP_LOGW(ELEMENT_COMPONENT_TAG, "No display setup, drawing needs to be manually called.");
   }
 }
 
@@ -57,4 +56,4 @@ void ElementComponent::draw(display::Display &display) {
   root_->draw(display);
 }
 
-} // namespace esphome::elements
+}  // namespace esphome::elements

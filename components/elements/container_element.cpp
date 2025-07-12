@@ -4,9 +4,7 @@
 
 namespace esphome::elements {
 
-void ContainerElement::add_element(Element *element) {
-  elements_.push_back(element);
-}
+void ContainerElement::add_element(Element *element) { elements_.push_back(element); }
 
 void ContainerElement::dump_config(int level) {
   Element::dump_config(level);
@@ -29,22 +27,22 @@ void ContainerElement::on_hide() {
 
 bool ContainerElement::is_active() {
   switch (active_mode_) {
-  case ActiveMode::ALWAYS:
-    return true;
-  case ActiveMode::ANY:
-    for (Element *element : elements_) {
-      if (element->is_active())
-        return true;
-    }
-    return false;
-  case ActiveMode::ALL:
-    for (Element *element : elements_) {
-      if (!element->is_active())
-        return false;
-    }
-    return true;
-  case ActiveMode::NEVER:
-    return false;
+    case ActiveMode::ALWAYS:
+      return true;
+    case ActiveMode::ANY:
+      for (Element *element : elements_) {
+        if (element->is_active())
+          return true;
+      }
+      return false;
+    case ActiveMode::ALL:
+      for (Element *element : elements_) {
+        if (!element->is_active())
+          return false;
+      }
+      return true;
+    case ActiveMode::NEVER:
+      return false;
   }
   return false;
 }
@@ -94,8 +92,7 @@ int PriorityElement::find_active_index_() {
 void HorizontalElement::draw(display::Display &display) {
   int width = display.get_width() / elements_.size();
   for (int i = 0; i < elements_.size(); i++) {
-    auto sub_display =
-        SubDisplay(display, i * width, 0, width, display.get_height());
+    auto sub_display = SubDisplay(display, i * width, 0, width, display.get_height());
     elements_[i]->draw(sub_display);
   }
 }
@@ -103,8 +100,7 @@ void HorizontalElement::draw(display::Display &display) {
 void VerticalElement::draw(display::Display &display) {
   int height = display.get_height() / elements_.size();
   for (int i = 0; i < elements_.size(); i++) {
-    auto sub_display =
-        SubDisplay(display, 0, i * height, display.get_width(), height);
+    auto sub_display = SubDisplay(display, 0, i * height, display.get_width(), height);
     elements_[i]->draw(sub_display);
   }
 }
@@ -169,8 +165,7 @@ void RandomElement::on_next() {
   }
   // Pick an index, if we have candidates.
   if (!eligible_indices.empty()) {
-    int index = eligible_indices[get_component().get_current_ms() %
-                                 eligible_indices.size()];
+    int index = eligible_indices[get_component().get_current_ms() % eligible_indices.size()];
     history_.push_back(index);
     go_to(index);
   }
@@ -218,4 +213,4 @@ void SequenceElement::on_next() {
   }
 }
 
-} // namespace esphome::elements
+}  // namespace esphome::elements

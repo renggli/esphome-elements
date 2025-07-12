@@ -52,4 +52,4 @@ void CustomElement::test_draw(display::Display &display) {
     y1 = y2;
   }
 }
-} // namespace esphome::elements
+}  // namespace esphome::elements

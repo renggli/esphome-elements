@@ -27,16 +27,13 @@ void DelegateElement::on_hide() {
   }
 }
 
-bool DelegateElement::is_active() {
-  return element_ != nullptr && element_->is_active();
-}
+bool DelegateElement::is_active() { return element_ != nullptr && element_->is_active(); }
 
 static const char *TIMEOUT_ELEMENT_TAG = "elements.timeout";
 
 void TimeoutElement::draw(display::Display &display) {
   if (next_ms_ <= get_component().get_current_ms()) {
-    ESP_LOGI(get_type_string(), "Dispatching `on_next` after %u ms",
-             duration_ms_);
+    ESP_LOGI(get_type_string(), "Dispatching `on_next` after %u ms", duration_ms_);
     DelegateElement::on_next();
   }
   DelegateElement::draw(display);
@@ -57,10 +54,9 @@ void DelayElement::on_show() {
 void DelayElement::on_next() {
   counter_++;
   if (0 < count_ && count_ <= counter_) {
-    ESP_LOGI(DELAY_ELEMENT_TAG, "Dispatching `on_next` after %u events",
-             counter_);
+    ESP_LOGI(DELAY_ELEMENT_TAG, "Dispatching `on_next` after %u events", counter_);
     DelegateElement::on_next();
   }
 }
 
-} // namespace esphome::elements
+}  // namespace esphome::elements

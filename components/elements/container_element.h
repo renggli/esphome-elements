@@ -21,9 +21,8 @@ enum class ActiveMode : std::uint8_t {
 
 /// Element that delegates to a list of other elements.
 class ContainerElement : public Element {
-public:
-  ContainerElement(ElementType type, ElementComponent *component,
-                   Element *parent, ActiveMode active_mode)
+ public:
+  ContainerElement(ElementType type, ElementComponent *component, Element *parent, ActiveMode active_mode)
       : Element(type, component, parent), active_mode_(active_mode) {}
 
   void set_active_mode(ActiveMode active_mode) { active_mode_ = active_mode; };
@@ -37,64 +36,59 @@ public:
   void on_hide() override;
   bool is_active() override;
 
-protected:
+ protected:
   std::vector<Element *> elements_;
   ActiveMode active_mode_;
 };
 
 /// Draws multiple elements on top of each other.
 class OverlayElement : public ContainerElement {
-public:
+ public:
   OverlayElement(ElementComponent *component, Element *parent)
-      : ContainerElement(ElementType::OVERLAY, component, parent,
-                         ActiveMode::ANY) {}
+      : ContainerElement(ElementType::OVERLAY, component, parent, ActiveMode::ANY) {}
 
   void draw(display::Display &display) override;
 };
 
 /// Draws the first element that is active.
 class PriorityElement : public ContainerElement {
-public:
+ public:
   PriorityElement(ElementComponent *component, Element *parent)
-      : ContainerElement(ElementType::PRIORITY, component, parent,
-                         ActiveMode::ANY) {}
+      : ContainerElement(ElementType::PRIORITY, component, parent, ActiveMode::ANY) {}
 
   void draw(display::Display &display) override;
 
   void on_show() override;
   void on_hide() override;
 
-protected:
+ protected:
   int index_ = -1;
   int find_active_index_();
 };
 
 /// Draws multiple elements evenly horizontally spaced next to each other.
 class HorizontalElement : public ContainerElement {
-public:
+ public:
   HorizontalElement(ElementComponent *component, Element *parent)
-      : ContainerElement(ElementType::HORIZONTAL, component, parent,
-                         ActiveMode::ALL) {}
+      : ContainerElement(ElementType::HORIZONTAL, component, parent, ActiveMode::ALL) {}
 
   void draw(display::Display &display) override;
 };
 
 /// Draws multiple elements evenly vertically spaced above each other.
 class VerticalElement : public ContainerElement {
-public:
+ public:
   VerticalElement(ElementComponent *component, Element *parent)
-      : ContainerElement(ElementType::VERTICAL, component, parent,
-                         ActiveMode::ALL) {}
+      : ContainerElement(ElementType::VERTICAL, component, parent, ActiveMode::ALL) {}
 
   void draw(display::Display &display) override;
 };
 
 /// Draws multiple elements in random sequence.
 class RandomElement : public ContainerElement {
-public:
+ public:
   RandomElement(ElementComponent *component, Element *parent)
-      : ContainerElement(ElementType::RANDOM, component, parent,
-                         ActiveMode::ANY) {}
+      : ContainerElement(ElementType::RANDOM, component, parent, ActiveMode::ANY) {}
 
   void draw(display::Display &display) override;
   void go_to(int index);
@@ -103,17 +97,16 @@ public:
   void on_hide() override;
   void on_next() override;
 
-protected:
+ protected:
   int index_ = -1;
   std::vector<int> history_;
 };
 
 /// Draws multiple elements in sequence.
 class SequenceElement : public ContainerElement {
-public:
+ public:
   SequenceElement(ElementComponent *component, Element *parent)
-      : ContainerElement(ElementType::SEQUENCE, component, parent,
-                         ActiveMode::ANY) {}
+      : ContainerElement(ElementType::SEQUENCE, component, parent, ActiveMode::ANY) {}
 
   void draw(display::Display &display) override;
   void go_to(int index);
@@ -122,8 +115,8 @@ public:
   void on_hide() override;
   void on_next() override;
 
-protected:
+ protected:
   int index_ = -1;
 };
 
-} // namespace esphome::elements
+}  // namespace esphome::elements

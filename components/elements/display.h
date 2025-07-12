@@ -8,21 +8,18 @@ namespace esphome::elements {
 
 /// An image that is backed by a display buffer.
 class ImageDisplay : public display::Display, public display::BaseImage {
-public:
+ public:
   ImageDisplay(int width, int height);
   ~ImageDisplay();
 
-  display::DisplayType get_display_type() override {
-    return display::DisplayType::DISPLAY_TYPE_COLOR;
-  }
+  display::DisplayType get_display_type() override { return display::DisplayType::DISPLAY_TYPE_COLOR; }
   int get_width() const override { return width_; }
   int get_height() const override { return height_; }
 
   void HOT draw_pixel_at(int x, int y, Color color);
-  void draw(int x, int y, Display *display, Color color_on,
-            Color color_off) override;
+  void draw(int x, int y, Display *display, Color color_on, Color color_off) override;
 
-protected:
+ protected:
   int width_, height_;
   RAMAllocator<Color> allocator_;
   Color *buffer_ = nullptr;
@@ -35,16 +32,15 @@ protected:
 
 /// A sub-display of an existing display.
 class SubDisplay : public display::Display {
-public:
+ public:
   SubDisplay(display::Display &display, int x, int y, int w, int h)
-      : display_(display), x_(clamp(x, 0, display.get_width())),
+      : display_(display),
+        x_(clamp(x, 0, display.get_width())),
         y_(clamp(y, 0, display.get_height())),
         w_(clamp(w, 0, display.get_width() - x)),
         h_(clamp(h, 0, display.get_height() - y)) {}
 
-  display::DisplayType get_display_type() override {
-    return display_.get_display_type();
-  }
+  display::DisplayType get_display_type() override { return display_.get_display_type(); }
 
   void HOT draw_pixel_at(int x, int y, Color color) override {
     if (0 <= x && x < w_ && 0 <= y && y < h_) {
@@ -52,7 +48,7 @@ public:
     }
   }
 
-protected:
+ protected:
   display::Display &display_;
   int x_, y_, w_, h_;
 
@@ -62,4 +58,4 @@ protected:
   int get_height_internal() override { return h_; }
 };
 
-} // namespace esphome::elements
+}  // namespace esphome::elements

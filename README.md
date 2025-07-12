@@ -8,6 +8,8 @@
 
 Personalize your LED matrix with [ESPHome](https://esphome.io) Elements, a custom component to easily combine text, images, and custom visualizations.
 
+![ESPHome Elements Example](assets/frame.gif)
+
 ## Basic Setup
 
 To integrate _ESPHome Elements_ into your project, simply add the following to your ESPHome configuration file:

@@ -227,21 +227,21 @@ light:
   - platform: neopixelbus
     id: led_grid_1
     variant: WS2812X
+    type: GRB
     method:
       type: esp32_rmt
       channel: 0
     pin: GPIO16
     num_leds: 512
-    type: GRB
   - platform: neopixelbus
     id: led_grid_2
     variant: WS2812X
+    type: GRB
     method:
       type: esp32_rmt
       channel: 1
     pin: GPIO17
     num_leds: 512
-    type: GRB
   # Combined light
   - platform: partition
     id: led_grid

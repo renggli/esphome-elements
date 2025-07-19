@@ -7,15 +7,22 @@ namespace esphome::elements {
 static const char *const IMAGE_DISPLAY_TAG = "elements.display";
 
 ImageDisplay::ImageDisplay(int width, int height) : width_(width), height_(height) {
-  buffer_ = allocator_.allocate(width_ * height_);
-  if (buffer_ == nullptr) {
-    ESP_LOGE(IMAGE_DISPLAY_TAG, "Could not allocate buffer of ImageDisplay.");
-    return;
+  if (width_ * height_ > 0) {
+    buffer_ = allocator_.allocate(width_ * height_);
+    if (buffer_ == nullptr) {
+      ESP_LOGE(IMAGE_DISPLAY_TAG, "Could not allocate buffer of ImageDisplay.");
+      width_ = height_ = 0;
+      return;
+    }
+    clear();
   }
-  clear();
 }
 
-ImageDisplay::~ImageDisplay() { allocator_.deallocate(buffer_, width_ * height_); }
+ImageDisplay::~ImageDisplay() {
+  if (buffer_ != nullptr) {
+    allocator_.deallocate(buffer_, width_ * height_);
+  }
+}
 
 void ImageDisplay::draw_pixel_at(int x, int y, Color color) {
   if (0 <= x && x < width_ && 0 <= y && y < height_) {

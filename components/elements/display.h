@@ -6,14 +6,12 @@
 namespace esphome::elements {
 
 /// An image that is backed by a display buffer.
-class ImageDisplay : public display::Display, public display::BaseImage {
+class ImageDisplay : public display::BaseImage, public display::Display {
  public:
   ImageDisplay(int width, int height);
   ~ImageDisplay();
 
   display::DisplayType get_display_type() override { return display::DisplayType::DISPLAY_TYPE_COLOR; }
-  int get_width() const override { return width_; }
-  int get_height() const override { return height_; }
 
   void HOT draw_pixel_at(int x, int y, Color color) override;
   void draw(int x, int y, Display *display, Color color_on, Color color_off) override;

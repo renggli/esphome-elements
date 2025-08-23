@@ -120,7 +120,7 @@ sensor:
             const float min = 2, max = 20;
             uint8_t hue = remap<int, float>(clamp(x, min, max), min, max, 0x2f, 0x00);
             id(outside_particles_text_element).set_color(ESPHSVColor(hue, 0xff, 0xff).to_rgb());
-            id(outside_particles_text_element).set_text(str_snprintf("%.1f", 12, x));
+            id(outside_particles_text_element).set_text(str_snprintf("%.0f", 12, x));
   - id: inside_particles
     platform: homeassistant
     entity_id: sensor.apollo_air_1_pm_10_m_weight_concentration
@@ -130,7 +130,7 @@ sensor:
             const float min = 2, max = 20;
             uint8_t hue = remap<int, float>(clamp(x, min, max), min, max, 0x2f, 0x00);
             id(inside_particles_text_element).set_color(ESPHSVColor(hue, 0xff, 0xff).to_rgb());
-            id(inside_particles_text_element).set_text(str_snprintf("%.1f", 12, x));
+            id(inside_particles_text_element).set_text(str_snprintf("%.0f", 12, x));
   - id: sun_azimuth
     platform: homeassistant
     entity_id: sensor.sun_solar_azimuth
@@ -373,8 +373,8 @@ elements:
           type: image
           id: weather_image_element
       # Calendar
-      - type: timeout
-        duration: 10s
+      - type: delay
+        count: 2
         element:
           type: vertical
           active_mode: any
@@ -456,17 +456,21 @@ elements:
             // draw sun
             if (has_sun) {
               float azimuth = id(sun_azimuth).state - 90;
-              int pos_x = (radius * cos(azimuth * M_PI / 180)) + center_x;
-              int pos_y = (radius * sin(azimuth * M_PI / 180)) + center_y;
+              float elevation = id(sun_elevation).state;
+              float pos_r = radius * remap(cos(radians(elevation)), 0.0, 1.0, 0.5, 1.0);
+              int pos_x = (pos_r * cos(radians(azimuth))) + center_x;
+              int pos_y = (pos_r * sin(radians(azimuth))) + center_y;
               display.filled_circle(pos_x, pos_y, offset, id(yellow));
               display.printf(center_x, center_y + 1, id(font_chunky_6),
-                id(yellow), TextAlign::TOP_CENTER, "%.0f°", id(sun_elevation).state);
+                id(yellow), TextAlign::TOP_CENTER, "%.0f°", elevation);
             }
             // draw moon
             if (has_moon) {
               float azimuth = id(moon_azimuth).state - 90;
-              int pos_x = (radius * cos(azimuth * M_PI / 180)) + center_x;
-              int pos_y = (radius * sin(azimuth * M_PI / 180)) + center_y;
+              float elevation = id(moon_elevation).state;
+              float pos_r = radius * remap(cos(radians(elevation)), 0.0, 1.0, 0.5, 1.0);
+              int pos_x = (pos_r * cos(radians(azimuth))) + center_x;
+              int pos_y = (pos_r * sin(radians(azimuth))) + center_y;
               if (id(moon_illumination).has_state()) {
                 uint8_t value = remap<int, float>(id(moon_illumination).state, 0.0, 100.0, 0x00, 0xff);
                 display.filled_circle(pos_x, pos_y, offset, ESPHSVColor(0x00, 0x00, value).to_rgb());
@@ -474,7 +478,7 @@ elements:
               display.circle(pos_x, pos_y, offset, id(aluminum));
               if (!has_sun) {
                 display.printf(center_x, center_y - 1, id(font_chunky_6),
-                  id(aluminum), TextAlign::TOP_CENTER, "%.0f°", id(moon_elevation).state);
+                  id(aluminum), TextAlign::TOP_CENTER, "%.0f°", elevation);
               }
             }
             // draw wind

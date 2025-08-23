@@ -12,8 +12,13 @@ class ImageDisplay : public display::BaseImage, public display::Display {
   ~ImageDisplay();
 
   display::DisplayType get_display_type() override { return display::DisplayType::DISPLAY_TYPE_COLOR; }
+  int get_width() const override { return width_; };
+  int get_height() const override { return height_; }
+  bool is_valid() const { return buffer_ != nullptr; }
 
+  Color HOT get_pixel(int x, int y) const;
   void HOT draw_pixel_at(int x, int y, Color color) override;
+
   void draw(int x, int y, Display *display, Color color_on, Color color_off) override;
 
  protected:

@@ -24,6 +24,10 @@ ImageDisplay::~ImageDisplay() {
   }
 }
 
+Color ImageDisplay::get_pixel(int x, int y) const {
+  return 0 <= x && x < width_ && 0 <= y && y < height_ ? buffer_[x + (y * width_)] : display::COLOR_OFF;
+}
+
 void ImageDisplay::draw_pixel_at(int x, int y, Color color) {
   if (0 <= x && x < width_ && 0 <= y && y < height_) {
     buffer_[x + (y * width_)] = color;

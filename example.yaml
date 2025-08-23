@@ -51,6 +51,10 @@ wifi:
     password: !secret captive_portal_password
 captive_portal:
 
+# Webserver
+# web_server:
+#   port: 80
+
 # Values
 switch:
   - platform: template
@@ -120,7 +124,7 @@ sensor:
             const float min = 2, max = 20;
             uint8_t hue = remap<int, float>(clamp(x, min, max), min, max, 0x2f, 0x00);
             id(outside_particles_text_element).set_color(ESPHSVColor(hue, 0xff, 0xff).to_rgb());
-            id(outside_particles_text_element).set_text(str_snprintf("%.0f", 12, x));
+            id(outside_particles_text_element).set_text(str_snprintf("%.1f", 12, x));
   - id: inside_particles
     platform: homeassistant
     entity_id: sensor.apollo_air_1_pm_10_m_weight_concentration
@@ -130,7 +134,7 @@ sensor:
             const float min = 2, max = 20;
             uint8_t hue = remap<int, float>(clamp(x, min, max), min, max, 0x2f, 0x00);
             id(inside_particles_text_element).set_color(ESPHSVColor(hue, 0xff, 0xff).to_rgb());
-            id(inside_particles_text_element).set_text(str_snprintf("%.0f", 12, x));
+            id(inside_particles_text_element).set_text(str_snprintf("%.1f", 12, x));
   - id: sun_azimuth
     platform: homeassistant
     entity_id: sensor.sun_solar_azimuth

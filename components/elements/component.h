@@ -4,6 +4,11 @@
 #include "esphome/components/display/display.h"
 #include "esphome/core/component.h"
 #include "esphome/core/hal.h"
+#include "esphome/core/helpers.h"
+
+#ifdef USE_WEBSERVER
+#include "esphome/components/web_server_base/web_server_base.h"
+#endif
 
 namespace esphome::elements {
 
@@ -39,6 +44,23 @@ class ElementComponent : public Component {
   bool request_on_show_ = false;
   uint32_t current_ms_ = millis();
   uint32_t delta_ms_ = 0;
+
+#ifdef USE_WEBSERVER
+  friend class ElementComponentHandler;
+#endif
 };
+
+#ifdef USE_WEBSERVER
+class ElementComponentHandler : public AsyncWebHandler {
+ public:
+  ElementComponentHandler(ElementComponent *component) : component_(component) {}
+
+  bool canHandle(AsyncWebServerRequest *request) const override;
+  void handleRequest(AsyncWebServerRequest *request) override;
+
+ protected:
+  ElementComponent *component_;
+};
+#endif
 
 }  // namespace esphome::elements

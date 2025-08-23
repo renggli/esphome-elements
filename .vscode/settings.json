@@ -1,5 +1,10 @@
 {
   "clangd.fallbackFlags": [
     "-I${workspaceFolder}/.esphome/build/elements/src"
-  ]
+  ],
+  "files.associations": {
+    "__node_handle": "cpp",
+    "optional": "cpp",
+    "regex": "cpp"
+  }
 }

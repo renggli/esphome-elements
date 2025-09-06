@@ -12,7 +12,7 @@ class DelegateElement : public Element {
   void set_element(Element *element) { element_ = element; };
 
   void dump_config(int level) override;
-  void draw(display::Display &display) override;
+  void draw(Canvas &canvas) override;
 
   void on_show() override;
   void on_hide() override;
@@ -30,7 +30,7 @@ class TimeoutElement : public DelegateElement {
 
   void set_duration(uint32_t duration_ms) { duration_ms_ = duration_ms; }
 
-  void draw(display::Display &display) override;
+  void draw(Canvas &canvas) override;
 
   void on_show() override;
 

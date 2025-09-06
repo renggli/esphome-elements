@@ -1,7 +1,7 @@
 #pragma once
 
 #include "component.h"
-#include "esphome/components/display/display.h"
+#include "canvas.h"
 
 namespace esphome::elements {
 
@@ -48,7 +48,7 @@ class Element {
   void dump_config(int level, const char *format, ...) __attribute__((format(printf, 3, 4)));
 
   /// Abstract method that draws this element on the given display.
-  virtual void draw(display::Display &display) = 0;
+  virtual void draw(Canvas &canvas) = 0;
 
   /// Event passed down the element tree when an element is about to be
   /// shown, that is before the `draw` method is being called repeatedly.

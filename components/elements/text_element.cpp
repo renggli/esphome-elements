@@ -10,7 +10,7 @@ const int TEXT_ALIGN_X = (int) TextAlign::LEFT | (int) TextAlign::CENTER_HORIZON
 const int TEXT_ALIGN_Y =
     (int) TextAlign::TOP | (int) TextAlign::CENTER_VERTICAL | (int) TextAlign::BASELINE | (int) TextAlign::BOTTOM;
 
-void TextElement::draw(display::Display &display) {
+void TextElement::draw(Canvas &canvas) {
   // Update the text, if necessary.
   std::string new_text = get_text();
   if (text_ != new_text) {
@@ -24,7 +24,7 @@ void TextElement::draw(display::Display &display) {
   }
 
   // Compute the placement of the text.
-  Point<int> point = anchor_.get(Point<int>::from_extent(display));
+  Point<int> point = anchor_.get(Point<int>::from_extent(canvas));
 
   // Update the placement, if we scroll.
   if (scroll_mode_ != ScrollMode::NONE) {
@@ -50,22 +50,22 @@ void TextElement::draw(display::Display &display) {
 
   // Measure the text, if necessary.
   if (request_measurement_) {
-    display.get_text_bounds(point.x, point.y, text_.c_str(), font_, align_, &bounds_x_, &bounds_y_, &bounds_w_,
-                            &bounds_h_);
+    // TODO - canvas.get_text_bounds(point.x, point.y, text_.c_str(), font_, align_, &bounds_x_, &bounds_y_, &bounds_w_,
+    // TODO -                        &bounds_h_);
     request_measurement_ = false;
   }
 
   // Reset the scrolling, if necessary.
   if (scroll_mode_ != ScrollMode::NONE) {
-    if (bounds_x_ + bounds_w_ < 0 || display.get_width() < bounds_x_ || bounds_y_ + bounds_h_ < 0 ||
-        display.get_height() < bounds_y_) {
+    if (bounds_x_ + bounds_w_ < 0 || canvas.get_width() < bounds_x_ || bounds_y_ + bounds_h_ < 0 ||
+        canvas.get_height() < bounds_y_) {
       scroll_offset_ = 0.0;
       on_next();
     }
   }
 
   // Draw the text.
-  display.print(point.x, point.y, font_, color_, align_, text_.c_str(), background_color_);
+  // TODO - canvas.print(point.x, point.y, font_, color_, align_, text_.c_str(), background_color_);
 }
 
 void TextElement::on_show() {

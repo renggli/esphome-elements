@@ -1,7 +1,6 @@
 #pragma once
 
 #include "element.h"
-#include "esphome/components/display/display.h"
 #include "esphome/components/time/real_time_clock.h"
 
 namespace esphome::elements {
@@ -29,7 +28,7 @@ class ClockElement : public Element {
   void set_minute_hand(const AnalogClockOptions minute_hand) { minute_hand_ = minute_hand; }
   void set_hour_hand(const AnalogClockOptions hour_hand) { hour_hand_ = hour_hand; }
 
-  void draw(display::Display &display) override;
+  void draw(Canvas &canvas) override;
 
  protected:
   time::RealTimeClock *time_;

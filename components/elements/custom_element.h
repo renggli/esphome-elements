@@ -10,7 +10,7 @@ class CustomElement : public Element {
  public:
   CustomElement(ElementComponent *component, Element *parent) : Element(ElementType::CUSTOM, component, parent) {}
 
-  using DrawFunction = std::function<void(CustomElement &, display::Display &)>;
+  using DrawFunction = std::function<void(CustomElement &, Canvas &canvas)>;
   using EventFunction = std::function<void(CustomElement &)>;
   using PredicateFunction = std::function<bool(CustomElement &)>;
 
@@ -20,7 +20,7 @@ class CustomElement : public Element {
   void set_on_next(EventFunction on_next) { on_next_ = std::move(on_next); }
   void set_is_active(PredicateFunction is_active) { is_active_ = std::move(is_active); }
 
-  void draw(display::Display &display) override;
+  void draw(Canvas &canvas) override;
   void on_show() override;
   void on_hide() override;
   void on_next() override;
@@ -33,7 +33,7 @@ class CustomElement : public Element {
   EventFunction on_next_;
   PredicateFunction is_active_;
 
-  void test_draw_(display::Display &display);
+  void test_draw_(Canvas &canvas);
 };
 
 }  // namespace esphome::elements

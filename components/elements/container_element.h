@@ -47,7 +47,7 @@ class OverlayElement : public ContainerElement {
   OverlayElement(ElementComponent *component, Element *parent)
       : ContainerElement(ElementType::OVERLAY, component, parent, ActiveMode::ANY) {}
 
-  void draw(display::Display &display) override;
+  void draw(Canvas &canvas) override;
 };
 
 /// Draws the first element that is active.
@@ -56,7 +56,7 @@ class PriorityElement : public ContainerElement {
   PriorityElement(ElementComponent *component, Element *parent)
       : ContainerElement(ElementType::PRIORITY, component, parent, ActiveMode::ANY) {}
 
-  void draw(display::Display &display) override;
+  void draw(Canvas &canvas) override;
 
   void on_show() override;
   void on_hide() override;
@@ -72,7 +72,7 @@ class HorizontalElement : public ContainerElement {
   HorizontalElement(ElementComponent *component, Element *parent)
       : ContainerElement(ElementType::HORIZONTAL, component, parent, ActiveMode::ALL) {}
 
-  void draw(display::Display &display) override;
+  void draw(Canvas &canvas) override;
 };
 
 /// Draws multiple elements evenly vertically spaced above each other.
@@ -81,7 +81,7 @@ class VerticalElement : public ContainerElement {
   VerticalElement(ElementComponent *component, Element *parent)
       : ContainerElement(ElementType::VERTICAL, component, parent, ActiveMode::ALL) {}
 
-  void draw(display::Display &display) override;
+  void draw(Canvas &canvas) override;
 };
 
 /// Draws multiple elements in random sequence.
@@ -90,7 +90,7 @@ class RandomElement : public ContainerElement {
   RandomElement(ElementComponent *component, Element *parent)
       : ContainerElement(ElementType::RANDOM, component, parent, ActiveMode::ANY) {}
 
-  void draw(display::Display &display) override;
+  void draw(Canvas &canvas) override;
   void go_to(int index);
 
   void on_show() override;
@@ -108,7 +108,7 @@ class SequenceElement : public ContainerElement {
   SequenceElement(ElementComponent *component, Element *parent)
       : ContainerElement(ElementType::SEQUENCE, component, parent, ActiveMode::ANY) {}
 
-  void draw(display::Display &display) override;
+  void draw(Canvas &canvas) override;
   void go_to(int index);
 
   void on_show() override;

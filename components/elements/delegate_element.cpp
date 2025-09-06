@@ -9,9 +9,9 @@ void DelegateElement::dump_config(int level) {
   }
 }
 
-void DelegateElement::draw(display::Display &display) {
+void DelegateElement::draw(Canvas &canvas) {
   if (element_ != nullptr) {
-    element_->draw(display);
+    element_->draw(canvas);
   }
 }
 
@@ -31,12 +31,12 @@ bool DelegateElement::is_active() { return element_ != nullptr && element_->is_a
 
 static const char *const TIMEOUT_ELEMENT_TAG = "elements.timeout";
 
-void TimeoutElement::draw(display::Display &display) {
+void TimeoutElement::draw(Canvas &canvas) {
   if (next_ms_ <= get_component().get_current_ms()) {
     ESP_LOGI(TIMEOUT_ELEMENT_TAG, "Dispatching `on_next` after %u ms", duration_ms_);
     DelegateElement::on_next();
   }
-  DelegateElement::draw(display);
+  DelegateElement::draw(canvas);
 }
 
 void TimeoutElement::on_show() {

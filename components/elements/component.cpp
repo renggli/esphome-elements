@@ -1,7 +1,6 @@
 #include "component.h"
 
 #include "element.h"
-#include "display.h"
 
 #include <cstdint>
 
@@ -47,7 +46,14 @@ void ElementComponent::set_root(Element *root) {
 void ElementComponent::draw(display::Display &display) {
   // Check the preconditions.
   if (root_ == nullptr) {
-    ESP_LOGE(ELEMENT_COMPONENT_TAG, "draw() called without a root element.");
+    ESP_LOGE(ELEMENT_COMPONENT_TAG, "Unable to draw without a root element.");
+    return;
+  }
+
+  // Check if the display buffer has the right size.
+  canvas_.resize(display.get_width(), display.get_height());
+  if (!canvas_.is_valid()) {
+    ESP_LOGE(ELEMENT_COMPONENT_TAG, "Unable to allocate display buffer.");
     return;
   }
 
@@ -63,7 +69,9 @@ void ElementComponent::draw(display::Display &display) {
   }
 
   // Draw the update.
-  root_->draw(display);
+  canvas_.clear();
+  root_->draw(canvas_);
+  canvas_.copy_to(display);
 }
 
 #ifdef USE_WEBSERVER

@@ -27,6 +27,13 @@ esphome:
   name: ${device_name}
   friendly_name: ${friendly_name}
   name_add_mac_suffix: false
+  devices:
+    - id: frame_device
+      name: "Frame"
+    - id: screen_device
+      name: "Screen"
+    - id: timer_device
+      name: "Timer"
 
 # Logging
 logger:
@@ -59,6 +66,7 @@ captive_portal:
 switch:
   - platform: template
     name: "Switch"
+    device_id: frame_device
     restore_mode: RESTORE_DEFAULT_OFF
     lambda: "return id(led_display).get_enabled();"
     turn_on_action:
@@ -68,6 +76,7 @@ switch:
 number:
   - platform: template
     name: "Brightness"
+    device_id: frame_device
     min_value: 0.0
     max_value: 1.0
     step: 0.1
@@ -75,13 +84,6 @@ number:
     restore_value: true
     set_action:
       - lambda: "id(led_display)->get_light()->set_correction(x, x, x, x);"
-text:
-  - platform: template
-    name: "Message"
-    mode: text
-    lambda: "return id(message_element).get_text();"
-    set_action:
-      - lambda: "id(message_element).set_text(x);"
 
 # Sensors
 sensor:
@@ -158,6 +160,18 @@ sensor:
     entity_id: sensor.meteo_swiss_wind_speed
 text_sensor:
   # External Sensors
+  - platform: homeassistant
+    id: display_message
+    entity_id: input_text.display_message
+    on_value:
+      then:
+        - lambda: "id(message_element).set_text(x);"
+  - platform: homeassistant
+    id: display_message_color
+    entity_id: input_text.display_message_color
+    on_value:
+      then:
+        - lambda: "id(message_element).set_color(elements::hex_to_color(x));"
   - platform: homeassistant
     id: outside_weather
     entity_id: weather.forecast_home
@@ -446,8 +460,8 @@ elements:
                 || (id(wind_direction).has_state() && id(wind_speed).has_state());
           draw: |-
             const float offset = 3;
-            int center_x = display.get_width() / 2;
-            int center_y = display.get_height() / 2;
+            int center_x = canvas.get_width() / 2;
+            int center_y = canvas.get_height() / 2;
             int radius = std::min(center_x, center_y) - offset;
             bool has_sun = id(sun_azimuth).has_state()
                         && id(sun_elevation).has_state()
@@ -458,42 +472,42 @@ elements:
             bool has_wind = id(wind_direction).has_state()
                         && id(wind_speed).has_state();
             // draw sun
-            if (has_sun) {
-              float azimuth = id(sun_azimuth).state - 90;
-              float elevation = id(sun_elevation).state;
-              float pos_r = radius * remap(cos(radians(elevation)), 0.0, 1.0, 0.5, 1.0);
-              int pos_x = (pos_r * cos(radians(azimuth))) + center_x;
-              int pos_y = (pos_r * sin(radians(azimuth))) + center_y;
-              display.filled_circle(pos_x, pos_y, offset, id(yellow));
-              display.printf(center_x, center_y + 1, id(font_chunky_6),
-                id(yellow), TextAlign::TOP_CENTER, "%.0f°", elevation);
-            }
+            // if (has_sun) {
+            //   float azimuth = id(sun_azimuth).state - 90;
+            //   float elevation = id(sun_elevation).state;
+            //   float pos_r = radius * remap(cos(radians(elevation)), 0.0, 1.0, 0.5, 1.0);
+            //   int pos_x = (pos_r * cos(radians(azimuth))) + center_x;
+            //   int pos_y = (pos_r * sin(radians(azimuth))) + center_y;
+            //   canvas.filled_circle(pos_x, pos_y, offset, id(yellow));
+            //   canvas.printf(center_x, center_y + 1, id(font_chunky_6),
+            //     id(yellow), TextAlign::TOP_CENTER, "%.0f°", elevation);
+            // }
             // draw moon
-            if (has_moon) {
-              float azimuth = id(moon_azimuth).state - 90;
-              float elevation = id(moon_elevation).state;
-              float pos_r = radius * remap(cos(radians(elevation)), 0.0, 1.0, 0.5, 1.0);
-              int pos_x = (pos_r * cos(radians(azimuth))) + center_x;
-              int pos_y = (pos_r * sin(radians(azimuth))) + center_y;
-              if (id(moon_illumination).has_state()) {
-                uint8_t value = remap<int, float>(id(moon_illumination).state, 0.0, 100.0, 0x00, 0xff);
-                display.filled_circle(pos_x, pos_y, offset, ESPHSVColor(0x00, 0x00, value).to_rgb());
-              }
-              display.circle(pos_x, pos_y, offset, id(aluminum));
-              if (!has_sun) {
-                display.printf(center_x, center_y - 1, id(font_chunky_6),
-                  id(aluminum), TextAlign::TOP_CENTER, "%.0f°", elevation);
-              }
-            }
+            // if (has_moon) {
+            //   float azimuth = id(moon_azimuth).state - 90;
+            //   float elevation = id(moon_elevation).state;
+            //   float pos_r = radius * remap(cos(radians(elevation)), 0.0, 1.0, 0.5, 1.0);
+            //   int pos_x = (pos_r * cos(radians(azimuth))) + center_x;
+            //   int pos_y = (pos_r * sin(radians(azimuth))) + center_y;
+            //   if (id(moon_illumination).has_state()) {
+            //     uint8_t value = remap<int, float>(id(moon_illumination).state, 0.0, 100.0, 0x00, 0xff);
+            //     canvas.filled_circle(pos_x, pos_y, offset, ESPHSVColor(0x00, 0x00, value).to_rgb());
+            //   }
+            //   canvas.circle(pos_x, pos_y, offset, id(aluminum));
+            //   if (!has_sun) {
+            //     canvas.printf(center_x, center_y - 1, id(font_chunky_6),
+            //       id(aluminum), TextAlign::TOP_CENTER, "%.0f°", elevation);
+            //   }
+            // }
             // draw wind
             if (id(wind_direction).has_state() && id(wind_speed).has_state()) {
               for (int i = -1; i <= 1; i++) {
                 float angle = id(wind_direction).state + 10 * i - 90;
-                display.line_at_angle(center_x, center_y, angle,
+                canvas.line_at_angle(center_x, center_y, angle,
                     radius - offset, radius + offset, id(blue));
               }
-              display.printf(center_x, center_y - offset, id(font_chunky_6),
-                  id(blue), TextAlign::BOTTOM_CENTER, "%.0f", id(wind_speed).state);
+              // canvas.printf(center_x, center_y - offset, id(font_chunky_6),
+              //     id(blue), TextAlign::BOTTOM_CENTER, "%.0f", id(wind_speed).state);
             }
       # Analog Clock
       - type: timeout

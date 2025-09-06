@@ -30,7 +30,7 @@ class TextElement : public Element {
   void set_scroll_mode(ScrollMode scroll_mode) { scroll_mode_ = scroll_mode; }
   void set_scroll_speed(float scroll_speed) { scroll_speed_ = scroll_speed; }
 
-  void draw(display::Display &display) override;
+  void draw(Canvas &canvas) override;
   void on_show() override;
   bool is_active() override;
 

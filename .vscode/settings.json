@@ -5,6 +5,17 @@
   "files.associations": {
     "__node_handle": "cpp",
     "optional": "cpp",
-    "regex": "cpp"
+    "regex": "cpp",
+    "__hash_table": "cpp",
+    "__split_buffer": "cpp",
+    "__tree": "cpp",
+    "deque": "cpp",
+    "ios": "cpp",
+    "list": "cpp",
+    "map": "cpp",
+    "set": "cpp",
+    "string": "cpp",
+    "unordered_map": "cpp",
+    "vector": "cpp"
   }
 }

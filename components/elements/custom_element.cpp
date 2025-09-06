@@ -2,11 +2,11 @@
 
 namespace esphome::elements {
 
-void CustomElement::draw(display::Display &display) {
+void CustomElement::draw(Canvas &canvas) {
   if (draw_) {
-    draw_(*this, display);
+    draw_(*this, canvas);
   } else {
-    test_draw_(display);
+    test_draw_(canvas);
   }
 }
 
@@ -37,10 +37,10 @@ bool CustomElement::is_active() {
   return Element::is_active();
 }
 
-void CustomElement::test_draw_(display::Display &display) {
-  int center_x = display.get_width() / 2;
-  int center_y = display.get_height() / 2;
-  float delta = fmod(get_component().get_current_ms() / 2000.0, 2.0 * PI);
+void CustomElement::test_draw_(Canvas &canvas) {
+  int center_x = canvas.get_width() / 2;
+  int center_y = canvas.get_height() / 2;
+  float delta = fmod(get_component().get_current_ms() / 2000.0, 2.0 * M_PI);
   int x1 = center_x;
   int y1 = (center_y * sin(delta)) + center_y;
   for (int i = 1; i <= 0xff; i++) {
@@ -51,7 +51,7 @@ void CustomElement::test_draw_(display::Display &display) {
     hsv_to_rgb(360 * i / 0xff, 1.0, 1.0, r, g, b);
     int x2 = (center_x * sin(2.0 * t)) + center_x;
     int y2 = (center_y * sin((3.0 * t) + delta)) + center_y;
-    display.line(x1, y1, x2, y2, Color(0xff * r, 0xff * g, 0xff * b));
+    canvas.line(x1, y1, x2, y2, Color(0xff * r, 0xff * g, 0xff * b));
     x1 = x2;
     y1 = y2;
   }

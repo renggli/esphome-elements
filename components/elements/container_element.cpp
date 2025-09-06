@@ -1,6 +1,6 @@
 #include "container_element.h"
 
-#include "display.h"
+#include "canvas.h"
 
 namespace esphome::elements {
 
@@ -47,15 +47,15 @@ bool ContainerElement::is_active() {
   return false;
 }
 
-void OverlayElement::draw(display::Display &display) {
+void OverlayElement::draw(Canvas &canvas) {
   for (Element *element : elements_) {
-    element->draw(display);
+    element->draw(canvas);
   }
 }
 
 static const char *const PRIORITY_ELEMENT_TAG = "elements.priority";
 
-void PriorityElement::draw(display::Display &display) {
+void PriorityElement::draw(Canvas &canvas) {
   int index = find_active_index_();
   if (index_ != index) {
     ESP_LOGI(PRIORITY_ELEMENT_TAG, "Switching from %i to %i", index_, index);
@@ -64,7 +64,7 @@ void PriorityElement::draw(display::Display &display) {
     on_show();
   }
   if (index_ != -1) {
-    elements_[index_]->draw(display);
+    elements_[index_]->draw(canvas);
   }
 }
 
@@ -89,30 +89,30 @@ int PriorityElement::find_active_index_() {
   return -1;
 }
 
-void HorizontalElement::draw(display::Display &display) {
-  int width = display.get_width() / elements_.size();
+void HorizontalElement::draw(Canvas &canvas) {
+  int width = canvas.get_width() / elements_.size();
   for (int i = 0; i < elements_.size(); i++) {
-    auto sub_display = SubDisplay(display, i * width, 0, width, display.get_height());
-    elements_[i]->draw(sub_display);
+    auto sub_canvas = SubCanvas(canvas, i * width, 0, width, canvas.get_height());
+    elements_[i]->draw(sub_canvas);
   }
 }
 
-void VerticalElement::draw(display::Display &display) {
-  int height = display.get_height() / elements_.size();
+void VerticalElement::draw(Canvas &canvas) {
+  int height = canvas.get_height() / elements_.size();
   for (int i = 0; i < elements_.size(); i++) {
-    auto sub_display = SubDisplay(display, 0, i * height, display.get_width(), height);
-    elements_[i]->draw(sub_display);
+    auto sub_canvas = SubCanvas(canvas, 0, i * height, canvas.get_width(), height);
+    elements_[i]->draw(sub_canvas);
   }
 }
 
 static const char *const RANDOM_ELEMENT_TAG = "elements.random";
 
-void RandomElement::draw(display::Display &display) {
+void RandomElement::draw(Canvas &canvas) {
   if (index_ == -1) {
     on_next();
   }
   if (index_ != -1) {
-    elements_[index_]->draw(display);
+    elements_[index_]->draw(canvas);
   }
 }
 
@@ -173,12 +173,12 @@ void RandomElement::on_next() {
 
 static const char *const SEQUENCE_ELEMENT_TAG = "elements.sequence";
 
-void SequenceElement::draw(display::Display &display) {
+void SequenceElement::draw(Canvas &canvas) {
   if (index_ == -1) {
     on_next();
   }
   if (index_ != -1) {
-    elements_[index_]->draw(display);
+    elements_[index_]->draw(canvas);
   }
 }
 

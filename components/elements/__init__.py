@@ -57,15 +57,17 @@ CONF_VERTICAL = 'vertical'
 # classes
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-display_ns = cg.esphome_ns.namespace('display')
-
-Display = display_ns.class_('Display')
-DisplayRef = Display.operator("ref")
-
-# elements
+# component
 
 elements_ns = cg.esphome_ns.namespace('elements')
 ElementComponent = elements_ns.class_('ElementComponent', cg.Component)
+
+# canvas
+
+Canvas = elements_ns.class_('Canvas')
+CanvasRef = Canvas.operator("ref")
+
+# elements
 
 Element = elements_ns.class_('Element')
 
@@ -418,7 +420,7 @@ async def element_to_code(config, component, parent=nullptr):
         if conf := config.get(name):
             value = await cg.process_lambda(conf,
                                             [(ElementRef, "element"),
-                                             (DisplayRef, "display")],
+                                             (CanvasRef, "canvas")],
                                             return_type=cg.void)
             cg.add(getattr(var, 'set_' + name)(value))
 

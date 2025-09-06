@@ -199,13 +199,13 @@ text_sensor:
             }
   - platform: homeassistant
     id: calendar_current_event
-    entity_id: input_text.calendar_current_event
+    entity_id: sensor.current_event
     on_value:
       then:
         - lambda: id(calendar_current_event_text_element).set_text(x);
   - platform: homeassistant
-    id: calendar_next_event
-    entity_id: input_text.calendar_next_event
+    id: calendar_upcoming_event
+    entity_id: sensor.upcoming_event
     on_value:
       then:
         - lambda: id(calendar_next_event_text_element).set_text(x);

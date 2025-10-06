@@ -37,7 +37,7 @@ jobs:
           echo "captive_portal_ssid: undefined" >> secrets.yaml
           echo "captive_portal_password: undefined" >> secrets.yaml
       - name: ESPHome ${{ matrix.esphome-version }}
-        uses: esphome/build-action@v7.0.0
+        uses: esphome/build-action@v7.1.0
         with:
           yaml-file: ${{ matrix.file }}
           version: ${{ matrix.esphome-version }}

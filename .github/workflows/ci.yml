@@ -2,12 +2,17 @@ name: ESPHome CI
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
   schedule:
     - cron: "0 0 * * 0"
   workflow_dispatch:
+defaults:
+  run:
+    shell: bash
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}

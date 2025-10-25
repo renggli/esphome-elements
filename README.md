@@ -42,7 +42,7 @@ elements:
   id: elements_display
   display: led_display
   element:
-    - type: custom
+    type: custom
 ```
 
 [![ESPHome Elements Lissajous Animation](assets/lissajous.png)](https://www.youtube.com/shorts/Ih7tS33tRmk)

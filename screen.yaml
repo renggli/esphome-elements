@@ -1,0 +1,126 @@
+substitutions:
+  device_name: "screen"
+  friendly_name: "Screen"
+packages:
+  fonts: !include common/fonts.yaml
+  colors: !include common/colors.yaml
+external_components:
+  - source: github://renggli/esphome-clock
+  - source:
+      type: local
+      path: components
+
+# Board: https://i0.wp.com/randomnerdtutorials.com/wp-content/uploads/2024/09/ESP32-S3-pinout.jpg
+esp32:
+  board: esp32-s3-devkitc-1
+  framework:
+    type: arduino
+psram:
+  mode: octal
+  speed: 80MHz
+
+# ESPHome
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+  name_add_mac_suffix: false
+
+# Logging
+logger:
+
+# Updates
+ota:
+  - platform: esphome
+    password: ""
+
+# Homeassistant
+api:
+time:
+  - platform: homeassistant
+    id: current_time
+
+# WiFi
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: !secret captive_portal_ssid
+    password: !secret captive_portal_password
+captive_portal:
+
+spi:
+  id: lcd_spi_bus
+  clk_pin: GPIO1 # SCK
+  mosi_pin: GPIO2 # SDI(MOSI)
+  miso_pin: GPIO4 # SOOK(MISO)
+
+output:
+  - platform: ledc
+    id: lcd_backlight
+    pin: GPIO48 # LED
+    frequency: 5000Hz
+light:
+  - platform: monochromatic
+    id: backlight
+    name: "Backlight"
+    output: lcd_backlight
+    restore_mode: ALWAYS_ON
+
+# https://www.lcdwiki.com/4.0inch_SPI_Module_ILI9486
+display:
+  - platform: ili9xxx
+    id: lcd_display
+    spi_id: lcd_spi_bus
+    data_rate: 40MHz
+    model: ILI9486
+    dc_pin: GPIO5 # DC/RS
+    cs_pin: GPIO7 # CS
+    reset_pin: GPIO6 # RESET
+    color_order: bgr
+    dimensions:
+      width: 320
+      height: 480
+    invert_colors: false
+    update_interval: 100ms
+
+font:
+  - file:
+      type: gfonts
+      family: Montserrat
+      weight: 500
+    id: montserrat
+    size: 50
+
+elements:
+  id: elements_display
+  display: lcd_display
+  element:
+    type: random
+    elements:
+      # Time and Date
+      - type: timeout
+        duration: 10s
+        element:
+          type: vertical
+          elements:
+            - type: time_text
+              time: current_time
+              font: montserrat
+              color: orange_bright
+              format: "%a %e" # abbr weekday name, day of month
+            - type: time_text
+              time: current_time
+              font: montserrat
+              color: aluminum_bright
+              format: "%b %Y" # abbr month name, year
+            - type: time_text
+              time: current_time
+              font: montserrat
+              color: violet_bright
+              format: "%H:%M:%S"
+      # Analog Clock
+      - type: timeout
+        duration: 10s
+        element:
+          type: clock
+          time: current_time

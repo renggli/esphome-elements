@@ -34,7 +34,7 @@ jobs:
           - dev
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Prepare secrets.yaml
         run: |
           echo "wifi_ssid: undefined" > secrets.yaml

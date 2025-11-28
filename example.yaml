@@ -219,6 +219,18 @@ text_sensor:
     on_value:
       then:
         - lambda: id(calendar_next_event_text_element).set_text(x);
+  - platform: homeassistant
+    id: dishwasher_status
+    entity_id: sensor.dishwasher_status
+    on_value:
+      then:
+        - lambda: id(dishwasher_status_text_element).set_text(x);
+  - platform: homeassistant
+    id: dishwasher_notification
+    entity_id: sensor.dishwasher_notification
+    on_value:
+      then:
+        - lambda: id(dishwasher_notification_text_element).set_text(x);
 
 # Timer
 timer:
@@ -402,6 +414,23 @@ elements:
               id: calendar_next_event_text_element
               font: font_chunky_8
               color: green_dark
+              scroll_mode: LEFT_TO_RIGHT
+      # Dishwasher
+      - type: delay
+        count: 2
+        element:
+          type: vertical
+          active_mode: any
+          elements:
+            - type: static_text
+              id: dishwasher_status_text_element
+              font: font_chunky_8
+              color: blue
+              scroll_mode: LEFT_TO_RIGHT
+            - type: static_text
+              id: dishwasher_notification_text_element
+              font: font_chunky_8
+              color: blue_dark
               scroll_mode: LEFT_TO_RIGHT
       # Timer
       - type: timeout

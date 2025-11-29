@@ -3,7 +3,7 @@ substitutions:
   friendly_name: "Elements"
 packages:
   fonts: !include common/fonts.yaml
-  colors: !include common/colors.yaml
+  colors: !include common/material-colors.yaml
 external_components:
   - source: github://renggli/esphome-clock
   - source:
@@ -127,7 +127,7 @@ sensor:
               id(outside_particles_text_element).set_color(ESPHSVColor(hue, 0xff, 0xff).to_rgb());
               id(outside_particles_text_element).set_text(str_snprintf("%.1f", 12, x));
             } else {
-              id(outside_particles_text_element).set_color(id(aluminum_dark));
+              id(outside_particles_text_element).set_color(id(blue_gray_500));
               id(outside_particles_text_element).set_text("n/a");
             }
   - id: inside_particles
@@ -142,7 +142,7 @@ sensor:
               id(inside_particles_text_element).set_color(ESPHSVColor(hue, 0xff, 0xff).to_rgb());
               id(inside_particles_text_element).set_text(str_snprintf("%.1f", 12, x));
             } else {
-              id(inside_particles_text_element).set_color(id(aluminum_dark));
+              id(inside_particles_text_element).set_color(id(blue_gray_500));
               id(inside_particles_text_element).set_text("n/a");
             }
   - id: sun_azimuth
@@ -370,7 +370,7 @@ elements:
           id: message_element
           font: font_chunky_8
           scroll_mode: LEFT_TO_RIGHT
-          color: aluminum_dark
+          color: blue_gray_500
       # Time and Date
       - type: timeout
         duration: 10s
@@ -380,17 +380,17 @@ elements:
             - type: time_text
               time: current_time
               font: font_chunky_6
-              color: orange_dark
+              color: light_blue_800
               format: "%a %e" # abbr weekday name, day of month
             - type: time_text
               time: current_time
               font: font_chunky_6
-              color: aluminum_dark
+              color: cyan_800
               format: "%b %Y" # abbr month name, year
             - type: time_text
               time: current_time
               font: font_chunky_6
-              color: violet_dark
+              color: teal_800
               format: "%H:%M:%S"
       # Weather
       - type: timeout
@@ -400,7 +400,7 @@ elements:
           id: weather_image_element
       # Calendar
       - type: delay
-        count: 2
+        count: 4
         element:
           type: vertical
           active_mode: any
@@ -408,16 +408,16 @@ elements:
             - type: static_text
               id: calendar_current_event_text_element
               font: font_chunky_8
-              color: yellow_dark
+              color: green_800
               scroll_mode: LEFT_TO_RIGHT
             - type: static_text
               id: calendar_next_event_text_element
               font: font_chunky_8
-              color: green_dark
+              color: light_green_800
               scroll_mode: LEFT_TO_RIGHT
       # Dishwasher
       - type: delay
-        count: 2
+        count: 4
         element:
           type: vertical
           active_mode: any
@@ -425,12 +425,12 @@ elements:
             - type: static_text
               id: dishwasher_status_text_element
               font: font_chunky_8
-              color: blue
+              color: indigo_800
               scroll_mode: LEFT_TO_RIGHT
             - type: static_text
               id: dishwasher_notification_text_element
               font: font_chunky_8
-              color: blue_dark
+              color: blue_800
               scroll_mode: LEFT_TO_RIGHT
       # Timer
       - type: timeout
@@ -442,9 +442,9 @@ elements:
             auto state = id(default_timer).get_state();
             if (state == "Stopped") return "";
             element.set_color(
-              state == "Expired" ? id(red) :
-              state == "Paused" ? id(blue) :
-              id(aluminum));
+              state == "Expired" ? id(red_500) :
+              state == "Paused" ? id(blue_500) :
+              id(blue_gray_500));
             int remaining = id(default_timer).get_remaining() / 1000;
             int seconds = remaining % 60;
             int minutes = (remaining - seconds) / 60;
@@ -503,9 +503,9 @@ elements:
               float pos_r = radius * remap(cos(radians(elevation)), 0.0, 1.0, 0.5, 1.0);
               int pos_x = (pos_r * cos(radians(azimuth))) + center_x;
               int pos_y = (pos_r * sin(radians(azimuth))) + center_y;
-              display.filled_circle(pos_x, pos_y, offset, id(yellow));
+              display.filled_circle(pos_x, pos_y, offset, id(yellow_500));
               display.printf(center_x, center_y + 1, id(font_chunky_6),
-                id(yellow), TextAlign::TOP_CENTER, "%.0f°", elevation);
+                id(yellow_500), TextAlign::TOP_CENTER, "%.0f°", elevation);
             }
             // draw moon
             if (has_moon) {
@@ -518,10 +518,10 @@ elements:
                 uint8_t value = remap<int, float>(id(moon_illumination).state, 0.0, 100.0, 0x00, 0xff);
                 display.filled_circle(pos_x, pos_y, offset, ESPHSVColor(0x00, 0x00, value).to_rgb());
               }
-              display.circle(pos_x, pos_y, offset, id(aluminum));
+              display.circle(pos_x, pos_y, offset, id(blue_gray_500));
               if (!has_sun) {
                 display.printf(center_x, center_y - 1, id(font_chunky_6),
-                  id(aluminum), TextAlign::TOP_CENTER, "%.0f°", elevation);
+                  id(blue_gray_500), TextAlign::TOP_CENTER, "%.0f°", elevation);
               }
             }
             // draw wind
@@ -529,10 +529,10 @@ elements:
               for (int i = -1; i <= 1; i++) {
                 float angle = id(wind_direction).state + 10 * i - 90;
                 display.line_at_angle(center_x, center_y, angle,
-                    radius - offset, radius + offset, id(blue));
+                    radius - offset, radius + offset, id(light_blue_500));
               }
               display.printf(center_x, center_y - offset, id(font_chunky_6),
-                  id(blue), TextAlign::BOTTOM_CENTER, "%.0f", id(wind_speed).state);
+                  id(light_blue_500), TextAlign::BOTTOM_CENTER, "%.0f", id(wind_speed).state);
             }
       # Analog Clock
       - type: timeout
@@ -541,14 +541,14 @@ elements:
           type: clock
           time: current_time
           minute_markers:
-            color: blue_dark
+            color: blue_800
           hour_markers:
-            color: blue_dark
+            color: blue_800
           quarter_markers:
-            color: blue_dark
+            color: blue_800
           second_hand:
-            color: red_dark
+            color: red_800
           minute_hand:
-            color: aluminum_dark
+            color: blue_gray_300
           hour_hand:
-            color: aluminum_dark
+            color: blue_gray_300

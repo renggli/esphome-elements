@@ -1,10 +1,17 @@
 font:
-  # https://github.com/trip5/Matrix-Fonts
-  - file: assets/fonts/MatrixLight6X.bdf
-    id: font_light_6
-  - file: assets/fonts/MatrixChunky6X.bdf
-    id: font_chunky_6
-  - file: assets/fonts/MatrixLight8X.bdf
-    id: font_light_8
-  - file: assets/fonts/MatrixChunky8X.bdf
-    id: font_chunky_8
+  # Matrix Fonts
+  - id: font_matrix_light_6
+    file: assets/fonts/MatrixLight6X.bdf
+  - id: font_matrix_chunky_6
+    file: assets/fonts/MatrixChunky6X.bdf
+  - id: font_matrix_light_8
+    file: assets/fonts/MatrixLight8X.bdf
+  - id: font_matrix_chunky_8
+    file: assets/fonts/MatrixChunky8X.bdf
+  # Spleen Fonts
+  - id: font_spleen_5x8
+    file: assets/fonts/spleen-5x8.bdf
+  - id: font_spleen_6x12
+    file: assets/fonts/spleen-6x12.bdf
+  - id: font_spleen_8x16
+    file: assets/fonts/spleen-8x16.bdf

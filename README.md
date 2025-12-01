@@ -82,7 +82,7 @@ The following example scrolls the string "Hello World" over the display:
 
 ```yaml
 type: static_text
-font: font_chunky_8
+font: font_matrix_chunky_8
 scroll_mode: LEFT_TO_RIGHT
 text: "Hello World"
 ```
@@ -91,7 +91,7 @@ The following example displays a sensor value:
 
 ```yaml
 type: dynamic_text
-font: font_chunky_8
+font: font_matrix_chunky_8
 lambda: |-
   if (id(outside_temperature).has_state()) {
     float temp = id(outside_temperature).state;
@@ -105,7 +105,7 @@ The following example displays the current time:
 ```yaml
 type: time_text
 time: current_time
-font: font_chunky_8
+font: font_matrix_chunky_8
 format: "%H:%M:%S"
 ```
 
@@ -238,11 +238,11 @@ The following example displays the string "Time" above the current time:
 type: vertical
 elements:
   - type: static_text
-    font: font_chunky_8
+    font: font_matrix_chunky_8
     text: "Time"
   - type: time_text
     time: current_time
-    font: font_chunky_8
+    font: font_matrix_chunky_8
     format: "%H:%M:%S"
 ```
 

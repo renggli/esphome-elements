@@ -368,7 +368,7 @@ elements:
         element:
           type: static_text
           id: message_element
-          font: font_chunky_8
+          font: font_matrix_chunky_8
           scroll_mode: LEFT_TO_RIGHT
           color: purple_500
       # Time and Date
@@ -379,17 +379,17 @@ elements:
           elements:
             - type: time_text
               time: current_time
-              font: font_chunky_6
+              font: font_matrix_chunky_6
               color: light_blue_900
               format: "%a %e" # abbr weekday name, day of month
             - type: time_text
               time: current_time
-              font: font_chunky_6
+              font: font_matrix_chunky_6
               color: cyan_700
               format: "%b %Y" # abbr month name, year
             - type: time_text
               time: current_time
-              font: font_chunky_6
+              font: font_matrix_chunky_6
               color: teal_500
               format: "%H:%M:%S"
       # Weather
@@ -407,12 +407,12 @@ elements:
           elements:
             - type: static_text
               id: calendar_current_event_text_element
-              font: font_chunky_8
+              font: font_matrix_chunky_8
               color: lime_800
               scroll_mode: LEFT_TO_RIGHT
             - type: static_text
               id: calendar_next_event_text_element
-              font: font_chunky_8
+              font: font_matrix_chunky_8
               color: green_800
               scroll_mode: LEFT_TO_RIGHT
       # Dishwasher
@@ -424,12 +424,12 @@ elements:
           elements:
             - type: static_text
               id: dishwasher_status_text_element
-              font: font_chunky_8
+              font: font_matrix_chunky_8
               color: indigo_800
               scroll_mode: LEFT_TO_RIGHT
             - type: static_text
               id: dishwasher_notification_text_element
-              font: font_chunky_8
+              font: font_matrix_chunky_8
               color: indigo_800
               scroll_mode: LEFT_TO_RIGHT
       # Timer
@@ -437,7 +437,7 @@ elements:
         duration: 10s
         element:
           type: dynamic_text
-          font: font_chunky_8
+          font: font_matrix_chunky_8
           lambda: |-
             auto state = id(default_timer).get_state();
             if (state == "Stopped") return "";
@@ -458,10 +458,10 @@ elements:
           elements:
             - id: outside_temperature_text_element
               type: static_text
-              font: font_chunky_8
+              font: font_matrix_chunky_8
             - id: inside_temperature_text_element
               type: static_text
-              font: font_chunky_8
+              font: font_matrix_chunky_8
       # Particles
       - type: timeout
         duration: 10s
@@ -470,10 +470,10 @@ elements:
           elements:
             - id: outside_particles_text_element
               type: static_text
-              font: font_chunky_8
+              font: font_matrix_chunky_8
             - id: inside_particles_text_element
               type: static_text
-              font: font_chunky_8
+              font: font_matrix_chunky_8
       # Sun, Moon, and Wind
       - type: timeout
         duration: 10s
@@ -504,7 +504,7 @@ elements:
               int pos_x = (pos_r * cos(radians(azimuth))) + center_x;
               int pos_y = (pos_r * sin(radians(azimuth))) + center_y;
               display.filled_circle(pos_x, pos_y, offset, id(yellow_500));
-              display.printf(center_x, center_y + 1, id(font_chunky_6),
+              display.printf(center_x, center_y + 1, id(font_matrix_chunky_6),
                 id(yellow_500), TextAlign::TOP_CENTER, "%.0f°", elevation);
             }
             // draw moon
@@ -520,7 +520,7 @@ elements:
               }
               display.circle(pos_x, pos_y, offset, id(gray_500));
               if (!has_sun) {
-                display.printf(center_x, center_y - 1, id(font_chunky_6),
+                display.printf(center_x, center_y - 1, id(font_matrix_chunky_6),
                   id(gray_500), TextAlign::TOP_CENTER, "%.0f°", elevation);
               }
             }
@@ -531,7 +531,7 @@ elements:
                 display.line_at_angle(center_x, center_y, angle,
                     radius - offset, radius + offset, id(light_blue_500));
               }
-              display.printf(center_x, center_y - offset, id(font_chunky_6),
+              display.printf(center_x, center_y - offset, id(font_matrix_chunky_6),
                   id(light_blue_500), TextAlign::BOTTOM_CENTER, "%.0f", id(wind_speed).state);
             }
       # Analog Clock

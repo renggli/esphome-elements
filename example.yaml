@@ -370,7 +370,7 @@ elements:
           id: message_element
           font: font_chunky_8
           scroll_mode: LEFT_TO_RIGHT
-          color: blue_gray_500
+          color: purple_500
       # Time and Date
       - type: timeout
         duration: 10s
@@ -380,17 +380,17 @@ elements:
             - type: time_text
               time: current_time
               font: font_chunky_6
-              color: light_blue_800
+              color: light_blue_900
               format: "%a %e" # abbr weekday name, day of month
             - type: time_text
               time: current_time
               font: font_chunky_6
-              color: cyan_800
+              color: cyan_700
               format: "%b %Y" # abbr month name, year
             - type: time_text
               time: current_time
               font: font_chunky_6
-              color: teal_800
+              color: teal_500
               format: "%H:%M:%S"
       # Weather
       - type: timeout
@@ -408,12 +408,12 @@ elements:
             - type: static_text
               id: calendar_current_event_text_element
               font: font_chunky_8
-              color: green_800
+              color: lime_800
               scroll_mode: LEFT_TO_RIGHT
             - type: static_text
               id: calendar_next_event_text_element
               font: font_chunky_8
-              color: light_green_800
+              color: green_800
               scroll_mode: LEFT_TO_RIGHT
       # Dishwasher
       - type: delay
@@ -430,7 +430,7 @@ elements:
             - type: static_text
               id: dishwasher_notification_text_element
               font: font_chunky_8
-              color: blue_800
+              color: indigo_800
               scroll_mode: LEFT_TO_RIGHT
       # Timer
       - type: timeout
@@ -518,10 +518,10 @@ elements:
                 uint8_t value = remap<int, float>(id(moon_illumination).state, 0.0, 100.0, 0x00, 0xff);
                 display.filled_circle(pos_x, pos_y, offset, ESPHSVColor(0x00, 0x00, value).to_rgb());
               }
-              display.circle(pos_x, pos_y, offset, id(blue_gray_500));
+              display.circle(pos_x, pos_y, offset, id(gray_500));
               if (!has_sun) {
                 display.printf(center_x, center_y - 1, id(font_chunky_6),
-                  id(blue_gray_500), TextAlign::TOP_CENTER, "%.0f°", elevation);
+                  id(gray_500), TextAlign::TOP_CENTER, "%.0f°", elevation);
               }
             }
             // draw wind
@@ -549,6 +549,6 @@ elements:
           second_hand:
             color: red_800
           minute_hand:
-            color: blue_gray_300
+            color: gray_300
           hour_hand:
-            color: blue_gray_300
+            color: gray_300

@@ -368,7 +368,7 @@ elements:
         element:
           type: static_text
           id: message_element
-          font: font_matrix_chunky_8
+          font: font_spleen_5x8
           scroll_mode: LEFT_TO_RIGHT
           color: purple_500
       # Time and Date
@@ -407,12 +407,12 @@ elements:
           elements:
             - type: static_text
               id: calendar_current_event_text_element
-              font: font_matrix_chunky_8
+              font: font_spleen_5x8
               color: lime_800
               scroll_mode: LEFT_TO_RIGHT
             - type: static_text
               id: calendar_next_event_text_element
-              font: font_matrix_chunky_8
+              font: font_spleen_5x8
               color: green_800
               scroll_mode: LEFT_TO_RIGHT
       # Dishwasher
@@ -424,12 +424,12 @@ elements:
           elements:
             - type: static_text
               id: dishwasher_status_text_element
-              font: font_matrix_chunky_8
+              font: font_spleen_5x8
               color: indigo_800
               scroll_mode: LEFT_TO_RIGHT
             - type: static_text
               id: dishwasher_notification_text_element
-              font: font_matrix_chunky_8
+              font: font_spleen_5x8
               color: indigo_800
               scroll_mode: LEFT_TO_RIGHT
       # Timer
@@ -437,7 +437,7 @@ elements:
         duration: 10s
         element:
           type: dynamic_text
-          font: font_matrix_chunky_8
+          font: font_matrix_chunky_6
           lambda: |-
             auto state = id(default_timer).get_state();
             if (state == "Stopped") return "";

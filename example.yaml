@@ -79,9 +79,9 @@ text:
   - platform: template
     name: "Message"
     mode: text
-    lambda: "return id(message_element).get_text();"
+    lambda: "return id(message_text_element).get_text();"
     set_action:
-      - lambda: "id(message_element).set_text(x);"
+      - lambda: "id(message_text_element).set_text(x);"
 
 # Sensors
 sensor:
@@ -231,6 +231,14 @@ text_sensor:
     on_value:
       then:
         - lambda: id(dishwasher_notification_text_element).set_text(x);
+  - platform: homeassistant
+    id: quote
+    entity_id: sensor.quote
+    on_value:
+      then:
+        - lambda: |-
+            id(quote_text_element).set_text(x);
+            id(quote_text_element).set_color(ESPHSVColor(int(random() * 0xff), 0xff, 0xff).to_rgb());
 
 # Timer
 timer:
@@ -367,10 +375,19 @@ elements:
         count: 2
         element:
           type: static_text
-          id: message_element
+          id: message_text_element
           font: font_spleen_5x8
           scroll_mode: LEFT_TO_RIGHT
           color: purple_500
+      # Quote
+      - type: delay
+        count: 1
+        element:
+          type: static_text
+          id: quote_text_element
+          font: font_spleen_5x8
+          scroll_mode: LEFT_TO_RIGHT
+          color: green_500
       # Time and Date
       - type: timeout
         duration: 10s

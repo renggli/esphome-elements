@@ -20,6 +20,7 @@ void TextElement::draw(display::Display &display) {
 
   // Skip, if no text.
   if (text_.empty()) {
+    on_next();
     return;
   }
 

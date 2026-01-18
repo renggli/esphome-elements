@@ -46,6 +46,7 @@ time:
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
+  power_save_mode: NONE
   ap:
     ssid: !secret captive_portal_ssid
     password: !secret captive_portal_password
@@ -56,6 +57,9 @@ captive_portal:
 #   port: 80
 
 # Values
+button:
+  - platform: restart
+    name: "Restart"
 switch:
   - platform: template
     name: "Switch"
@@ -238,7 +242,7 @@ text_sensor:
       then:
         - lambda: |-
             id(quote_text_element).set_text(x);
-            id(quote_text_element).set_color(ESPHSVColor(int(random() * 0xff), 0xff, 0xff).to_rgb());
+            id(quote_text_element).set_color(ESPHSVColor(random_uint32() & 0xff, 0xf0, 0xff).to_rgb());
 
 # Timer
 timer:
@@ -387,6 +391,7 @@ elements:
           id: quote_text_element
           font: font_spleen_5x8
           scroll_mode: LEFT_TO_RIGHT
+          scroll_speed: 32  # pixel per second
           color: green_500
       # Time and Date
       - type: timeout
@@ -497,8 +502,8 @@ elements:
         element:
           type: custom
           is_active: |-
-            return (id(sun_azimuth).has_state() && id(sun_elevation).has_state())
-                || (id(moon_azimuth).has_state() && id(moon_elevation).has_state())
+            return (id(sun_azimuth).has_state() && id(sun_elevation).has_state() && id(sun_elevation).state > 0)
+                || (id(moon_azimuth).has_state() && id(moon_elevation).has_state() && id(moon_elevation).state > 0)
                 || (id(wind_direction).has_state() && id(wind_speed).has_state());
           draw: |-
             const float offset = 3;

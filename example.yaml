@@ -14,19 +14,21 @@ external_components:
 esp32:
   board: esp32dev
   framework:
-    type: arduino
+    type: esp-idf
 i2c:
   - sda: GPIO21
     scl: GPIO22
 one_wire:
   - platform: gpio
-    pin: GPIO33
+    pin: GPIO23
 
 # ESPHome
 esphome:
   name: ${device_name}
   friendly_name: ${friendly_name}
   name_add_mac_suffix: false
+  includes:
+    - common/compatibility.h
 
 # Logging
 logger:
@@ -79,13 +81,6 @@ number:
     restore_value: true
     set_action:
       - lambda: "id(led_display)->get_light()->set_correction(x, x, x, x);"
-text:
-  - platform: template
-    name: "Message"
-    mode: text
-    lambda: "return id(message_text_element).get_text();"
-    set_action:
-      - lambda: "id(message_text_element).set_text(x);"
 
 # Sensors
 sensor:
@@ -243,6 +238,12 @@ text_sensor:
         - lambda: |-
             id(quote_text_element).set_text(x);
             id(quote_text_element).set_color(ESPHSVColor(random_uint32() & 0xff, 0xf0, 0xff).to_rgb());
+  - platform: homeassistant
+    id: message
+    entity_id: input_text.display_message
+    on_value:
+      then:
+        - lambda: id(message_text_element).set_text(x);
 
 # Timer
 timer:
@@ -262,24 +263,20 @@ timer:
 
 light:
   # Physical grids
-  - platform: neopixelbus
+  - platform: esp32_rmt_led_strip
+    rgb_order: GRB
     id: led_grid_1
-    variant: WS2812X
-    type: GRB
-    method:
-      type: esp32_rmt
-      channel: 0
     pin: GPIO16
     num_leds: 512
-  - platform: neopixelbus
+    chipset: WS2812
+    max_refresh_rate: 50ms
+  - platform: esp32_rmt_led_strip
+    rgb_order: GRB
     id: led_grid_2
-    variant: WS2812X
-    type: GRB
-    method:
-      type: esp32_rmt
-      channel: 1
     pin: GPIO17
     num_leds: 512
+    chipset: WS2812
+    max_refresh_rate: 50ms
   # Combined light
   - platform: partition
     id: led_grid

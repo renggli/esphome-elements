@@ -62,6 +62,11 @@ captive_portal:
 button:
   - platform: restart
     name: "Restart"
+  - platform: template
+    name: "Next"
+    on_press:
+      - lambda: "id(elements_display).get_root()->on_next();"
+
 switch:
   - platform: template
     name: "Switch"

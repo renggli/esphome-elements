@@ -50,19 +50,24 @@ class Element {
   /// Abstract method that draws this element on the given display.
   virtual void draw(display::Display &display) = 0;
 
-  /// Event passed down the element tree when an element is about to be
+  /// Event passed up the element tree when an element is about to be
   /// shown, that is before the `draw` method is being called repeatedly.
   virtual void on_show();
 
-  /// Event passed down the element tree when an element is about to be
+  /// Event passed up the element tree when an element is about to be
   /// hidden, that is after the `draw` method is no longer being called
   /// repeatedly.
   virtual void on_hide();
 
   /// Event passed up the element tree when an elements wants to pass on
-  /// control to a sibling. By default, the signal is passed upwards, unless
-  /// handled.
+  /// control to a next sibling. By default, the signal is passed upwards,
+  /// unless handled.
   virtual void on_next();
+
+  /// Event passed up the element tree when an elements wants to pass on
+  /// control to a previous sibling. By default, the signal is passed upwards,
+  /// unless handled.
+  virtual void on_prev();
 
   /// Property of an element indicating if it wants to be shown. Parents
   /// might decide to skip the display of the element if it returns false.

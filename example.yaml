@@ -63,7 +63,13 @@ button:
   - platform: restart
     name: "Restart"
   - platform: template
-    name: "Next"
+    name: "Previous Screen"
+    icon: mdi:chevron-left
+    on_press:
+      - lambda: "id(elements_display).get_root()->on_prev();"
+  - platform: template
+    name: "Next Screen"
+    icon: mdi:chevron-right
     on_press:
       - lambda: "id(elements_display).get_root()->on_next();"
 

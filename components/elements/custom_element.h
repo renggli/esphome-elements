@@ -17,12 +17,14 @@ class CustomElement : public Element {
   void set_draw(DrawFunction draw) { draw_ = std::move(draw); }
   void set_on_show(EventFunction on_show) { on_show_ = std::move(on_show); }
   void set_on_hide(EventFunction on_hide) { on_hide_ = std::move(on_hide); }
+  void set_on_prev(EventFunction on_prev) { on_prev_ = std::move(on_prev); }
   void set_on_next(EventFunction on_next) { on_next_ = std::move(on_next); }
   void set_is_active(PredicateFunction is_active) { is_active_ = std::move(is_active); }
 
   void draw(display::Display &display) override;
   void on_show() override;
   void on_hide() override;
+  void on_prev() override;
   void on_next() override;
   bool is_active() override;
 
@@ -30,6 +32,7 @@ class CustomElement : public Element {
   DrawFunction draw_;
   EventFunction on_show_;
   EventFunction on_hide_;
+  EventFunction on_prev_;
   EventFunction on_next_;
   PredicateFunction is_active_;
 

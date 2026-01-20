@@ -1,6 +1,7 @@
 #include "container_element.h"
 
 #include "display.h"
+#include <limits>
 
 namespace esphome::elements {
 
@@ -90,18 +91,22 @@ int PriorityElement::find_active_index_() {
 }
 
 void HorizontalElement::draw(display::Display &display) {
-  int width = display.get_width() / elements_.size();
-  for (int i = 0; i < elements_.size(); i++) {
-    auto sub_display = SubDisplay(display, i * width, 0, width, display.get_height());
-    elements_[i]->draw(sub_display);
+  if (!elements_.empty()) {
+    int width = display.get_width() / elements_.size();
+    for (int i = 0; i < elements_.size(); i++) {
+      auto sub_display = SubDisplay(display, i * width, 0, width, display.get_height());
+      elements_[i]->draw(sub_display);
+    }
   }
 }
 
 void VerticalElement::draw(display::Display &display) {
-  int height = display.get_height() / elements_.size();
-  for (int i = 0; i < elements_.size(); i++) {
-    auto sub_display = SubDisplay(display, 0, i * height, display.get_width(), height);
-    elements_[i]->draw(sub_display);
+  if (!elements_.empty()) {
+    int height = display.get_height() / elements_.size();
+    for (int i = 0; i < elements_.size(); i++) {
+      auto sub_display = SubDisplay(display, 0, i * height, display.get_width(), height);
+      elements_[i]->draw(sub_display);
+    }
   }
 }
 
@@ -125,6 +130,15 @@ void RandomElement::go_to(int index) {
   }
 }
 
+void RandomElement::update_history() {
+  if (index_ != -1) {
+    history_.push_back(index_);
+    while (history_.size() > 2 * elements_.size()) {
+      history_.pop_front();
+    }
+  }
+}
+
 void RandomElement::on_show() {
   if (index_ != -1) {
     elements_[index_]->on_show();
@@ -137,37 +151,41 @@ void RandomElement::on_hide() {
   }
 }
 
+void RandomElement::on_prev() {
+  while (!history_.empty()) {
+    int index = history_.back();
+    history_.pop_back();
+    if (elements_[index]->is_active()) {
+      go_to(index);
+      return;
+    }
+  }
+}
+
 void RandomElement::on_next() {
-  // Find active elements not shown recently.
-  std::vector<int> eligible_indices;
-  for (int i = 0; i < elements_.size(); i++) {
-    if (elements_[i]->is_active()) {
-      bool in_history = false;
-      for (int j : history_) {
-        if (i == j) {
-          in_history = true;
-          break;
-        }
-      }
-      if (!in_history) {
-        eligible_indices.push_back(i);
+  std::vector<int> candidates;
+  int min = std::numeric_limits<int>::max();
+  for (int index = 0; index < elements_.size(); index++) {
+    if (!elements_[index]->is_active())
+      continue;
+    int count = 0;
+    for (int hist_index : history_) {
+      if (hist_index == index) {
+        count++;
       }
     }
-  }
-  // No eligible indices, reset the history.
-  if (eligible_indices.empty()) {
-    history_.clear();
-    for (int i = 0; i < elements_.size(); i++) {
-      if (elements_[i]->is_active() && i != index_) {
-        eligible_indices.push_back(i);
-      }
+    if (count < min) {
+      min = count;
+      candidates.clear();
+      candidates.push_back(index);
+    } else if (count == min) {
+      candidates.push_back(index);
     }
   }
-  // Pick an index, if we have candidates.
-  if (!eligible_indices.empty()) {
-    int index = eligible_indices[get_component().get_current_ms() % eligible_indices.size()];
-    history_.push_back(index);
+  if (!candidates.empty()) {
+    int index = candidates[get_component().get_current_ms() % candidates.size()];
     go_to(index);
+    update_history();
   }
 }
 
@@ -203,9 +221,21 @@ void SequenceElement::on_hide() {
   }
 }
 
+void SequenceElement::on_prev() {
+  int count = elements_.size();
+  for (int offset = 1; offset < count; offset++) {
+    int new_index = (index_ - offset + count) % count;
+    if (elements_[new_index]->is_active()) {
+      go_to(new_index);
+      return;
+    }
+  }
+}
+
 void SequenceElement::on_next() {
-  for (int offset = 1; offset < elements_.size(); offset++) {
-    int new_index = (index_ + offset) % elements_.size();
+  int count = elements_.size();
+  for (int offset = 1; offset < count; offset++) {
+    int new_index = (index_ + offset) % count;
     if (elements_[new_index]->is_active()) {
       go_to(new_index);
       return;

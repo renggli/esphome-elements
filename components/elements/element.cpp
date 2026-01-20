@@ -67,4 +67,12 @@ void Element::on_next() {
   }
 }
 
+void Element::on_prev() {
+  if (parent_ == nullptr) {
+    ESP_LOGW(ELEMENT_TAG, "Unhandled prev-event");
+  } else {
+    parent_->on_prev();
+  }
+}
+
 }  // namespace esphome::elements

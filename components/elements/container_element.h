@@ -1,5 +1,6 @@
 #pragma once
 
+#include <deque>
 #include <vector>
 
 #include "element.h"
@@ -92,14 +93,16 @@ class RandomElement : public ContainerElement {
 
   void draw(display::Display &display) override;
   void go_to(int index);
+  void update_history();
 
   void on_show() override;
   void on_hide() override;
+  void on_prev() override;
   void on_next() override;
 
  protected:
   int index_ = -1;
-  std::vector<int> history_;
+  std::deque<int> history_;
 };
 
 /// Draws multiple elements in sequence.
@@ -113,6 +116,7 @@ class SequenceElement : public ContainerElement {
 
   void on_show() override;
   void on_hide() override;
+  void on_prev() override;
   void on_next() override;
 
  protected:

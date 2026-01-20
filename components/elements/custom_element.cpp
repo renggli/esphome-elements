@@ -24,6 +24,14 @@ void CustomElement::on_hide() {
   }
 }
 
+void CustomElement::on_prev() {
+  if (on_prev_) {
+    on_prev_(*this);
+  } else {
+    Element::on_prev();
+  }
+}
+
 void CustomElement::on_next() {
   if (on_next_) {
     on_next_(*this);

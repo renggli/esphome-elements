@@ -22,7 +22,7 @@ class DelegateElement : public Element {
   Element *element_;
 };
 
-// An element that generates a 'next' event after a specified timeout.
+/// An element that generates a 'next' event after a specified timeout.
 class TimeoutElement : public DelegateElement {
  public:
   TimeoutElement(ElementComponent *component, Element *parent)
@@ -39,8 +39,8 @@ class TimeoutElement : public DelegateElement {
   uint32_t next_ms_ = 0;
 };
 
-// An element that generates a 'next' event after observing a specified count
-// of 'next' events.
+/// An element that generates a 'next' event after observing a specified count
+/// of 'next' events.
 class DelayElement : public DelegateElement {
  public:
   DelayElement(ElementComponent *component, Element *parent) : DelegateElement(ElementType::DELAY, component, parent) {}

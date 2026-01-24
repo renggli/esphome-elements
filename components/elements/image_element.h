@@ -6,7 +6,7 @@
 
 namespace esphome::elements {
 
-/// Elements that displays a static image.
+/// Element that displays a static image.
 class ImageElement : public Element {
  public:
   ImageElement(ElementComponent *component, Element *parent) : Element(ElementType::IMAGE, component, parent) {}

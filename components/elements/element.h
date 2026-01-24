@@ -41,7 +41,7 @@ class Element {
   /// Returns the component of this element.
   [[nodiscard]] ElementComponent &get_component() const { return component_; }
 
-  /// Abstract method that dumps this element configuration.
+  /// Abstract method that dumps this element's configuration.
   virtual void dump_config(int level);
 
   /// Helper to indent and log the dump configuration from `dump_config`.
@@ -51,20 +51,20 @@ class Element {
   virtual void draw(display::Display &display) = 0;
 
   /// Event passed up the element tree when an element is about to be
-  /// shown, that is before the `draw` method is being called repeatedly.
+  /// shown, i.e. before the `draw` method is being called repeatedly.
   virtual void on_show();
 
   /// Event passed up the element tree when an element is about to be
-  /// hidden, that is after the `draw` method is no longer being called
+  /// hidden, i.e. after the `draw` method is no longer being called
   /// repeatedly.
   virtual void on_hide();
 
-  /// Event passed up the element tree when an elements wants to pass on
+  /// Event passed up the element tree when an element wants to pass on
   /// control to a next sibling. By default, the signal is passed upwards,
   /// unless handled.
   virtual void on_next();
 
-  /// Event passed up the element tree when an elements wants to pass on
+  /// Event passed up the element tree when an element wants to pass on
   /// control to a previous sibling. By default, the signal is passed upwards,
   /// unless handled.
   virtual void on_prev();

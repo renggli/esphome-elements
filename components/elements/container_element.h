@@ -10,13 +10,13 @@ namespace esphome::elements {
 // The strategy to infer the activeness of the container based on the state
 // of its children.
 enum class ActiveMode : std::uint8_t {
-  // The container is always active.
+  /// The container is always active.
   ALWAYS,
-  // The container is active, if any of its children are.
+  /// The container is active if any of its children are.
   ANY,
-  // The container is active, if all of its children are.
+  /// The container is active if all of its children are.
   ALL,
-  // The container is never active.
+  /// The container is never active.
   NEVER,
 };
 
@@ -76,7 +76,7 @@ class HorizontalElement : public ContainerElement {
   void draw(display::Display &display) override;
 };
 
-/// Draws multiple elements evenly vertically spaced above each other.
+/// Draws multiple elements evenly vertically spaced from top to bottom.
 class VerticalElement : public ContainerElement {
  public:
   VerticalElement(ElementComponent *component, Element *parent)

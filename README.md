@@ -19,7 +19,7 @@ external_components:
   - source: github://renggli/esphome-elements
 ```
 
-Next, define a [Addressable Light Component](https://esphome.io/components/light/index.html) that is connected to an [Addressable Light Display](https://esphome.io/components/display/addressable_light.html). Configure both parts according to your display hardware. You do not need to define a `lambda` for rendering, as _ESPHome Elements_ will manage the display updates.
+Next, define an [Addressable Light Component](https://esphome.io/components/light/index.html) that is connected to an [Addressable Light Display](https://esphome.io/components/display/addressable_light.html). Configure both parts according to your display hardware. You do not need to define a `lambda` for rendering, as _ESPHome Elements_ will manage the display updates.
 
 ```yaml
 light:
@@ -76,7 +76,7 @@ All text elements support the following configuration variables:
 - **align** (Optional, enum): Specifies how the text is aligned at the point defined by the anchor. Possible values are
   `TOP`, `CENTER_VERTICAL`, `BASELINE`, `BOTTOM`, `LEFT`, `CENTER_HORIZONTAL`, `RIGHT`, `TOP_LEFT`, `TOP_CENTER`, `TOP_RIGHT`, `CENTER_LEFT`, `CENTER` (default), `CENTER_RIGHT`, `BASELINE_LEFT`, `BASELINE_CENTER`, `BASELINE_RIGHT`, `BOTTOM_LEFT`, `BOTTOM_CENTER`, and `BOTTOM_RIGHT`.
 - **scroll_mode** (Optional, enum): Specifies the scrolling behavior of the text, if any. Useful for long texts that exceed the display area. Possible values are `NONE` (default), `LEFT_TO_RIGHT`, `RIGHT_TO_LEFT`, `BOTTOM_TO_TOP`, and `TOP_TO_BOTTOM`. If scrolling is enabled, an `on_next` event is sent to the parent element on completion of the animation.
-- **scroll_speed** (Optional, float): Specifies the speed of the scrolling animation in pixel per second.
+- **scroll_speed** (Optional, float): Specifies the speed of the scrolling animation in pixels per second.
 
 The following example scrolls the string "Hello World" over the display:
 
@@ -194,7 +194,7 @@ Allows for user-defined, highly specific visual elements or behaviors beyond the
 
 The following configuration variables are supported:
 
-- **draw** (Optional, lambda): A lambda function that defines how the element is rendered on the display. This is the core of a custom element, allowing you to draw anything you want using the [Display](https://esphome.io/components/display/index.html#display-rendering-engine) drawing primitives. The variable `element` refers to the custom element, `display` to the render display. If the lambda is not set, the [default lissajous animation](#basic-setup) is display.
+- **draw** (Optional, lambda): A lambda function that defines how the element is rendered on the display. This is the core of a custom element, allowing you to draw anything you want using the [Display](https://esphome.io/components/display/index.html#display-rendering-engine) drawing primitives. The variable `element` refers to the custom element, `display` to the render display. If the lambda is not set, the [default lissajous animation](#basic-setup) is displayed.
 - **on_show** (Optional, lambda): A lambda function that is executed when the element becomes visible on the display. This is useful for performing setup tasks, starting animations, or loading data. The variable `element` refers to the custom element.
 - **on_hide** (Optional, lambda): A lambda function that is executed when the element is no longer visible on the display. This can be used to clean up resources, stop animations, or save data. The variable `element` refers to the custom element.
 - **on_next** (Optional, lambda): A lambda function that is executed when the element should transition to its next state or frame in a sequence. The variable `element` refers to the custom element.
@@ -220,7 +220,7 @@ draw: |-
 Arranges multiple elements within the display area to create a cohesive visual layout.
 
 1. `horizontal` displays its children evenly spaced horizontally from left to right.
-2. `vertical` displays its children evenly spaced horizontally from top to bottom.
+2. `vertical` displays its children evenly spaced vertically from top to bottom.
 3. `overlay` displays its children on top of each other.
 
 The following configuration variables are supported:

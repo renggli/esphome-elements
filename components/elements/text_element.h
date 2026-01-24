@@ -16,6 +16,7 @@ enum class ScrollMode : std::uint8_t {
   TOP_TO_BOTTOM,
 };
 
+/// Abstract base class for all text-based elements.
 class TextElement : public Element {
  public:
   TextElement(ElementType type, ElementComponent *component, Element *parent) : Element(type, component, parent) {}
@@ -42,7 +43,7 @@ class TextElement : public Element {
   display::TextAlign align_;
 
   ScrollMode scroll_mode_ = ScrollMode::NONE;
-  float scroll_speed_ = 10.0;  // pixel per second
+  float scroll_speed_ = 10.0;  // pixels per second
   float scroll_offset_ = 0.0;
 
   std::string text_;
@@ -50,6 +51,7 @@ class TextElement : public Element {
   int bounds_x_, bounds_y_, bounds_w_, bounds_h_;
 };
 
+/// Text element that displays a fixed string.
 class StaticTextElement : public TextElement {
  public:
   StaticTextElement(ElementComponent *component, Element *parent)
@@ -62,6 +64,7 @@ class StaticTextElement : public TextElement {
   std::string text_;
 };
 
+/// Text element that uses a lambda to generate text dynamically.
 class DynamicTextElement : public TextElement {
  public:
   DynamicTextElement(ElementComponent *component, Element *parent)
@@ -75,6 +78,7 @@ class DynamicTextElement : public TextElement {
   std::function<std::string(DynamicTextElement &)> lambda_;
 };
 
+/// Text element that displays the current time using a format string.
 class TimeTextElement : public TextElement {
  public:
   TimeTextElement(ElementComponent *component, Element *parent)

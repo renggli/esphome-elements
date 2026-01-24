@@ -5,7 +5,7 @@
 
 namespace esphome::elements {
 
-/// An element that can be customized with a bunch of lambda functions.
+/// An element that can be customized with lambda functions.
 class CustomElement : public Element {
  public:
   CustomElement(ElementComponent *component, Element *parent) : Element(ElementType::CUSTOM, component, parent) {}

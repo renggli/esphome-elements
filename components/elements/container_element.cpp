@@ -184,8 +184,8 @@ void RandomElement::on_next() {
   }
   if (!candidates.empty()) {
     int index = candidates[get_component().get_current_ms() % candidates.size()];
-    go_to(index);
     update_history();
+    go_to(index);
   }
 }
 

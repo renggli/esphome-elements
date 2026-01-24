@@ -281,6 +281,7 @@ light:
     num_leds: 512
     chipset: WS2812
     max_refresh_rate: 50ms
+    default_transition_length: 10ms
   - platform: esp32_rmt_led_strip
     rgb_order: GRB
     id: led_grid_2
@@ -288,9 +289,11 @@ light:
     num_leds: 512
     chipset: WS2812
     max_refresh_rate: 50ms
+    default_transition_length: 10ms
   # Combined light
   - platform: partition
     id: led_grid
+    default_transition_length: 10ms
     color_correct: [50%, 50%, 50%]
     segments:
       - id: led_grid_1

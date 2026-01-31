@@ -22,7 +22,6 @@ class ElementComponent : public Component {
 
   void set_root(Element *root);
   void set_display(display::Display *display) { display_ = display; }
-  void set_aliased(bool aliased) { aliased_ = aliased; }
 
   /// Return the root element of this component.
   [[nodiscard]] Element *get_root() const { return root_; }
@@ -39,7 +38,6 @@ class ElementComponent : public Component {
  protected:
   Element *root_ = nullptr;
   display::Display *display_ = nullptr;
-  bool aliased_ = false;
 
   bool request_on_show_ = false;
   uint32_t current_ms_ = millis();

@@ -80,7 +80,14 @@ switch:
     lambda: "return id(led_display).get_enabled();"
     turn_on_action:
       - lambda: "id(led_display).set_enabled(true);"
+      - delay: 100ms
+      - light.turn_on:
+          id: led_grid
+          transition_length: 0s
     turn_off_action:
+      - light.turn_off:
+          id: led_grid
+          transition_length: 0s
       - lambda: "id(led_display).set_enabled(false);"
 number:
   - platform: template
@@ -281,7 +288,6 @@ light:
     num_leds: 512
     chipset: WS2812
     max_refresh_rate: 50ms
-    default_transition_length: 10ms
   - platform: esp32_rmt_led_strip
     rgb_order: GRB
     id: led_grid_2
@@ -289,11 +295,10 @@ light:
     num_leds: 512
     chipset: WS2812
     max_refresh_rate: 50ms
-    default_transition_length: 10ms
   # Combined light
   - platform: partition
     id: led_grid
-    default_transition_length: 10ms
+#    default_transition_length: 1ms
     color_correct: [50%, 50%, 50%]
     segments:
       - id: led_grid_1

@@ -29,6 +29,13 @@ esphome:
   name_add_mac_suffix: false
   includes:
     - common/compatibility.h
+  on_boot:
+    priority: -100
+    then:
+      - lambda: |-
+          auto text = id(message)->state;
+          id(message)->publish_state(text);
+          id(message_text_element).set_text(text);
 
 # Logging
 logger:
@@ -99,6 +106,15 @@ number:
     restore_value: true
     set_action:
       - lambda: "id(led_display)->get_light()->set_correction(x, x, x, x);"
+text:
+  - platform: template
+    id: message
+    name: "Message"
+    mode: text
+    restore_value: true
+    initial_value: ""
+    set_action: 
+      - lambda: id(message_text_element).set_text(x);
 
 # Sensors
 sensor:
@@ -256,12 +272,6 @@ text_sensor:
         - lambda: |-
             id(quote_text_element).set_text(x);
             id(quote_text_element).set_color(ESPHSVColor(random_uint32() & 0xff, 0xf0, 0xff).to_rgb());
-  - platform: homeassistant
-    id: message
-    entity_id: input_text.display_message
-    on_value:
-      then:
-        - lambda: id(message_text_element).set_text(x);
 
 # Timer
 timer:
@@ -298,7 +308,6 @@ light:
   # Combined light
   - platform: partition
     id: led_grid
-#    default_transition_length: 1ms
     color_correct: [50%, 50%, 50%]
     segments:
       - id: led_grid_1
@@ -398,6 +407,7 @@ elements:
           id: message_text_element
           font: font_spleen_5x8
           scroll_mode: LEFT_TO_RIGHT
+          scroll_speed: 24  # pixel per second
           color: purple_500
       # Quote
       - type: delay
@@ -407,7 +417,7 @@ elements:
           id: quote_text_element
           font: font_spleen_5x8
           scroll_mode: LEFT_TO_RIGHT
-          scroll_speed: 32  # pixel per second
+          scroll_speed: 24  # pixel per second
           color: green_500
       # Time and Date
       - type: timeout

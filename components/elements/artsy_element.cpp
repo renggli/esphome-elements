@@ -1,7 +1,8 @@
 #include "artsy_element.h"
+#include "color.cpp"
+#include "display.h"
 #include <algorithm>
 #include <cmath>
-#include <algorithm>
 
 namespace esphome::elements {
 
@@ -22,90 +23,14 @@ static float noise(int x, int y, uint32_t seed) {
   return (val % 1000) / 1000.0f;
 }
 
-Color ArtsyElement::get_gradient_color_(float p) const {
-  float h = this->base_h_;
-  float s = this->base_s_;
-  float v = this->base_v_;
-
-  switch (this->color_scheme_) {
-    // Monochromatic: shade/tint variations of the same hue.
-    case ArtsyColorScheme::MONOCHROMATIC:
-      v = this->base_v_ * (this->min_brightness_ + (1.0f - this->min_brightness_) * p);
-      s = this->base_s_ * (1.0f - 0.4f * p);
-      break;
-    // Analogous: colors adjacent on the color wheel (±30° sweep).
-    case ArtsyColorScheme::ANALOGOUS:
-      h = std::fmod(this->base_h_ + 60.0f * p - 30.0f + 360.0f, 360.0f);
-      v = this->base_v_ * (this->min_brightness_ + (1.0f - this->min_brightness_) * (1.0f - std::cos(p * PI_F)) / 2.0f);
-      break;
-    // Complementary: smooth sweep from base hue to its complement and back.
-    case ArtsyColorScheme::COMPLEMENTARY:
-      h = std::fmod(this->base_h_ + p * 180.0f, 360.0f);
-      v = this->base_v_ * (this->min_brightness_ + (1.0f - this->min_brightness_) * (1.0f - std::cos(p * PI_F)) / 2.0f);
-      break;
-    // Triadic: full hue wheel sweep — passes equally through all three triadic hues.
-    case ArtsyColorScheme::TRIADIC:
-      h = std::fmod(this->base_h_ + 360.0f * p, 360.0f);
-      v = this->base_v_ * (this->min_brightness_ + (1.0f - this->min_brightness_) * (1.0f - std::cos(p * PI_F)) / 2.0f);
-      break;
-    // Split-Complementary: smooth cosine blend between base, +150°, and +210°.
-    case ArtsyColorScheme::SPLIT_COMPLEMENTARY: {
-      float w0 = std::max(0.0f, std::cos((p - 0.0f) * TWO_PI_F * 1.5f));
-      float w1 = std::max(0.0f, std::cos((p - 0.33f) * TWO_PI_F * 1.5f));
-      float w2 = std::max(0.0f, std::cos((p - 0.67f) * TWO_PI_F * 1.5f));
-      float total = w0 + w1 + w2 + 1e-6f;
-      float h0 = this->base_h_;
-      float h1 = std::fmod(this->base_h_ + 150.0f, 360.0f);
-      float h2 = std::fmod(this->base_h_ + 210.0f, 360.0f);
-      // Weighted circular mean of hue angles
-      float sx =
-          w0 * std::cos(h0 * PI_F / 180.0f) + w1 * std::cos(h1 * PI_F / 180.0f) + w2 * std::cos(h2 * PI_F / 180.0f);
-      float sy =
-          w0 * std::sin(h0 * PI_F / 180.0f) + w1 * std::sin(h1 * PI_F / 180.0f) + w2 * std::sin(h2 * PI_F / 180.0f);
-      h = std::fmod(std::atan2(sy / total, sx / total) * 180.0f / PI_F + 360.0f, 360.0f);
-      v = this->base_v_ * (this->min_brightness_ + (1.0f - this->min_brightness_) * (1.0f - std::cos(p * PI_F)) / 2.0f);
-      break;
-    }
-    // Dual-Complementary (Tetradic): smooth cosine blend between four square hues.
-    case ArtsyColorScheme::DUAL_COMPLEMENTARY: {
-      float w0 = std::max(0.0f, std::cos((p - 0.00f) * TWO_PI_F * 2.0f));
-      float w1 = std::max(0.0f, std::cos((p - 0.25f) * TWO_PI_F * 2.0f));
-      float w2 = std::max(0.0f, std::cos((p - 0.50f) * TWO_PI_F * 2.0f));
-      float w3 = std::max(0.0f, std::cos((p - 0.75f) * TWO_PI_F * 2.0f));
-      float total = w0 + w1 + w2 + w3 + 1e-6f;
-      float h0 = this->base_h_;
-      float h1 = std::fmod(this->base_h_ + 90.0f, 360.0f);
-      float h2 = std::fmod(this->base_h_ + 180.0f, 360.0f);
-      float h3 = std::fmod(this->base_h_ + 270.0f, 360.0f);
-      float sx = w0 * std::cos(h0 * PI_F / 180.0f) + w1 * std::cos(h1 * PI_F / 180.0f) +
-                 w2 * std::cos(h2 * PI_F / 180.0f) + w3 * std::cos(h3 * PI_F / 180.0f);
-      float sy = w0 * std::sin(h0 * PI_F / 180.0f) + w1 * std::sin(h1 * PI_F / 180.0f) +
-                 w2 * std::sin(h2 * PI_F / 180.0f) + w3 * std::sin(h3 * PI_F / 180.0f);
-      h = std::fmod(std::atan2(sy / total, sx / total) * 180.0f / PI_F + 360.0f, 360.0f);
-      v = this->base_v_ * (this->min_brightness_ + (1.0f - this->min_brightness_) * (1.0f - std::cos(p * PI_F)) / 2.0f);
-      break;
-    }
-    // Rainbow: full-spectrum hue rotation, ignoring the base color.
-    case ArtsyColorScheme::RAINBOW:
-      h = std::fmod(p * 360.0f, 360.0f);
-      s = 1.0f;
-      v = this->base_v_;
-      break;
+Color ArtsyElement::get_gradient_color_(float p) {
+  if (color_scheme_ != nullptr) {
+    return color_scheme_->get_color(std::clamp(p, 0.0f, 1.0f));
   }
-
-  float r, g, b;
-  hsv_to_rgb(h, s, v, r, g, b);
-  return Color(0xff * r, 0xff * g, 0xff * b);
+  return Color(0, 0, 0);
 }
 
-void ArtsyElement::on_show() {
-  float r_f = this->color_.r / 255.0f;
-  float g_f = this->color_.g / 255.0f;
-  float b_f = this->color_.b / 255.0f;
-  int h;
-  rgb_to_hsv(r_f, g_f, b_f, h, this->base_s_, this->base_v_);
-  base_h_ = h;
-}
+void ArtsyElement::on_show() {}
 
 void ArtsyElement::draw(display::Display &display) {
   uint32_t current_ms = get_component().get_current_ms();
@@ -141,8 +66,8 @@ void ArtsyElement::draw(display::Display &display) {
     case ArtsyPattern::MATRIX:
       this->draw_matrix_(display, width, height, current_ms);
       break;
-    case ArtsyPattern::LISSAJOUS:
-      this->draw_lissajous_(display, width, height, current_ms);
+    case ArtsyPattern::GRADIENT:
+      this->draw_gradient_(display, width, height, current_ms);
       break;
     case ArtsyPattern::FIRE:
       this->draw_fire_(display, width, height, current_ms);
@@ -227,11 +152,11 @@ void ArtsyElement::draw_plasma_(display::Display &display, int width, int height
   float t = current_ms / 5000.0f * this->speed_;
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
-      float v1 = std::sin(x / 5.0f + t * TWO_PI_F);
-      float v2 = std::sin(y / 4.0f + t * TWO_PI_F);
-      float v3 = std::sin((x + y) / 6.0f + t * TWO_PI_F);
+      float v1 = std::sin(x / 10.0f + t * TWO_PI_F);
+      float v2 = std::sin(y / 8.0f + t * TWO_PI_F);
+      float v3 = std::sin((x + y) / 12.0f + t * TWO_PI_F);
       float v4 = std::sin(
-          std::sqrt((x - width / 2.0f) * (x - width / 2.0f) + (y - height / 2.0f) * (y - height / 2.0f)) / 4.0f +
+          std::sqrt((x - width / 2.0f) * (x - width / 2.0f) + (y - height / 2.0f) * (y - height / 2.0f)) / 8.0f +
           t * TWO_PI_F);
       float val = (v1 + v2 + v3 + v4) / 4.0f;
       val = (val + 1.0f) / 2.0f;
@@ -301,8 +226,8 @@ void ArtsyElement::draw_voronoi_(display::Display &display, int width, int heigh
         float dist = std::sqrt(dx * dx + dy * dy);
         min_dist = std::min(dist, min_dist);
       }
-      // Invert: cell interiors are bright, borders are dark
-      float val = 1.0f - std::min(min_dist / (width / 3.0f), 1.0f);
+      // Sharper falloff to differentiate from metaballs: cell interiors are bright, borders are dark
+      float val = 1.0f - std::min(std::pow(min_dist / (width / 2.5f), 1.5f), 1.0f);
       display.draw_pixel_at(x, y, this->get_gradient_color_(val));
     }
   }
@@ -335,16 +260,16 @@ void ArtsyElement::draw_julia_(display::Display &display, int width, int height,
       float zoom = 2.0f + 1.5f * std::sin(t * TWO_PI_F * 0.17f);
       float zx = 1.5f * (x - width / 2.0f) / (0.5f * zoom * width);
       float zy = 1.0f * (y - height / 2.0f) / (0.5f * zoom * height);
-      float cx = -0.4f + 0.4f * std::sin(t * TWO_PI_F);  // wider orbit for more shapes
-      float cy = 0.4f * std::cos(t * TWO_PI_F);
+      float cx = -0.4f + 0.6f * std::sin(t * TWO_PI_F * 0.33f);
+      float cy = 0.618f * std::cos(t * TWO_PI_F * 0.41f);
       int i = 0;
-      while (zx * zx + zy * zy < 4 && i < 20) {
+      while (zx * zx + zy * zy < 4 && i < 12) {
         float tmp = zx * zx - zy * zy + cx;
         zy = 2.0f * zx * zy + cy;
         zx = tmp;
         i++;
       }
-      float val = i / 20.0f;
+      float val = i / 12.0f;
       display.draw_pixel_at(x, y, this->get_gradient_color_(val));
     }
   }
@@ -352,69 +277,61 @@ void ArtsyElement::draw_julia_(display::Display &display, int width, int height,
 
 void ArtsyElement::draw_matrix_(display::Display &display, int width, int height, uint32_t current_ms) {
   float t = current_ms / 5000.0f * this->speed_;
-  // Use a slowly-evolving seed so drop positions drift over time
-  uint32_t drop_seed = (uint32_t) (t * 0.2f);
-  for (int y = 0; y < height; ++y) {
-    for (int x = 0; x < width; ++x) {
-      float drop_y = (t * height * 2.0f) - noise(x, 0, drop_seed) * height;
-      float dist = y - std::fmod(drop_y, (float) height * 1.5f);
-      float val = 0.0f;
-      if (dist < 0 && dist > -5) {
-        val = 1.0f - (std::abs(dist) / 5.0f);
+  float strike_length = 5.0f * this->strength_;
+  display.clear();
+  for (int x = 0; x < width; ++x) {
+    // Use density to decide if this column has a drop
+    if (noise(x, 0, 123) > (1.0f - 0.2f * this->density_)) {
+      uint32_t column_seed = hash(x + 42);
+      float speed_mult = 0.5f + 1.0f * (noise(x, 1, column_seed));
+      float drop_y =
+          std::fmod(t * height * 2.0f * speed_mult + noise(x, 2, column_seed) * height, (float) height * 2.0f);
+
+      for (int y = 0; y < height; ++y) {
+        float dist = (float) y - drop_y;
+        if (dist < 0 && dist > -strike_length) {
+          float val = 1.0f - (std::abs(dist) / strike_length);
+          display.draw_pixel_at(x, y, this->get_gradient_color_(val));
+        }
       }
-      display.draw_pixel_at(x, y, this->get_gradient_color_(val));
     }
   }
 }
 
-void ArtsyElement::draw_lissajous_(display::Display &display, int width, int height, uint32_t current_ms) {
-  float t = current_ms / 5000.0f * this->speed_;
-  display.clear();
-  float a = 3.0f;
-  // b must be an integer for sin(a*u+δ), sin(b*u) to close at u=2π.
-  // Round to nearest integer from a slow oscillator → 2, 3, or 4.
-  float b = std::round(3.0f + std::sin(t * TWO_PI_F * 0.07f));
-  float delta = t * TWO_PI_F;  // continuously morphs shape within the closed family
-  int steps = 800;
-  for (int i = 0; i < steps; ++i) {
-    float u = (float) i / steps * TWO_PI_F;
-    float px = (width / 2.0f) + (width / 2.0f - 1) * std::sin(a * u + delta);
-    float py = (height / 2.0f) + (height / 2.0f - 1) * std::sin(b * u);
-    float p = (float) i / steps;
-    int ix = (int) px, iy = (int) py;
-    if (ix >= 0 && ix < width && iy >= 0 && iy < height) {
-      display.draw_pixel_at(ix, iy, this->get_gradient_color_(p));
+void ArtsyElement::draw_gradient_(display::Display &display, int width, int height, uint32_t current_ms) {
+  float t = current_ms / 2000.0f * this->speed_;
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      float p = std::fmod((float) x / width + t, 1.0f);
+      display.draw_pixel_at(x, y, this->get_gradient_color_(p));
     }
   }
 }
 
 void ArtsyElement::draw_fire_(display::Display &display, int width, int height, uint32_t current_ms) {
-  static float heat[64][64] = {};
+  static float heat[32][32] = {};
   float t = current_ms / 500.0f * this->speed_;
-  // Seed the bottom 3 rows with reliably hot values
-  for (int x = 0; x < width && x < 64; ++x) {
-    heat[height - 1][x] = 0.8f + 0.2f * noise(x, (int) (t * 3.0f), (uint32_t) (t * 73));
-    if (height >= 2) {
-      heat[height - 2][x] = 0.5f + 0.3f * noise(x + 1, (int) (t * 2.0f), (uint32_t) (t * 97));
-    }
-    if (height >= 3) {
-      heat[height - 3][x] = 0.2f + 0.3f * noise(x + 2, (int) (t * 1.5f), (uint32_t) (t * 137));
-    }
-  }
-  // Propagate heat upward with diffusion and stronger cooling
-  // 0.90 per frame gives a clear gradient on 32 rows: top ≈ 3%, bottom ≈ 90%
-  int seed_rows = std::min(3, height);
-  for (int y = 0; y < height - seed_rows; ++y) {
-    for (int x = 0; x < width && x < 64; ++x) {
-      float left = heat[y + 1][std::max(x - 1, 0)];
+  int w = std::min(width, 32);
+  int h = std::min(height, 32);
+
+  // Propagate heat upward
+  for (int y = 0; y < h - 1; ++y) {
+    for (int x = 0; x < w; ++x) {
+      float left = heat[y + 1][std::max(0, x - 1)];
       float mid = heat[y + 1][x];
-      float right = heat[y + 1][std::min(x + 1, width - 1)];
-      heat[y][x] = (left + mid + mid + right) / 4.0f * 0.95f;
+      float right = heat[y + 1][std::min(w - 1, x + 1)];
+      heat[y][x] = (left + mid + mid + right) / 4.0f * (0.85f * this->strength_);
+      display.draw_pixel_at(x, y, this->get_gradient_color_(std::max(0.0f, heat[y][x] - 0.05f)));
     }
   }
-  for (int y = 0; y < height; ++y) {
-    for (int x = 0; x < width; ++x) {
-      display.draw_pixel_at(x, y, this->get_gradient_color_(heat[y][x]));
+
+  // Seed bottom rows
+  for (int x = 0; x < w; ++x) {
+    heat[h - 1][x] = 0.7f + 0.3f * noise(x, (int) t, (uint32_t) (t * 100));
+    display.draw_pixel_at(x, h - 1, this->get_gradient_color_(heat[h - 1][x]));
+    if (h > 1) {
+      heat[h - 2][x] = 0.4f + 0.4f * noise(x + 10, (int) t, (uint32_t) (t * 200));
+      display.draw_pixel_at(x, h - 2, this->get_gradient_color_(heat[h - 2][x]));
     }
   }
 }
@@ -466,7 +383,8 @@ void ArtsyElement::draw_stars_(display::Display &display, int width, int height,
       float phase = noise(x, y, seed + 2) * TWO_PI_F;
       float twinkle = (std::sin(t * freq * TWO_PI_F + phase) + 1.0f) / 2.0f;
       // Only show pixels above a density threshold
-      float val = (base_brightness > (1.0f - this->density_ * 0.1f)) ? base_brightness * twinkle : 0.0f;
+      float threshold = 1.0f - 0.05f * this->density_;
+      float val = (base_brightness > threshold) ? base_brightness * twinkle : 0.0f;
       display.draw_pixel_at(x, y, this->get_gradient_color_(val));
     }
   }

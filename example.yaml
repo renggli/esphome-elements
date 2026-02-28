@@ -601,64 +601,151 @@ elements:
           hour_hand:
             color: gray_300
       # Artsy Animations
+      # - type: artsy
+      #   color: "#FF5722"
+      #   color_scheme:
+      #     type: triadic
+      #     color: "#FF5722"
+      #   pattern: "METABALLS"
+      # - type: artsy
+      #   color: "#4CAF50"
+      #   color_scheme:
+      #     type: analogous
+      #     color: "#4CAF50"
+      #   pattern: "AURORA"
+      # - type: artsy
+      #   color: "#2196F3"
+      #   color_scheme:
+      #     type: complementary
+      #     color: "#2196F3"
+      #   pattern: "KALEIDOSCOPE"
+      # - type: artsy
+      #   color: "#9C27B0"
+      #   color_scheme:
+      #     type: square
+      #     color: "#9C27B0"
+      #   pattern: "PLASMA"
+      # - type: artsy
+      #   color: "#00BCD4"
+      #   color_scheme:
+      #     type: split_complementary
+      #     color: "#00BCD4"
+      #   pattern: "RIPPLES"
+      # - type: artsy
+      #   color: "#FFEB3B"
+      #   color_scheme:
+      #     type: analogous
+      #     color: "#FFEB3B"
+      #     sweep: 30.0
+      #   pattern: "SPIRAL"
+      # - type: artsy
+      #   color: "#E91E63"
+      #   color_scheme:
+      #     type: triadic
+      #     color: "#E91E63"
+      #   pattern: "VORONOI"
+      # - type: artsy
+      #   color: "#673AB7"
+      #   color_scheme:
+      #     type: complementary
+      #     color: "#673AB7"
+      #   pattern: "INTERFERENCE"
+      # - type: artsy
+      #   color: "#ff0000"
+      #   color_scheme:
+      #     type: monochromatic
+      #     color: "#ff0000"
+      #   pattern: "JULIA"
+      # - type: artsy
+      #   color: "#00FF41"
+      #   color_scheme:
+      #     type: monochromatic
+      #     color: "#00FF41"
+      #     min_brightness: 0.0
+      #   pattern: "MATRIX"
+      #   min_brightness: 0.0
+      # - type: artsy
+      #   color: "#FF3D00"
+      #   color_scheme:
+      #     type: sequence
+      #     schemes:
+      #       - type: static
+      #         color: "#212121"
+      #       - type: gradient
+      #         from: "#B71C1C"
+      #         to: "#FF6F00"
+      #       - type: static
+      #         color: "#FFEB3B"
+      #   pattern: "FIRE"
+      # - type: artsy
+      #   color: "#AA00FF"
+      #   color_scheme:
+      #     type: triadic
+      #     color: "#AA00FF"
+      #   pattern: "TUNNEL"
+      # - type: artsy
+      #   color: "#00E5FF"
+      #   color_scheme:
+      #     type: analogous
+      #     color: "#00E5FF"
+      #   pattern: "WAVE"
+      # - type: artsy
+      #   color: "#E3F2FD"
+      #   color_scheme:
+      #     type: monochromatic
+      #     color: "#90CAF9"
+      #     min_brightness: 0.1
+      #   pattern: "STARS"
+      #   min_brightness: 0.0
+      # color scheme debug gradients (palette types on red base)
       - type: artsy
-        color: "#FF5722"
-        color_scheme: "TRIADIC"
-        pattern: "METABALLS"
+        color: "#FF0000"
+        color_scheme:
+          type: monochromatic
+          color: "#FF0000"
+        pattern: "GRADIENT"
       - type: artsy
-        color: "#4CAF50"
-        color_scheme: "ANALOGOUS"
-        pattern: "AURORA"
+        color: "#FF0000"
+        color_scheme:
+          type: analogous
+          color: "#FF0000"
+        pattern: "GRADIENT"
       - type: artsy
-        color: "#2196F3"
-        color_scheme: "COMPLEMENTARY"
-        pattern: "KALEIDOSCOPE"
+        color: "#FF0000"
+        color_scheme:
+          type: complementary
+          color: "#FF0000"
+        pattern: "GRADIENT"
       - type: artsy
-        color: "#9C27B0"
-        color_scheme: "DUAL_COMPLEMENTARY"
-        pattern: "PLASMA"
+        color: "#FF0000"
+        color_scheme:
+          type: triadic
+          color: "#FF0000"
+        pattern: "GRADIENT"
       - type: artsy
-        color: "#00BCD4"
-        color_scheme: "SPLIT_COMPLEMENTARY"
-        pattern: "RIPPLES"
+        color: "#FF0000"
+        color_scheme:
+          type: split_complementary
+          color: "#FF0000"
+        pattern: "GRADIENT"
       - type: artsy
-        color: "#FFEB3B"
-        color_scheme: "ANALOGOUS"
-        pattern: "SPIRAL"
+        color: "#FF0000"
+        color_scheme:
+          type: square
+          color: "#FF0000"
+        pattern: "GRADIENT"
+      # manual composition example (modifier wrapping a sequence)
       - type: artsy
-        color: "#E91E63"
-        color_scheme: "TRIADIC"
-        pattern: "VORONOI"
-      - type: artsy
-        color: "#673AB7"
-        color_scheme: "COMPLEMENTARY"
-        pattern: "INTERFERENCE"
-      - type: artsy
-        color: "#ff0000"
-        color_scheme: "MONOCHROMATIC"
-        pattern: "JULIA"
-      - type: artsy
-        color: "#00FF41"
-        color_scheme: "MONOCHROMATIC"
-        pattern: "MATRIX"
-        min_brightness: 0.0
-      - type: artsy
-        color: "#FF9800"
-        color_scheme: "COMPLEMENTARY"
-        pattern: "LISSAJOUS"
-      - type: artsy
-        color: "#FF3D00"
-        color_scheme: "MONOCHROMATIC"
-        pattern: "FIRE"
-      - type: artsy
-        color: "#AA00FF"
-        color_scheme: "TRIADIC"
-        pattern: "TUNNEL"
-      - type: artsy
-        color: "#00E5FF"
-        color_scheme: "ANALOGOUS"
-        pattern: "WAVE"
-      - type: artsy
-        color: "#E3F2FD"
-        color_scheme: "MONOCHROMATIC"
-        pattern: "STARS"
+        color: "#FF0000"
+        color_scheme:
+          type: modifier
+          scheme:
+            type: gradient
+            from: "#FF0000"
+            to: "#0000FF"
+          saturation_scale: 1.2
+          value_scale: 0.9
+        pattern: "GRADIENT"
+
+
+

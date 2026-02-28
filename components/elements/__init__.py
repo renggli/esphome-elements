@@ -1,10 +1,13 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 import esphome.core as core
-from esphome.components import color, display, font, image, time
+from esphome.components import display, font, image, time
 from esphome.const import (CONF_BACKGROUND_COLOR, CONF_COLOR, CONF_DISPLAY,
                            CONF_DURATION, CONF_FONT, CONF_FORMAT, CONF_ID,
                            CONF_LAMBDA, CONF_TEXT, CONF_TIME, CONF_VISIBLE)
+from . import color as color_module
+from .color import (COLOR_SCHEMA, COLOR_SCHEME_SCHEMA, CONF_COLOR_SCHEME,
+                    color_scheme_schema, color_scheme_to_code, color_to_code)
 
 AUTO_LOAD = ['display', 'image']
 CODEOWNERS = ['@renggli']
@@ -21,7 +24,6 @@ CONF_ANCHOR = 'anchor'
 CONF_COUNT = 'count'
 CONF_ELEMENT = 'element'
 CONF_ELEMENTS = 'elements'
-CONF_COLOR_SCHEME = 'color_scheme'
 CONF_DENSITY = 'density'
 CONF_MIN_BRIGHTNESS = 'min_brightness'
 CONF_PATTERN = 'pattern'
@@ -42,6 +44,7 @@ CONF_SCROLL_MODE = 'scroll_mode'
 CONF_SCROLL_SPEED = 'scroll_speed'
 CONF_SECOND_HAND = 'second_hand'
 CONF_SMOOTH = 'smooth'
+CONF_STRENGTH = 'strength'
 CONF_START = 'start'
 
 # types
@@ -99,41 +102,6 @@ ClockElement = elements_ns.class_('ClockElement', Element)
 CustomElement = elements_ns.class_('CustomElement', Element)
 ImageElement = elements_ns.class_('ImageElement', Element)
 
-# color struct
-
-def color_validation(value):
-    if not isinstance(value, str) or value[0] != '#':
-        raise cv.Invalid('Invalid value for hex color')
-    value = value[1:]
-    try:
-        if len(value) == 8:
-            return (int(value[0:2], 16), int(value[2:4], 16),
-                    int(value[4:6], 16), int(value[6:8], 16))
-        elif len(value) == 6:
-            return (int(value[0:2], 16), int(value[2:4], 16),
-                    int(value[4:6], 16), 0)
-        elif len(value) == 4:
-            return (17 * int(value[0], 16), 17 * int(value[1], 16),
-                    17 * int(value[2], 16), 17 * int(value[3], 16))
-        elif len(value) == 3:
-            return (17 * int(value[0], 16), 17 * int(value[1], 16),
-                    17 * int(value[2], 16), 0)
-    except ValueError as exc:
-        raise cv.Invalid('Color must be hexadecimal') from exc
-
-async def color_to_code(config):
-    if isinstance(config, core.ID):
-        return await cg.get_variable(config)
-    else:
-        r, g, b, w = config
-        return cg.ArrayInitializer(r, g, b, w)
-
-COLOR_SCHEMA = cv.Any(
-    cv.use_id(color.ColorStruct),
-    color_validation,
-)
-
-# text and image align enums
 
 display_ns = cg.esphome_ns.namespace('display')
 
@@ -208,20 +176,7 @@ ACTIVE_MODE = {
     'NEVER': ActiveMode.NEVER,
 }
 
-# artsy configs enum
 
-artsy_color_ns = elements_ns.namespace('ArtsyColorScheme')
-ArtsyColorScheme = artsy_color_ns.enum('ArtsyColorScheme')
-
-ARTSY_COLORS = {
-    'MONOCHROMATIC': ArtsyColorScheme.MONOCHROMATIC,
-    'ANALOGOUS': ArtsyColorScheme.ANALOGOUS,
-    'COMPLEMENTARY': ArtsyColorScheme.COMPLEMENTARY,
-    'TRIADIC': ArtsyColorScheme.TRIADIC,
-    'SPLIT_COMPLEMENTARY': ArtsyColorScheme.SPLIT_COMPLEMENTARY,
-    'DUAL_COMPLEMENTARY': ArtsyColorScheme.DUAL_COMPLEMENTARY,
-    'RAINBOW': ArtsyColorScheme.RAINBOW,
-}
 
 artsy_pattern_ns = elements_ns.namespace('ArtsyPattern')
 ArtsyPattern = artsy_pattern_ns.enum('ArtsyPattern')
@@ -237,7 +192,7 @@ ARTSY_PATTERN = {
     'INTERFERENCE': ArtsyPattern.INTERFERENCE,
     'JULIA': ArtsyPattern.JULIA,
     'MATRIX': ArtsyPattern.MATRIX,
-    'LISSAJOUS': ArtsyPattern.LISSAJOUS,
+    'GRADIENT': ArtsyPattern.GRADIENT,
     'FIRE': ArtsyPattern.FIRE,
     'TUNNEL': ArtsyPattern.TUNNEL,
     'WAVE': ArtsyPattern.WAVE,
@@ -343,12 +298,12 @@ ELEMENT_SCHEMA = cv.typed_schema({
     CONF_ARTSY: BASE_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(ArtsyElement),
         cv.Required(CONF_COLOR): COLOR_SCHEMA,
-        cv.Optional(CONF_COLOR_SCHEME, default='MONOCHROMATIC'): 
-            cv.enum(ARTSY_COLORS, upper=True, space='_'),
+        cv.Required(CONF_COLOR_SCHEME): color_scheme_schema,
         cv.Optional(CONF_PATTERN, default='METABALLS'): 
             cv.enum(ARTSY_PATTERN, upper=True, space='_'),
         cv.Optional(CONF_SPEED, default=1.0): cv.float_range(min=0.01, max=10.0),
         cv.Optional(CONF_DENSITY, default=1.0): cv.float_range(min=0.0, max=10.0),
+        cv.Optional(CONF_STRENGTH, default=1.0): cv.float_range(min=0.1, max=10.0),
         cv.Optional(CONF_MIN_BRIGHTNESS, default=0.3): cv.float_range(min=0.0, max=1.0),
     }),
     CONF_CLOCK: BASE_ELEMENT_SCHEMA.extend({
@@ -435,12 +390,17 @@ async def element_to_code(config, component, parent=nullptr):
     # literals
     for name in [CONF_DURATION, CONF_FORMAT, CONF_TEXT, CONF_ALIGN,
                  CONF_SCROLL_MODE, CONF_SCROLL_SPEED, CONF_ACTIVE_MODE, CONF_COUNT,
-                 CONF_COLOR_SCHEME, CONF_PATTERN]:
+                 CONF_PATTERN]:
         if value := config.get(name):
             cg.add(getattr(var, 'set_' + name)(value))
 
+    # color scheme - requires object instantiation
+    if color_scheme_config := config.get(CONF_COLOR_SCHEME):
+        scheme = await color_scheme_to_code(color_scheme_config)
+        cg.add(var.set_color_scheme(scheme))
+
     # floats that may legitimately be 0.0 (falsy), checked explicitly
-    for name in [CONF_SPEED, CONF_DENSITY, CONF_MIN_BRIGHTNESS]:
+    for name in [CONF_SPEED, CONF_DENSITY, CONF_STRENGTH, CONF_MIN_BRIGHTNESS]:
         if (value := config.get(name)) is not None:
             cg.add(getattr(var, 'set_' + name)(value))
 

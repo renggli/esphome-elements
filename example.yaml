@@ -397,7 +397,7 @@ elements:
   id: elements_display
   display: led_display
   element:
-    type: random
+    type: sequence
     elements:
       # Message
       - type: delay
@@ -600,3 +600,65 @@ elements:
             color: gray_300
           hour_hand:
             color: gray_300
+      # Artsy Animations
+      - type: artsy
+        color: "#FF5722"
+        color_scheme: "TRIADIC"
+        pattern: "METABALLS"
+      - type: artsy
+        color: "#4CAF50"
+        color_scheme: "ANALOGOUS"
+        pattern: "AURORA"
+      - type: artsy
+        color: "#2196F3"
+        color_scheme: "COMPLEMENTARY"
+        pattern: "KALEIDOSCOPE"
+      - type: artsy
+        color: "#9C27B0"
+        color_scheme: "DUAL_COMPLEMENTARY"
+        pattern: "PLASMA"
+      - type: artsy
+        color: "#00BCD4"
+        color_scheme: "SPLIT_COMPLEMENTARY"
+        pattern: "RIPPLES"
+      - type: artsy
+        color: "#FFEB3B"
+        color_scheme: "ANALOGOUS"
+        pattern: "SPIRAL"
+      - type: artsy
+        color: "#E91E63"
+        color_scheme: "TRIADIC"
+        pattern: "VORONOI"
+      - type: artsy
+        color: "#673AB7"
+        color_scheme: "COMPLEMENTARY"
+        pattern: "INTERFERENCE"
+      - type: artsy
+        color: "#ff0000"
+        color_scheme: "MONOCHROMATIC"
+        pattern: "JULIA"
+      - type: artsy
+        color: "#00FF41"
+        color_scheme: "MONOCHROMATIC"
+        pattern: "MATRIX"
+        min_brightness: 0.0
+      - type: artsy
+        color: "#FF9800"
+        color_scheme: "COMPLEMENTARY"
+        pattern: "LISSAJOUS"
+      - type: artsy
+        color: "#FF3D00"
+        color_scheme: "MONOCHROMATIC"
+        pattern: "FIRE"
+      - type: artsy
+        color: "#AA00FF"
+        color_scheme: "TRIADIC"
+        pattern: "TUNNEL"
+      - type: artsy
+        color: "#00E5FF"
+        color_scheme: "ANALOGOUS"
+        pattern: "WAVE"
+      - type: artsy
+        color: "#E3F2FD"
+        color_scheme: "MONOCHROMATIC"
+        pattern: "STARS"

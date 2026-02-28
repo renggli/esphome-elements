@@ -21,6 +21,11 @@ CONF_ANCHOR = 'anchor'
 CONF_COUNT = 'count'
 CONF_ELEMENT = 'element'
 CONF_ELEMENTS = 'elements'
+CONF_COLOR_SCHEME = 'color_scheme'
+CONF_DENSITY = 'density'
+CONF_MIN_BRIGHTNESS = 'min_brightness'
+CONF_PATTERN = 'pattern'
+CONF_SPEED = 'speed'
 CONF_END = 'end'
 CONF_HOUR_HAND = 'hour_hand'
 CONF_HOUR_MARKERS = 'hour_markers'
@@ -40,6 +45,7 @@ CONF_SMOOTH = 'smooth'
 CONF_START = 'start'
 
 # types
+CONF_ARTSY = 'artsy'
 CONF_CLOCK = 'clock'
 CONF_CUSTOM = 'custom'
 CONF_DELAY = 'delay'
@@ -88,6 +94,7 @@ StaticTextElement = elements_ns.class_('StaticTextElement', TextElement)
 DynamicTextElement = elements_ns.class_('DynamicTextElement', TextElement)
 TimeTextElement = elements_ns.class_('TimeTextElement', TextElement)
 
+ArtsyElement = elements_ns.class_('ArtsyElement', Element)
 ClockElement = elements_ns.class_('ClockElement', Element)
 CustomElement = elements_ns.class_('CustomElement', Element)
 ImageElement = elements_ns.class_('ImageElement', Element)
@@ -201,6 +208,42 @@ ACTIVE_MODE = {
     'NEVER': ActiveMode.NEVER,
 }
 
+# artsy configs enum
+
+artsy_color_ns = elements_ns.namespace('ArtsyColorScheme')
+ArtsyColorScheme = artsy_color_ns.enum('ArtsyColorScheme')
+
+ARTSY_COLORS = {
+    'MONOCHROMATIC': ArtsyColorScheme.MONOCHROMATIC,
+    'ANALOGOUS': ArtsyColorScheme.ANALOGOUS,
+    'COMPLEMENTARY': ArtsyColorScheme.COMPLEMENTARY,
+    'TRIADIC': ArtsyColorScheme.TRIADIC,
+    'SPLIT_COMPLEMENTARY': ArtsyColorScheme.SPLIT_COMPLEMENTARY,
+    'DUAL_COMPLEMENTARY': ArtsyColorScheme.DUAL_COMPLEMENTARY,
+    'RAINBOW': ArtsyColorScheme.RAINBOW,
+}
+
+artsy_pattern_ns = elements_ns.namespace('ArtsyPattern')
+ArtsyPattern = artsy_pattern_ns.enum('ArtsyPattern')
+
+ARTSY_PATTERN = {
+    'METABALLS': ArtsyPattern.METABALLS,
+    'AURORA': ArtsyPattern.AURORA,
+    'KALEIDOSCOPE': ArtsyPattern.KALEIDOSCOPE,
+    'PLASMA': ArtsyPattern.PLASMA,
+    'RIPPLES': ArtsyPattern.RIPPLES,
+    'SPIRAL': ArtsyPattern.SPIRAL,
+    'VORONOI': ArtsyPattern.VORONOI,
+    'INTERFERENCE': ArtsyPattern.INTERFERENCE,
+    'JULIA': ArtsyPattern.JULIA,
+    'MATRIX': ArtsyPattern.MATRIX,
+    'LISSAJOUS': ArtsyPattern.LISSAJOUS,
+    'FIRE': ArtsyPattern.FIRE,
+    'TUNNEL': ArtsyPattern.TUNNEL,
+    'WAVE': ArtsyPattern.WAVE,
+    'STARS': ArtsyPattern.STARS,
+}
+
 # other
 
 nullptr = cg.esphome_ns.class_('nullptr')
@@ -297,6 +340,17 @@ TEXT_ELEMENT_SCHEMA = BASE_ELEMENT_SCHEMA.extend({
 })
 
 ELEMENT_SCHEMA = cv.typed_schema({
+    CONF_ARTSY: BASE_ELEMENT_SCHEMA.extend({
+        cv.GenerateID(CONF_ID): cv.declare_id(ArtsyElement),
+        cv.Required(CONF_COLOR): COLOR_SCHEMA,
+        cv.Optional(CONF_COLOR_SCHEME, default='MONOCHROMATIC'): 
+            cv.enum(ARTSY_COLORS, upper=True, space='_'),
+        cv.Optional(CONF_PATTERN, default='METABALLS'): 
+            cv.enum(ARTSY_PATTERN, upper=True, space='_'),
+        cv.Optional(CONF_SPEED, default=1.0): cv.float_range(min=0.01, max=10.0),
+        cv.Optional(CONF_DENSITY, default=1.0): cv.float_range(min=0.0, max=10.0),
+        cv.Optional(CONF_MIN_BRIGHTNESS, default=0.3): cv.float_range(min=0.0, max=1.0),
+    }),
     CONF_CLOCK: BASE_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(ClockElement),
         cv.Required(CONF_TIME): cv.use_id(time.RealTimeClock),
@@ -380,8 +434,14 @@ async def element_to_code(config, component, parent=nullptr):
 
     # literals
     for name in [CONF_DURATION, CONF_FORMAT, CONF_TEXT, CONF_ALIGN,
-                 CONF_SCROLL_MODE, CONF_SCROLL_SPEED, CONF_ACTIVE_MODE, CONF_COUNT]:
+                 CONF_SCROLL_MODE, CONF_SCROLL_SPEED, CONF_ACTIVE_MODE, CONF_COUNT,
+                 CONF_COLOR_SCHEME, CONF_PATTERN]:
         if value := config.get(name):
+            cg.add(getattr(var, 'set_' + name)(value))
+
+    # floats that may legitimately be 0.0 (falsy), checked explicitly
+    for name in [CONF_SPEED, CONF_DENSITY, CONF_MIN_BRIGHTNESS]:
+        if (value := config.get(name)) is not None:
             cg.add(getattr(var, 'set_' + name)(value))
 
     # references

@@ -24,13 +24,13 @@ class ElementComponent : public Component {
   void set_display(display::Display *display) { display_ = display; }
 
   /// Return the root element of this component.
-  [[nodiscard]] Element *get_root() const { return root_; }
+  Element *get_root() const { return root_; }
 
   /// Return the current time in milliseconds at the start of the last update.
-  [[nodiscard]] uint32_t get_current_ms() const { return current_ms_; }
+  uint32_t get_current_ms() const { return current_ms_; }
 
   /// Return the delta time in milliseconds since the last update.
-  [[nodiscard]] uint32_t get_delta_ms() const { return delta_ms_; }
+  uint32_t get_delta_ms() const { return delta_ms_; }
 
   /// Draws the element onto the provided display.
   void draw(display::Display &display);

@@ -8,7 +8,9 @@ namespace esphome::elements {
 /// An element that can be customized with lambda functions.
 class CustomElement : public Element {
  public:
-  CustomElement(ElementComponent *component, Element *parent) : Element(ElementType::CUSTOM, component, parent) {}
+  using Element::Element;
+
+  const char *get_type_name() const override { return "custom"; }
 
   using DrawFunction = std::function<void(CustomElement &, display::Display &)>;
   using EventFunction = std::function<void(CustomElement &)>;

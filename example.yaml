@@ -600,61 +600,51 @@ elements:
             color: gray_300
           hour_hand:
             color: gray_300
-      # Artsy Animations
-      - type: animation
+      # Animations
+      - type: meatballs_animation
         color_scheme:
           type: triadic
           color: "#FF5722"
-        pattern: "METABALLS"
-      - type: animation
+      - type: aurora_animation
         color_scheme:
           type: analogous
           color: "#4CAF50"
-        pattern: "AURORA"
-      - type: animation
+      - type: kaleidoscope_animation
         color_scheme:
           type: complementary
           color: "#2196F3"
-        pattern: "KALEIDOSCOPE"
-      - type: animation
+      - type: plasma_animation
         color_scheme:
           type: analogous
           color: "#9C27B0"
           sweep: 60.0
-        pattern: "PLASMA"
-      - type: animation
+      - type: ripples_animation
         color_scheme:
           type: split_complementary
           color: "#00BCD4"
-        pattern: "RIPPLES"
-      - type: animation
+      - type: spiral_animation
         color_scheme:
           type: triadic
           color: "#FFEB3B"
-        pattern: "SPIRAL"
-      - type: animation
+      - type: voronoi_animation
         color_scheme:
           type: triadic
           color: "#E91E63"
-        pattern: "VORONOI"
-      - type: animation
+      - type: interference_animation
         color_scheme:
           type: analogous
           color: "#673AB7"
           sweep: 60.0
-        pattern: "INTERFERENCE"
-      - type: animation
+      - type: julia_animation
         color_scheme:
           type: complementary
           color: "#ff0000"
-        pattern: "JULIA"
-      - type: animation
+      - type: matrix_animation
         color_scheme:
           type: monochromatic
           color: "#00FF41"
           min_brightness: 0.0
-        pattern: "MATRIX"
-      - type: animation
+      - type: fire_animation
         color_scheme:
           type: sequence
           schemes:
@@ -665,20 +655,17 @@ elements:
               to: "#FF6F00"
             - type: static
               color: "#FFEB3B"
-        pattern: "FIRE"
-      - type: animation
+      - type: tunnel_animation
         color_scheme:
           type: triadic
           color: "#AA00FF"
-        pattern: "TUNNEL"
-      - type: animation
+      - type: wave_animation
         color_scheme:
           type: analogous
           color: "#00E5FF"
-        pattern: "WAVE"
-      - type: animation
+      - type: stars_animation
         color_scheme:
           type: analogous
           color: "#90CAF9"
           sweep: 80.0
-        pattern: "STARS"
+

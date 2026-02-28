@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <vector>
 #include "color.h"
 #include "element.h"
 
@@ -8,7 +9,7 @@ namespace esphome::elements {
 
 class AnimationElement : public Element {
  public:
-  AnimationElement(ElementComponent *component, Element *parent) : Element(ElementType::ANIMATION, component, parent) {}
+  using Element::Element;
 
   void set_color_scheme(ColorScheme *color_scheme) { color_scheme_ = color_scheme; }
   void set_speed(float speed) { speed_ = speed; }
@@ -23,83 +24,91 @@ class AnimationElement : public Element {
   Color get_gradient_color_(float p);
 };
 
-// METABALLS
-
-class MetaballsElement : public AnimationElement {
+class MetaballsAnimationElement : public AnimationElement {
  public:
   using AnimationElement::AnimationElement;
+  const char *get_type_name() const override { return "meatballs_animation"; }
+
+  void set_count(int count) { count_ = count; }
+  void draw(display::Display &display, int width, int height, uint32_t time) override;
+
+ protected:
+  int count_{3};
+};
+
+class AuroraAnimationElement : public AnimationElement {
+ public:
+  using AnimationElement::AnimationElement;
+  const char *get_type_name() const override { return "aurora_animation"; }
+
   void draw(display::Display &display, int width, int height, uint32_t time) override;
 };
 
-// AURORA
-
-class AuroraElement : public AnimationElement {
+class KaleidoscopeAnimationElement : public AnimationElement {
  public:
   using AnimationElement::AnimationElement;
+  const char *get_type_name() const override { return "kaleidoscope_animation"; }
+
   void draw(display::Display &display, int width, int height, uint32_t time) override;
 };
 
-// KALEIDOSCOPE
-
-class KaleidoscopeElement : public AnimationElement {
+class PlasmaAnimationElement : public AnimationElement {
  public:
   using AnimationElement::AnimationElement;
+  const char *get_type_name() const override { return "plasma_animation"; }
+
   void draw(display::Display &display, int width, int height, uint32_t time) override;
 };
 
-// PLASMA
-
-class PlasmaElement : public AnimationElement {
+class RipplesAnimationElement : public AnimationElement {
  public:
   using AnimationElement::AnimationElement;
+  const char *get_type_name() const override { return "ripples_animation"; }
+
   void draw(display::Display &display, int width, int height, uint32_t time) override;
 };
 
-// RIPPLES
-
-class RipplesElement : public AnimationElement {
+class SpiralAnimationElement : public AnimationElement {
  public:
   using AnimationElement::AnimationElement;
+  const char *get_type_name() const override { return "spiral_animation"; }
+
   void draw(display::Display &display, int width, int height, uint32_t time) override;
 };
 
-// SPIRAL
-
-class SpiralElement : public AnimationElement {
+class VoronoiAnimationElement : public AnimationElement {
  public:
   using AnimationElement::AnimationElement;
+  const char *get_type_name() const override { return "voronoi_animation"; }
+
+  void set_count(int count) { count_ = count; }
+  void draw(display::Display &display, int width, int height, uint32_t time) override;
+
+ protected:
+  int count_{6};
+};
+
+class InterferenceAnimationElement : public AnimationElement {
+ public:
+  using AnimationElement::AnimationElement;
+  const char *get_type_name() const override { return "interference_animation"; }
+
   void draw(display::Display &display, int width, int height, uint32_t time) override;
 };
 
-// VORONOI
-
-class VoronoiElement : public AnimationElement {
+class JuliaAnimationElement : public AnimationElement {
  public:
   using AnimationElement::AnimationElement;
+  const char *get_type_name() const override { return "julia_animation"; }
+
   void draw(display::Display &display, int width, int height, uint32_t time) override;
 };
 
-// INTERFERENCE
-
-class InterferenceElement : public AnimationElement {
+class MatrixAnimationElement : public AnimationElement {
  public:
   using AnimationElement::AnimationElement;
-  void draw(display::Display &display, int width, int height, uint32_t time) override;
-};
+  const char *get_type_name() const override { return "matrix_animation"; }
 
-// JULIA
-
-class JuliaElement : public AnimationElement {
- public:
-  using AnimationElement::AnimationElement;
-  void draw(display::Display &display, int width, int height, uint32_t time) override;
-};
-
-// MATRIX
-
-class MatrixElement : public AnimationElement {
- public:
-  using AnimationElement::AnimationElement;
   void set_density(float density) { density_ = density; }
   void set_length(float length) { length_ = length; }
 
@@ -110,48 +119,51 @@ class MatrixElement : public AnimationElement {
   float density_{0.5f};
 };
 
-// GRADIENT
-
-class GradientElement : public AnimationElement {
+class GradientAnimationElement : public AnimationElement {
  public:
   using AnimationElement::AnimationElement;
+  const char *get_type_name() const override { return "gradient_animation"; }
+
   void draw(display::Display &display, int width, int height, uint32_t time) override;
 };
 
-// FIRE
-
-class FireElement : public AnimationElement {
+class FireAnimationElement : public AnimationElement {
  public:
   using AnimationElement::AnimationElement;
+  const char *get_type_name() const override { return "fire_animation"; }
+
   void set_strength(float strength) { strength_ = strength; }
+  void set_cooling(float cooling) { cooling_ = cooling; }
 
   void draw(display::Display &display, int width, int height, uint32_t time) override;
 
  protected:
   float strength_{2.0f};
+  float cooling_{0.12f};
+  std::vector<float> heat_buffer_;
 };
 
-// TUNNEL
-
-class TunnelElement : public AnimationElement {
+class TunnelAnimationElement : public AnimationElement {
  public:
   using AnimationElement::AnimationElement;
+  const char *get_type_name() const override { return "tunnel_animation"; }
+
   void draw(display::Display &display, int width, int height, uint32_t time) override;
 };
 
-// WAVE
-
-class WaveElement : public AnimationElement {
+class WaveAnimationElement : public AnimationElement {
  public:
   using AnimationElement::AnimationElement;
+  const char *get_type_name() const override { return "wave_animation"; }
+
   void draw(display::Display &display, int width, int height, uint32_t time) override;
 };
 
-// STARS
-
-class StarsElement : public AnimationElement {
+class StarsAnimationElement : public AnimationElement {
  public:
   using AnimationElement::AnimationElement;
+  const char *get_type_name() const override { return "stars_animation"; }
+
   void set_density(float density) { density_ = density; }
 
   void draw(display::Display &display, int width, int height, uint32_t time) override;

@@ -5,42 +5,19 @@
 
 namespace esphome::elements {
 
-/// The different types of elements.
-enum class ElementType : std::uint8_t {
-  UNKNOWN = 0,
-  // Alphabetically sorted.
-  ANIMATION,
-  CLOCK,
-  CUSTOM,
-  DELAY,
-  DYNAMIC_TEXT,
-  HORIZONTAL,
-  IMAGE,
-  OVERLAY,
-  PRIORITY,
-  RANDOM,
-  SEQUENCE,
-  STATIC_TEXT,
-  TIME_TEXT,
-  TIMEOUT,
-  VERTICAL,
-};
-
 /// Abstract superclass of all elements.
 class Element {
  public:
-  Element(ElementType type, ElementComponent *component, Element *parent)
-      : type_(type), component_(*component), parent_(parent) {}
+  Element(ElementComponent *component, Element *parent) : component_(*component), parent_(parent) {}
 
-  /// Returns the type of this element.
-  [[nodiscard]] ElementType get_type() const { return type_; }
-  [[nodiscard]] const char *get_type_string() const;
+  /// Returns the type name of this element as a string.
+  virtual const char *get_type_name() const = 0;
 
   /// Returns the parent element of this element, if any.
-  [[nodiscard]] Element *get_parent() const { return parent_; }
+  Element *get_parent() const { return parent_; }
 
   /// Returns the component of this element.
-  [[nodiscard]] ElementComponent &get_component() const { return component_; }
+  ElementComponent &get_component() const { return component_; }
 
   /// Abstract method that dumps this element's configuration.
   virtual void dump_config(int level);
@@ -75,7 +52,6 @@ class Element {
   virtual bool is_active() { return true; }
 
  protected:
-  ElementType type_;
   ElementComponent &component_;
   Element *parent_;
 };

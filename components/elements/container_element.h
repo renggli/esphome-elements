@@ -23,8 +23,8 @@ enum class ActiveMode : std::uint8_t {
 /// Element that delegates to a list of other elements.
 class ContainerElement : public Element {
  public:
-  ContainerElement(ElementType type, ElementComponent *component, Element *parent, ActiveMode active_mode)
-      : Element(type, component, parent), active_mode_(active_mode) {}
+  ContainerElement(ElementComponent *component, Element *parent, ActiveMode active_mode)
+      : Element(component, parent), active_mode_(active_mode) {}
 
   void set_active_mode(ActiveMode active_mode) { active_mode_ = active_mode; };
   ActiveMode get_active_mode() { return active_mode_; }
@@ -45,8 +45,9 @@ class ContainerElement : public Element {
 /// Draws multiple elements on top of each other.
 class OverlayElement : public ContainerElement {
  public:
-  OverlayElement(ElementComponent *component, Element *parent)
-      : ContainerElement(ElementType::OVERLAY, component, parent, ActiveMode::ANY) {}
+  OverlayElement(ElementComponent *component, Element *parent) : ContainerElement(component, parent, ActiveMode::ANY) {}
+
+  const char *get_type_name() const override { return "overlay"; }
 
   void draw(display::Display &display) override;
 };
@@ -55,7 +56,9 @@ class OverlayElement : public ContainerElement {
 class PriorityElement : public ContainerElement {
  public:
   PriorityElement(ElementComponent *component, Element *parent)
-      : ContainerElement(ElementType::PRIORITY, component, parent, ActiveMode::ANY) {}
+      : ContainerElement(component, parent, ActiveMode::ANY) {}
+
+  const char *get_type_name() const override { return "priority"; }
 
   void draw(display::Display &display) override;
 
@@ -71,7 +74,9 @@ class PriorityElement : public ContainerElement {
 class HorizontalElement : public ContainerElement {
  public:
   HorizontalElement(ElementComponent *component, Element *parent)
-      : ContainerElement(ElementType::HORIZONTAL, component, parent, ActiveMode::ALL) {}
+      : ContainerElement(component, parent, ActiveMode::ALL) {}
+
+  const char *get_type_name() const override { return "horizontal"; }
 
   void draw(display::Display &display) override;
 };
@@ -80,7 +85,9 @@ class HorizontalElement : public ContainerElement {
 class VerticalElement : public ContainerElement {
  public:
   VerticalElement(ElementComponent *component, Element *parent)
-      : ContainerElement(ElementType::VERTICAL, component, parent, ActiveMode::ALL) {}
+      : ContainerElement(component, parent, ActiveMode::ALL) {}
+
+  const char *get_type_name() const override { return "vertical"; }
 
   void draw(display::Display &display) override;
 };
@@ -88,8 +95,9 @@ class VerticalElement : public ContainerElement {
 /// Draws multiple elements in random sequence.
 class RandomElement : public ContainerElement {
  public:
-  RandomElement(ElementComponent *component, Element *parent)
-      : ContainerElement(ElementType::RANDOM, component, parent, ActiveMode::ANY) {}
+  RandomElement(ElementComponent *component, Element *parent) : ContainerElement(component, parent, ActiveMode::ANY) {}
+
+  const char *get_type_name() const override { return "random"; }
 
   void draw(display::Display &display) override;
   void go_to(int index);
@@ -109,7 +117,9 @@ class RandomElement : public ContainerElement {
 class SequenceElement : public ContainerElement {
  public:
   SequenceElement(ElementComponent *component, Element *parent)
-      : ContainerElement(ElementType::SEQUENCE, component, parent, ActiveMode::ANY) {}
+      : ContainerElement(component, parent, ActiveMode::ANY) {}
+
+  const char *get_type_name() const override { return "sequence"; }
 
   void draw(display::Display &display) override;
   void go_to(int index);

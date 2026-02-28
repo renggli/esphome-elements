@@ -7,7 +7,7 @@ namespace esphome::elements {
 /// Element that delegates to another element.
 class DelegateElement : public Element {
  public:
-  DelegateElement(ElementType type, ElementComponent *component, Element *parent) : Element(type, component, parent) {}
+  using Element::Element;
 
   void set_element(Element *element) { element_ = element; };
 
@@ -25,8 +25,9 @@ class DelegateElement : public Element {
 /// An element that generates a 'next' event after a specified timeout.
 class TimeoutElement : public DelegateElement {
  public:
-  TimeoutElement(ElementComponent *component, Element *parent)
-      : DelegateElement(ElementType::TIMEOUT, component, parent) {}
+  using DelegateElement::DelegateElement;
+
+  const char *get_type_name() const override { return "timeout"; }
 
   void set_duration(uint32_t duration_ms) { duration_ms_ = duration_ms; }
 
@@ -43,7 +44,9 @@ class TimeoutElement : public DelegateElement {
 /// of 'next' events.
 class DelayElement : public DelegateElement {
  public:
-  DelayElement(ElementComponent *component, Element *parent) : DelegateElement(ElementType::DELAY, component, parent) {}
+  using DelegateElement::DelegateElement;
+
+  const char *get_type_name() const override { return "delay"; }
 
   void set_count(uint32_t count) { count_ = count; }
 

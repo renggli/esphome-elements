@@ -9,7 +9,9 @@ namespace esphome::elements {
 /// Element that displays a static image.
 class ImageElement : public Element {
  public:
-  ImageElement(ElementComponent *component, Element *parent) : Element(ElementType::IMAGE, component, parent) {}
+  using Element::Element;
+
+  const char *get_type_name() const override { return "image"; }
 
   void set_image(display::BaseImage *image) { image_ = image; }
   void clear_image() { image_ = nullptr; }

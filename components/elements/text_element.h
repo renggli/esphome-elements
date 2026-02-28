@@ -19,7 +19,7 @@ enum class ScrollMode : std::uint8_t {
 /// Abstract base class for all text-based elements.
 class TextElement : public Element {
  public:
-  TextElement(ElementType type, ElementComponent *component, Element *parent) : Element(type, component, parent) {}
+  using Element::Element;
   virtual std::string get_text() = 0;
 
   void set_font(display::BaseFont *font) { font_ = font; }
@@ -54,8 +54,9 @@ class TextElement : public Element {
 /// Text element that displays a fixed string.
 class StaticTextElement : public TextElement {
  public:
-  StaticTextElement(ElementComponent *component, Element *parent)
-      : TextElement(ElementType::STATIC_TEXT, component, parent) {}
+  using TextElement::TextElement;
+
+  const char *get_type_name() const override { return "static_text"; }
 
   void set_text(std::string text) { text_ = std::move(text); }
   std::string get_text() override;
@@ -67,8 +68,9 @@ class StaticTextElement : public TextElement {
 /// Text element that uses a lambda to generate text dynamically.
 class DynamicTextElement : public TextElement {
  public:
-  DynamicTextElement(ElementComponent *component, Element *parent)
-      : TextElement(ElementType::DYNAMIC_TEXT, component, parent) {}
+  using TextElement::TextElement;
+
+  const char *get_type_name() const override { return "dynamic_text"; }
 
   std::string get_text() override;
 
@@ -81,8 +83,9 @@ class DynamicTextElement : public TextElement {
 /// Text element that displays the current time using a format string.
 class TimeTextElement : public TextElement {
  public:
-  TimeTextElement(ElementComponent *component, Element *parent)
-      : TextElement(ElementType::TIME_TEXT, component, parent) {}
+  using TextElement::TextElement;
+
+  const char *get_type_name() const override { return "time_text"; }
 
   std::string get_text() override;
 

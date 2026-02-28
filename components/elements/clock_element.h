@@ -18,7 +18,9 @@ struct AnalogClockOptions {
 /// Analog clock element.
 class ClockElement : public Element {
  public:
-  ClockElement(ElementComponent *component, Element *parent) : Element(ElementType::CLOCK, component, parent) {}
+  using Element::Element;
+
+  const char *get_type_name() const override { return "clock"; }
 
   void set_time(time::RealTimeClock *time) { time_ = time; }
 

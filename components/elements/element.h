@@ -9,7 +9,7 @@ namespace esphome::elements {
 enum class ElementType : std::uint8_t {
   UNKNOWN = 0,
   // Alphabetically sorted.
-  ARTSY,
+  ANIMATION,
   CLOCK,
   CUSTOM,
   DELAY,

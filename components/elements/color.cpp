@@ -190,18 +190,14 @@ void ModifierColorScheme::get_hsv(float p, float &h, float &s, float &v) {
 
 // Palette factory implementations
 
-static GradientColorScheme *hue_segment(float from_h, float s, float from_v, float to_h, float to_v) {
-  auto *g = new GradientColorScheme();
-  g->set_from_hsv(from_h, s, from_v);
-  g->set_to_hsv(to_h, s, to_v);
-  return g;
+static ColorScheme *hue_segment(float from_h, float s, float from_v, float to_h, float to_v) {
+  auto *scheme = new GradientColorScheme();
+  scheme->set_from_hsv(from_h, s, from_v);
+  scheme->set_to_hsv(to_h, s, to_v);
+  return scheme;
 }
 
-ColorScheme *make_monochromatic(float h, float s, float v, float min_v) {
-  auto *seq = new MirrorColorScheme();
-  seq->set_scheme(hue_segment(h, s, min_v, h, v));
-  return seq;
-}
+ColorScheme *make_monochromatic(float h, float s, float v, float min_v) { return hue_segment(h, s, min_v, h, v); }
 
 ColorScheme *make_analogous(float h, float s, float v, float sweep_deg) {
   return hue_segment(h - sweep_deg, s, v, h + sweep_deg, v);
@@ -211,7 +207,7 @@ ColorScheme *make_complementary(float h, float s, float v, float sweep_deg) {
   auto *seq = new SequenceColorScheme();
   seq->add_scheme(hue_segment(h - sweep_deg, s, v, h + sweep_deg, v));
   seq->add_scheme(hue_segment(h + 180.0f - sweep_deg, s, v, h + 180.0f + sweep_deg, v));
-  return seq;
+  return (ColorScheme *) seq;
 }
 
 ColorScheme *make_split_complementary(float h, float s, float v, float sweep_deg) {
@@ -219,21 +215,21 @@ ColorScheme *make_split_complementary(float h, float s, float v, float sweep_deg
   seq->add_scheme(hue_segment(h - sweep_deg, s, v, h + sweep_deg, v));
   seq->add_scheme(hue_segment(h + 150.0f - sweep_deg, s, v, h + 150.0f + sweep_deg, v));
   seq->add_scheme(hue_segment(h + 210.0f - sweep_deg, s, v, h + 210.0f + sweep_deg, v));
-  return seq;
+  return (ColorScheme *) seq;
 }
 
 ColorScheme *make_triadic(float h, float s, float v, float sweep_deg) {
   auto *seq = new SequenceColorScheme();
   for (float offset : {0.0f, 120.0f, 240.0f})
     seq->add_scheme(hue_segment(h + offset - sweep_deg, s, v, h + offset + sweep_deg, v));
-  return seq;
+  return (ColorScheme *) seq;
 }
 
 ColorScheme *make_square(float h, float s, float v, float sweep_deg) {
   auto *seq = new SequenceColorScheme();
   for (float offset : {0.0f, 90.0f, 180.0f, 270.0f})
     seq->add_scheme(hue_segment(h + offset - sweep_deg, s, v, h + offset + sweep_deg, v));
-  return seq;
+  return (ColorScheme *) seq;
 }
 
 }  // namespace esphome::elements

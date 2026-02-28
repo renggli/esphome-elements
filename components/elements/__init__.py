@@ -24,10 +24,9 @@ from .text_element import (
     TEXT_ALIGN, SCROLL_MODE, TEXT_ELEMENT_SCHEMA,
 )
 from .image_element import ImageElement, IMAGE_ALIGN, IMAGE_ELEMENT_SCHEMA
-from .artsy_element import (
-    ArtsyElement, ARTSY_PATTERN,
-    CONF_DENSITY, CONF_PATTERN, CONF_SPEED, CONF_STRENGTH,
-    ARTSY_ELEMENT_SCHEMA,
+from .animation_element import (
+    CONF_DENSITY, CONF_LENGTH, CONF_SPEED, CONF_STRENGTH,
+    ANIMATION_ELEMENT_SCHEMA,
 )
 from .clock_element import (
     ClockElement, AnalogClockOptions,
@@ -53,7 +52,7 @@ MULTI_CONF = True
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # types
-CONF_ARTSY = 'artsy'
+CONF_ANIMATION = 'animation'
 CONF_CLOCK = 'clock'
 CONF_CUSTOM = 'custom'
 CONF_DELAY = 'delay'
@@ -101,9 +100,7 @@ DELEGATE_ELEMENT_SCHEMA = BASE_ELEMENT_SCHEMA.extend({
 })
 
 ELEMENT_SCHEMA = cv.typed_schema({
-    CONF_ARTSY: ARTSY_ELEMENT_SCHEMA.extend({
-        cv.GenerateID(CONF_ID): cv.declare_id(ArtsyElement),
-    }),
+    CONF_ANIMATION: ANIMATION_ELEMENT_SCHEMA,
     CONF_CLOCK: CLOCK_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(ClockElement),
     }),
@@ -165,8 +162,7 @@ async def element_to_code(config, component, parent=nullptr):
 
     # literals
     for name in [CONF_DURATION, CONF_FORMAT, CONF_TEXT, CONF_ALIGN,
-                 CONF_SCROLL_MODE, CONF_SCROLL_SPEED, CONF_ACTIVE_MODE, CONF_COUNT,
-                 CONF_PATTERN]:
+                 CONF_SCROLL_MODE, CONF_SCROLL_SPEED, CONF_ACTIVE_MODE, CONF_COUNT]:
         if value := config.get(name):
             cg.add(getattr(var, 'set_' + name)(value))
 
@@ -176,7 +172,7 @@ async def element_to_code(config, component, parent=nullptr):
         cg.add(var.set_color_scheme(scheme))
 
     # floats that may legitimately be 0.0 (falsy), checked explicitly
-    for name in [CONF_SPEED, CONF_DENSITY, CONF_STRENGTH]:
+    for name in [CONF_SPEED, CONF_DENSITY, CONF_LENGTH, CONF_STRENGTH]:
         if (value := config.get(name)) is not None:
             cg.add(getattr(var, 'set_' + name)(value))
 

@@ -1,4 +1,4 @@
-#include "artsy_element.h"
+#include "animation_element.h"
 #include "color.cpp"
 #include "display.h"
 #include <algorithm>
@@ -23,69 +23,19 @@ static float noise(int x, int y, uint32_t seed) {
   return (val % 1000) / 1000.0f;
 }
 
-Color ArtsyElement::get_gradient_color_(float p) {
+void AnimationElement::draw(display::Display &display) {
+  this->draw(display, display.get_width(), display.get_height(), this->get_component().get_current_ms() * this->speed_);
+}
+
+Color AnimationElement::get_gradient_color_(float p) {
   if (color_scheme_ != nullptr) {
     return color_scheme_->get_color(std::clamp(p, 0.0f, 1.0f));
   }
   return Color(0, 0, 0);
 }
 
-void ArtsyElement::on_show() {}
-
-void ArtsyElement::draw(display::Display &display) {
-  uint32_t current_ms = get_component().get_current_ms();
-  int width = display.get_width(), height = display.get_height();
-  switch (this->pattern_) {
-    case ArtsyPattern::METABALLS:
-      this->draw_metaballs_(display, width, height, current_ms);
-      break;
-    case ArtsyPattern::AURORA:
-      this->draw_aurora_(display, width, height, current_ms);
-      break;
-    case ArtsyPattern::KALEIDOSCOPE:
-      this->draw_kaleidoscope_(display, width, height, current_ms);
-      break;
-    case ArtsyPattern::PLASMA:
-      this->draw_plasma_(display, width, height, current_ms);
-      break;
-    case ArtsyPattern::RIPPLES:
-      this->draw_ripples_(display, width, height, current_ms);
-      break;
-    case ArtsyPattern::SPIRAL:
-      this->draw_spiral_(display, width, height, current_ms);
-      break;
-    case ArtsyPattern::VORONOI:
-      this->draw_voronoi_(display, width, height, current_ms);
-      break;
-    case ArtsyPattern::INTERFERENCE:
-      this->draw_interference_(display, width, height, current_ms);
-      break;
-    case ArtsyPattern::JULIA:
-      this->draw_julia_(display, width, height, current_ms);
-      break;
-    case ArtsyPattern::MATRIX:
-      this->draw_matrix_(display, width, height, current_ms);
-      break;
-    case ArtsyPattern::GRADIENT:
-      this->draw_gradient_(display, width, height, current_ms);
-      break;
-    case ArtsyPattern::FIRE:
-      this->draw_fire_(display, width, height, current_ms);
-      break;
-    case ArtsyPattern::TUNNEL:
-      this->draw_tunnel_(display, width, height, current_ms);
-      break;
-    case ArtsyPattern::WAVE:
-      this->draw_wave_(display, width, height, current_ms);
-      break;
-    case ArtsyPattern::STARS:
-      this->draw_stars_(display, width, height, current_ms);
-      break;
-  }
-}
-
-void ArtsyElement::draw_metaballs_(display::Display &display, int width, int height, uint32_t current_ms) {
-  float t = current_ms / 5000.0f * this->speed_;
+void MetaballsElement::draw(display::Display &display, int width, int height, uint32_t time) {
+  float t = time / 5000.0f;
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       float val = 0;
@@ -107,8 +57,8 @@ void ArtsyElement::draw_metaballs_(display::Display &display, int width, int hei
   }
 }
 
-void ArtsyElement::draw_aurora_(display::Display &display, int width, int height, uint32_t current_ms) {
-  float t = current_ms / 8000.0f * this->speed_;
+void AuroraElement::draw(display::Display &display, int width, int height, uint32_t time) {
+  float t = time / 8000.0f;
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       float nx = x / (float) width;
@@ -125,8 +75,8 @@ void ArtsyElement::draw_aurora_(display::Display &display, int width, int height
   }
 }
 
-void ArtsyElement::draw_kaleidoscope_(display::Display &display, int width, int height, uint32_t current_ms) {
-  float t = current_ms / 8000.0f * this->speed_;
+void KaleidoscopeElement::draw(display::Display &display, int width, int height, uint32_t time) {
+  float t = time / 8000.0f;
   const int segments = 6;
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
@@ -148,8 +98,8 @@ void ArtsyElement::draw_kaleidoscope_(display::Display &display, int width, int 
   }
 }
 
-void ArtsyElement::draw_plasma_(display::Display &display, int width, int height, uint32_t current_ms) {
-  float t = current_ms / 5000.0f * this->speed_;
+void PlasmaElement::draw(display::Display &display, int width, int height, uint32_t time) {
+  float t = time / 5000.0f;
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       float v1 = std::sin(x / 10.0f + t * TWO_PI_F);
@@ -165,8 +115,8 @@ void ArtsyElement::draw_plasma_(display::Display &display, int width, int height
   }
 }
 
-void ArtsyElement::draw_ripples_(display::Display &display, int width, int height, uint32_t current_ms) {
-  float t = current_ms / 5000.0f * this->speed_;
+void RipplesElement::draw(display::Display &display, int width, int height, uint32_t time) {
+  float t = time / 5000.0f;
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       // Two sources orbiting in opposite directions — their interference creates rich patterns
@@ -185,8 +135,8 @@ void ArtsyElement::draw_ripples_(display::Display &display, int width, int heigh
   }
 }
 
-void ArtsyElement::draw_spiral_(display::Display &display, int width, int height, uint32_t current_ms) {
-  float t = current_ms / 5000.0f * this->speed_;
+void SpiralElement::draw(display::Display &display, int width, int height, uint32_t time) {
+  float t = time / 5000.0f;
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       float cx = width / 2.0f;
@@ -207,8 +157,8 @@ void ArtsyElement::draw_spiral_(display::Display &display, int width, int height
   }
 }
 
-void ArtsyElement::draw_voronoi_(display::Display &display, int width, int height, uint32_t current_ms) {
-  float t = current_ms / 5000.0f * this->speed_;
+void VoronoiElement::draw(display::Display &display, int width, int height, uint32_t time) {
+  float t = time / 5000.0f;
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       float min_dist = 1000.0f;
@@ -233,8 +183,8 @@ void ArtsyElement::draw_voronoi_(display::Display &display, int width, int heigh
   }
 }
 
-void ArtsyElement::draw_interference_(display::Display &display, int width, int height, uint32_t current_ms) {
-  float t = current_ms / 5000.0f * this->speed_;
+void InterferenceElement::draw(display::Display &display, int width, int height, uint32_t time) {
+  float t = time / 5000.0f;
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       // Both sources orbit slowly so the interference pattern rotates and morphs
@@ -252,8 +202,8 @@ void ArtsyElement::draw_interference_(display::Display &display, int width, int 
   }
 }
 
-void ArtsyElement::draw_julia_(display::Display &display, int width, int height, uint32_t current_ms) {
-  float t = current_ms / 5000.0f * this->speed_;
+void JuliaElement::draw(display::Display &display, int width, int height, uint32_t time) {
+  float t = time / 5000.0f;
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       // Zoom oscillates periodically — never accumulates unboundedly
@@ -275,22 +225,23 @@ void ArtsyElement::draw_julia_(display::Display &display, int width, int height,
   }
 }
 
-void ArtsyElement::draw_matrix_(display::Display &display, int width, int height, uint32_t current_ms) {
-  float t = current_ms / 5000.0f * this->speed_;
-  float strike_length = 5.0f * this->strength_;
+void MatrixElement::draw(display::Display &display, int width, int height, uint32_t time) {
+  float t = time / 2500.0f;
   display.clear();
   for (int x = 0; x < width; ++x) {
     // Use density to decide if this column has a drop
-    if (noise(x, 0, 123) > (1.0f - 0.2f * this->density_)) {
+    if (noise(x, 0, 123) > (1.0f - this->density_)) {
       uint32_t column_seed = hash(x + 42);
       float speed_mult = 0.5f + 1.0f * (noise(x, 1, column_seed));
       float drop_y =
           std::fmod(t * height * 2.0f * speed_mult + noise(x, 2, column_seed) * height, (float) height * 2.0f);
-
+      // Each column drifts through the gradient at its own speed and phase
+      float gradient_offset = std::fmod(noise(x, 3, column_seed) + t * 0.05f * noise(x, 4, column_seed), 1.0f);
       for (int y = 0; y < height; ++y) {
         float dist = (float) y - drop_y;
-        if (dist < 0 && dist > -strike_length) {
-          float val = 1.0f - (std::abs(dist) / strike_length);
+        if (dist < 0 && dist > -this->length_) {
+          float fade = 1.0f - (std::abs(dist) / this->length_);
+          float val = std::fmod(fade * 0.8f + gradient_offset, 1.0f);
           display.draw_pixel_at(x, y, this->get_gradient_color_(val));
         }
       }
@@ -298,8 +249,8 @@ void ArtsyElement::draw_matrix_(display::Display &display, int width, int height
   }
 }
 
-void ArtsyElement::draw_gradient_(display::Display &display, int width, int height, uint32_t current_ms) {
-  float t = current_ms / 2000.0f * this->speed_;
+void GradientElement::draw(display::Display &display, int width, int height, uint32_t time) {
+  float t = time / 2000.0f;
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       float p = std::fmod((float) x / width + t, 1.0f);
@@ -308,9 +259,9 @@ void ArtsyElement::draw_gradient_(display::Display &display, int width, int heig
   }
 }
 
-void ArtsyElement::draw_fire_(display::Display &display, int width, int height, uint32_t current_ms) {
+void FireElement::draw(display::Display &display, int width, int height, uint32_t time) {
   static float heat[32][32] = {};
-  float t = current_ms / 500.0f * this->speed_;
+  float t = time / 500.0f;
   int w = std::min(width, 32);
   int h = std::min(height, 32);
 
@@ -320,7 +271,7 @@ void ArtsyElement::draw_fire_(display::Display &display, int width, int height, 
       float left = heat[y + 1][std::max(0, x - 1)];
       float mid = heat[y + 1][x];
       float right = heat[y + 1][std::min(w - 1, x + 1)];
-      heat[y][x] = (left + mid + mid + right) / 4.0f * (0.85f * this->strength_);
+      heat[y][x] = (left + mid + mid + right) / 4.0f * this->strength_;
       display.draw_pixel_at(x, y, this->get_gradient_color_(std::max(0.0f, heat[y][x] - 0.05f)));
     }
   }
@@ -336,8 +287,8 @@ void ArtsyElement::draw_fire_(display::Display &display, int width, int height, 
   }
 }
 
-void ArtsyElement::draw_tunnel_(display::Display &display, int width, int height, uint32_t current_ms) {
-  float t = current_ms / 2000.0f * this->speed_;
+void TunnelElement::draw(display::Display &display, int width, int height, uint32_t time) {
+  float t = time / 2000.0f;
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       float dx = x - width / 2.0f;
@@ -354,8 +305,8 @@ void ArtsyElement::draw_tunnel_(display::Display &display, int width, int height
   }
 }
 
-void ArtsyElement::draw_wave_(display::Display &display, int width, int height, uint32_t current_ms) {
-  float t = current_ms / 4000.0f * this->speed_;
+void WaveElement::draw(display::Display &display, int width, int height, uint32_t time) {
+  float t = time / 4000.0f;
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       float nx = x / (float) width - 0.5f;
@@ -372,8 +323,8 @@ void ArtsyElement::draw_wave_(display::Display &display, int width, int height, 
   }
 }
 
-void ArtsyElement::draw_stars_(display::Display &display, int width, int height, uint32_t current_ms) {
-  float t = current_ms / 5000.0f * this->speed_;  // slow, gentle twinkling by default
+void StarsElement::draw(display::Display &display, int width, int height, uint32_t time) {
+  float t = time / 5000.0f;
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       uint32_t seed = y * width + x;

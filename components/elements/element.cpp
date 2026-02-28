@@ -8,8 +8,8 @@ static const char *element_type_get_type_string(ElementType type) {
   switch (type) {
     case ElementType::UNKNOWN:
       return "unknown";
-    case ElementType::ARTSY:
-      return "artsy";
+    case ElementType::ANIMATION:
+      return "animation";
     case ElementType::CLOCK:
       return "clock";
     case ElementType::CUSTOM:

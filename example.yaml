@@ -699,44 +699,37 @@ elements:
       #   min_brightness: 0.0
       # color scheme debug gradients (palette types on red base)
       - type: artsy
-        color: "#FF0000"
         color_scheme:
           type: monochromatic
           color: "#FF0000"
         pattern: "GRADIENT"
       - type: artsy
-        color: "#FF0000"
         color_scheme:
           type: analogous
           color: "#FF0000"
         pattern: "GRADIENT"
       - type: artsy
-        color: "#FF0000"
         color_scheme:
           type: complementary
           color: "#FF0000"
         pattern: "GRADIENT"
       - type: artsy
-        color: "#FF0000"
         color_scheme:
           type: triadic
           color: "#FF0000"
         pattern: "GRADIENT"
       - type: artsy
-        color: "#FF0000"
         color_scheme:
           type: split_complementary
           color: "#FF0000"
         pattern: "GRADIENT"
       - type: artsy
-        color: "#FF0000"
         color_scheme:
           type: square
           color: "#FF0000"
         pattern: "GRADIENT"
       # manual composition example (modifier wrapping a sequence)
       - type: artsy
-        color: "#FF0000"
         color_scheme:
           type: modifier
           scheme:
@@ -746,6 +739,4 @@ elements:
           saturation_scale: 1.2
           value_scale: 0.9
         pattern: "GRADIENT"
-
-
 

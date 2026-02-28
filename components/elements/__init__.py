@@ -1,13 +1,48 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-import esphome.core as core
 from esphome.components import display, font, image, time
 from esphome.const import (CONF_BACKGROUND_COLOR, CONF_COLOR, CONF_DISPLAY,
                            CONF_DURATION, CONF_FONT, CONF_FORMAT, CONF_ID,
-                           CONF_LAMBDA, CONF_TEXT, CONF_TIME, CONF_VISIBLE)
+                           CONF_LAMBDA, CONF_TEXT, CONF_TIME)
 from . import color as color_module
 from .color import (COLOR_SCHEMA, COLOR_SCHEME_SCHEMA, CONF_COLOR_SCHEME,
                     color_scheme_schema, color_scheme_to_code, color_to_code)
+from .element import Element, ElementComponent, elements_ns
+from .geometry import anchor_schema, anchor_to_code
+from .container_element import (
+    ContainerElement, HorizontalElement, OverlayElement,
+    PriorityElement, RandomElement, SequenceElement, VerticalElement,
+    CONF_ACTIVE_MODE, CONF_ELEMENTS, ACTIVE_MODE,
+)
+from .delegate_element import (
+    DelegateElement, DelayElement, TimeoutElement,
+    CONF_COUNT, CONF_ELEMENT,
+)
+from .text_element import (
+    TextElement, StaticTextElement, DynamicTextElement, TimeTextElement,
+    CONF_ALIGN, CONF_ANCHOR, CONF_SCROLL_MODE, CONF_SCROLL_SPEED,
+    TEXT_ALIGN, SCROLL_MODE, TEXT_ELEMENT_SCHEMA,
+)
+from .image_element import ImageElement, IMAGE_ALIGN, IMAGE_ELEMENT_SCHEMA
+from .artsy_element import (
+    ArtsyElement, ARTSY_PATTERN,
+    CONF_DENSITY, CONF_PATTERN, CONF_SPEED, CONF_STRENGTH,
+    ARTSY_ELEMENT_SCHEMA,
+)
+from .clock_element import (
+    ClockElement, AnalogClockOptions,
+    CONF_END, CONF_HOUR_HAND, CONF_HOUR_MARKERS,
+    CONF_MINUTE_HAND, CONF_MINUTE_MARKERS, CONF_QUARTER_MARKERS,
+    CONF_SECOND_HAND, CONF_SMOOTH, CONF_START,
+    analog_clock_options_schema, analog_clock_options_to_code,
+    CLOCK_ELEMENT_SCHEMA,
+)
+from .custom_element import (
+    CustomElement,
+    CONF_LAMBDA_DRAW, CONF_LAMBDA_IS_ACTIVE, CONF_LAMBDA_ON_HIDE,
+    CONF_LAMBDA_ON_PREV, CONF_LAMBDA_ON_NEXT, CONF_LAMBDA_ON_SHOW,
+    CUSTOM_ELEMENT_SCHEMA,
+)
 
 AUTO_LOAD = ['display', 'image']
 CODEOWNERS = ['@renggli']
@@ -16,36 +51,6 @@ MULTI_CONF = True
 
 # conf names
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-# properties
-CONF_ACTIVE_MODE = 'active_mode'
-CONF_ALIGN = 'align'
-CONF_ANCHOR = 'anchor'
-CONF_COUNT = 'count'
-CONF_ELEMENT = 'element'
-CONF_ELEMENTS = 'elements'
-CONF_DENSITY = 'density'
-CONF_MIN_BRIGHTNESS = 'min_brightness'
-CONF_PATTERN = 'pattern'
-CONF_SPEED = 'speed'
-CONF_END = 'end'
-CONF_HOUR_HAND = 'hour_hand'
-CONF_HOUR_MARKERS = 'hour_markers'
-CONF_LAMBDA_DRAW = 'draw'
-CONF_LAMBDA_IS_ACTIVE = 'is_active'
-CONF_LAMBDA_ON_HIDE = 'on_hide'
-CONF_LAMBDA_ON_PREV = 'on_prev'
-CONF_LAMBDA_ON_NEXT = 'on_next'
-CONF_LAMBDA_ON_SHOW = 'on_show'
-CONF_MINUTE_HAND = 'minute_hand'
-CONF_MINUTE_MARKERS = 'minute_markers'
-CONF_QUARTER_MARKERS = 'quarter_markers'
-CONF_SCROLL_MODE = 'scroll_mode'
-CONF_SCROLL_SPEED = 'scroll_speed'
-CONF_SECOND_HAND = 'second_hand'
-CONF_SMOOTH = 'smooth'
-CONF_STRENGTH = 'strength'
-CONF_START = 'start'
 
 # types
 CONF_ARTSY = 'artsy'
@@ -68,201 +73,12 @@ CONF_VERTICAL = 'vertical'
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 display_ns = cg.esphome_ns.namespace('display')
-
-Display = display_ns.class_('Display')
-DisplayRef = Display.operator("ref")
-
-# elements
-
-elements_ns = cg.esphome_ns.namespace('elements')
-ElementComponent = elements_ns.class_('ElementComponent', cg.Component)
-
-Element = elements_ns.class_('Element')
-
-ContainerElement = elements_ns.class_('ContainerElement', Element)
-FlowElement = elements_ns.class_('FlowElement', ContainerElement)
-HorizontalElement = elements_ns.class_('HorizontalElement', ContainerElement)
-OverlayElement = elements_ns.class_('OverlayElement', ContainerElement)
-PriorityElement = elements_ns.class_('PriorityElement', ContainerElement)
-RandomElement = elements_ns.class_('RandomElement', ContainerElement)
-SequenceElement = elements_ns.class_('SequenceElement', ContainerElement)
-VerticalElement = elements_ns.class_('VerticalElement', ContainerElement)
-
-DelegateElement = elements_ns.class_('DelegateElement', Element)
-DelayElement = elements_ns.class_('DelayElement', DelegateElement)
-TimeoutElement = elements_ns.class_('TimeoutElement', DelegateElement)
-
-TextElement = elements_ns.class_('TextElement', Element)
-StaticTextElement = elements_ns.class_('StaticTextElement', TextElement)
-DynamicTextElement = elements_ns.class_('DynamicTextElement', TextElement)
-TimeTextElement = elements_ns.class_('TimeTextElement', TextElement)
-
-ArtsyElement = elements_ns.class_('ArtsyElement', Element)
-ClockElement = elements_ns.class_('ClockElement', Element)
-CustomElement = elements_ns.class_('CustomElement', Element)
-ImageElement = elements_ns.class_('ImageElement', Element)
-
-
-display_ns = cg.esphome_ns.namespace('display')
-
-text_align_ns = display_ns.namespace('TextAlign')
-TextAlign = text_align_ns.enum('TextAlign')
-
-TEXT_ALIGN = {
-    'TOP': TextAlign.TOP,
-    'CENTER_VERTICAL': TextAlign.CENTER_VERTICAL,
-    'BASELINE': TextAlign.BASELINE,
-    'BOTTOM': TextAlign.BOTTOM,
-    'LEFT': TextAlign.LEFT,
-    'CENTER_HORIZONTAL': TextAlign.CENTER_HORIZONTAL,
-    'RIGHT': TextAlign.RIGHT,
-    'TOP_LEFT': TextAlign.TOP_LEFT,
-    'TOP_CENTER': TextAlign.TOP_CENTER,
-    'TOP_RIGHT': TextAlign.TOP_RIGHT,
-    'CENTER_LEFT': TextAlign.CENTER_LEFT,
-    'CENTER': TextAlign.CENTER,
-    'CENTER_RIGHT': TextAlign.CENTER_RIGHT,
-    'BASELINE_LEFT': TextAlign.BASELINE_LEFT,
-    'BASELINE_CENTER': TextAlign.BASELINE_CENTER,
-    'BASELINE_RIGHT': TextAlign.BASELINE_RIGHT,
-    'BOTTOM_LEFT': TextAlign.BOTTOM_LEFT,
-    'BOTTOM_CENTER': TextAlign.BOTTOM_CENTER,
-    'BOTTOM_RIGHT': TextAlign.BOTTOM_RIGHT,
-}
-
-image_align_ns = display_ns.namespace('ImageAlign')
-ImageAlign = image_align_ns.enum('ImageAlign')
-
-IMAGE_ALIGN = {
-    'TOP': ImageAlign.TOP,
-    'CENTER_VERTICAL': ImageAlign.CENTER_VERTICAL,
-    'BOTTOM': ImageAlign.BOTTOM,
-    'LEFT': ImageAlign.LEFT,
-    'CENTER_HORIZONTAL': ImageAlign.CENTER_HORIZONTAL,
-    'RIGHT': ImageAlign.RIGHT,
-    'TOP_LEFT': ImageAlign.TOP_LEFT,
-    'TOP_CENTER': ImageAlign.TOP_CENTER,
-    'TOP_RIGHT': ImageAlign.TOP_RIGHT,
-    'CENTER_LEFT': ImageAlign.CENTER_LEFT,
-    'CENTER': ImageAlign.CENTER,
-    'CENTER_RIGHT': ImageAlign.CENTER_RIGHT,
-    'BOTTOM_LEFT': ImageAlign.BOTTOM_LEFT,
-    'BOTTOM_CENTER': ImageAlign.BOTTOM_CENTER,
-    'BOTTOM_RIGHT': ImageAlign.BOTTOM_RIGHT,
-}
-
-# scroll mode enum
-
-scroll_mode_ns = elements_ns.namespace('ScrollMode')
-ScrollMode = scroll_mode_ns.enum('ScrollMode')
-
-SCROLL_MODE = {
-    'NONE': ScrollMode.NONE,
-    'LEFT_TO_RIGHT': ScrollMode.LEFT_TO_RIGHT,
-    'RIGHT_TO_LEFT': ScrollMode.RIGHT_TO_LEFT,
-    'BOTTOM_TO_TOP': ScrollMode.BOTTOM_TO_TOP,
-    'TOP_TO_BOTTOM': ScrollMode.TOP_TO_BOTTOM,
-}
-
-# active mode enum
-
-active_mode_ns = elements_ns.namespace('ActiveMode')
-ActiveMode = active_mode_ns.enum('ActiveMode')
-
-ACTIVE_MODE = {
-    'ALWAYS': ActiveMode.ALWAYS,
-    'ANY': ActiveMode.ANY,
-    'ALL': ActiveMode.ALL,
-    'NEVER': ActiveMode.NEVER,
-}
-
-
-
-artsy_pattern_ns = elements_ns.namespace('ArtsyPattern')
-ArtsyPattern = artsy_pattern_ns.enum('ArtsyPattern')
-
-ARTSY_PATTERN = {
-    'METABALLS': ArtsyPattern.METABALLS,
-    'AURORA': ArtsyPattern.AURORA,
-    'KALEIDOSCOPE': ArtsyPattern.KALEIDOSCOPE,
-    'PLASMA': ArtsyPattern.PLASMA,
-    'RIPPLES': ArtsyPattern.RIPPLES,
-    'SPIRAL': ArtsyPattern.SPIRAL,
-    'VORONOI': ArtsyPattern.VORONOI,
-    'INTERFERENCE': ArtsyPattern.INTERFERENCE,
-    'JULIA': ArtsyPattern.JULIA,
-    'MATRIX': ArtsyPattern.MATRIX,
-    'GRADIENT': ArtsyPattern.GRADIENT,
-    'FIRE': ArtsyPattern.FIRE,
-    'TUNNEL': ArtsyPattern.TUNNEL,
-    'WAVE': ArtsyPattern.WAVE,
-    'STARS': ArtsyPattern.STARS,
-}
+DisplayRef = display_ns.class_('Display').operator("ref")
 
 # other
 
 nullptr = cg.esphome_ns.class_('nullptr')
 nullopt = cg.esphome_ns.class_('nullopt')
-
-# analog clock options
-
-AnalogClockOptions = elements_ns.class_('AnalogClockOptions')
-
-def analog_clock_options_schema(start, end, color, visible=True, smooth=None):
-    return cv.Schema({
-        cv.Optional(CONF_START, default=start): cv.float_range(-1, 1),
-        cv.Optional(CONF_END, default=end): cv.float_range(-1, 1),
-        cv.Optional(CONF_COLOR, default=color): COLOR_SCHEMA,
-        cv.Optional(CONF_VISIBLE, default=visible): cv.boolean,
-    } | ({
-        cv.Optional(CONF_SMOOTH, default=smooth): cv.boolean,
-    } if smooth is not None else {}))
-
-async def analog_clock_options_to_code(config):
-    return cg.StructInitializer(
-        AnalogClockOptions,
-        (CONF_START, config.get(CONF_START)),
-        (CONF_END, config.get(CONF_END)),
-        (CONF_COLOR, await color_to_code(config.get(CONF_COLOR))),
-        (CONF_VISIBLE, config.get(CONF_VISIBLE)),
-        (CONF_SMOOTH, config.get(CONF_SMOOTH)),
-    )
-
-# anchor
-
-Point = elements_ns.class_('Point')
-
-def point_schema(x, y, validation):
-    return cv.Schema({
-        cv.Optional('x', default=x): validation,
-        cv.Optional('y', default=y): validation,
-    })
-
-async def point_to_code(config):
-    return cg.ArrayInitializer(config.get('x'), config.get('y'))
-
-Anchor = elements_ns.class_('Anchor')
-
-def anchor_schema(offset_x=0, offset_y=0, fraction_x=0.5, fraction_y=0.5):
-    return cv.Schema({
-        cv.Optional('offset', default={}): point_schema(
-            x=offset_x,
-            y=offset_y,
-            validation=cv.int_,
-        ),
-        cv.Optional('fraction', default={}): point_schema(
-            x=fraction_x,
-            y=fraction_y,
-            validation=cv.float_range(min=0.0, max=1.0),
-        ),
-    })
-
-async def anchor_to_code(config):
-    return cg.StructInitializer(
-        Anchor,
-        ('offset', await point_to_code(config.get('offset'))),
-        ('fraction', await point_to_code(config.get('fraction'))),
-    )
 
 # elements
 
@@ -284,52 +100,15 @@ DELEGATE_ELEMENT_SCHEMA = BASE_ELEMENT_SCHEMA.extend({
     cv.Required(CONF_ELEMENT): element_schema,
 })
 
-TEXT_ELEMENT_SCHEMA = BASE_ELEMENT_SCHEMA.extend({
-    cv.Required(CONF_FONT): cv.use_id(font.Font),
-    cv.Optional(CONF_COLOR, default='#ffffff'): COLOR_SCHEMA,
-    cv.Optional(CONF_BACKGROUND_COLOR): COLOR_SCHEMA,
-    cv.Optional(CONF_ANCHOR, default={}): anchor_schema(),
-    cv.Optional(CONF_ALIGN, default='CENTER'): cv.enum(TEXT_ALIGN, upper=True, space='_'),
-    cv.Optional(CONF_SCROLL_MODE): cv.enum(SCROLL_MODE, upper=True, space='_'),
-    cv.Optional(CONF_SCROLL_SPEED): cv.float_range(min=0),
-})
-
 ELEMENT_SCHEMA = cv.typed_schema({
-    CONF_ARTSY: BASE_ELEMENT_SCHEMA.extend({
+    CONF_ARTSY: ARTSY_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(ArtsyElement),
-        cv.Required(CONF_COLOR): COLOR_SCHEMA,
-        cv.Required(CONF_COLOR_SCHEME): color_scheme_schema,
-        cv.Optional(CONF_PATTERN, default='METABALLS'): 
-            cv.enum(ARTSY_PATTERN, upper=True, space='_'),
-        cv.Optional(CONF_SPEED, default=1.0): cv.float_range(min=0.01, max=10.0),
-        cv.Optional(CONF_DENSITY, default=1.0): cv.float_range(min=0.0, max=10.0),
-        cv.Optional(CONF_STRENGTH, default=1.0): cv.float_range(min=0.1, max=10.0),
-        cv.Optional(CONF_MIN_BRIGHTNESS, default=0.3): cv.float_range(min=0.0, max=1.0),
     }),
-    CONF_CLOCK: BASE_ELEMENT_SCHEMA.extend({
+    CONF_CLOCK: CLOCK_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(ClockElement),
-        cv.Required(CONF_TIME): cv.use_id(time.RealTimeClock),
-        cv.Optional(CONF_MINUTE_MARKERS, default={}):
-            analog_clock_options_schema(0.95, 1.00, '#0000ff', visible=False),
-        cv.Optional(CONF_HOUR_MARKERS, default={}):
-            analog_clock_options_schema(0.90, 1.00, '#0000ff'),
-        cv.Optional(CONF_QUARTER_MARKERS, default={}):
-            analog_clock_options_schema(0.75, 1.00, '#0000ff'),
-        cv.Optional(CONF_SECOND_HAND, default={}):
-            analog_clock_options_schema(0.00, 0.75, '#ff0000', smooth=True),
-        cv.Optional(CONF_MINUTE_HAND, default={}):
-            analog_clock_options_schema(0.00, 0.95, '#ffffff', smooth=False),
-        cv.Optional(CONF_HOUR_HAND, default={}):
-            analog_clock_options_schema(0.00, 0.66, '#ffffff', smooth=True),
     }),
-    CONF_CUSTOM: BASE_ELEMENT_SCHEMA.extend({
+    CONF_CUSTOM: CUSTOM_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(CustomElement),
-        cv.Optional(CONF_LAMBDA_DRAW): cv.lambda_,
-        cv.Optional(CONF_LAMBDA_ON_SHOW): cv.lambda_,
-        cv.Optional(CONF_LAMBDA_ON_HIDE): cv.lambda_,
-        cv.Optional(CONF_LAMBDA_ON_PREV): cv.lambda_,
-        cv.Optional(CONF_LAMBDA_ON_NEXT): cv.lambda_,
-        cv.Optional(CONF_LAMBDA_IS_ACTIVE): cv.returning_lambda,
     }),
     CONF_DELAY: DELEGATE_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(DelayElement),
@@ -342,11 +121,8 @@ ELEMENT_SCHEMA = cv.typed_schema({
     CONF_HORIZONTAL: CONTAINER_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(HorizontalElement),
     }),
-    CONF_IMAGE: BASE_ELEMENT_SCHEMA.extend({
+    CONF_IMAGE: IMAGE_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(ImageElement),
-        cv.Optional(CONF_IMAGE): cv.use_id(image.Image_),
-        cv.Optional(CONF_ANCHOR, default={}): anchor_schema(),
-        cv.Optional(CONF_ALIGN, default='CENTER'): cv.enum(IMAGE_ALIGN, upper=True, space='_'),
     }),
     CONF_OVERLAY: CONTAINER_ELEMENT_SCHEMA.extend({
         cv.GenerateID(CONF_ID): cv.declare_id(OverlayElement),
@@ -400,7 +176,7 @@ async def element_to_code(config, component, parent=nullptr):
         cg.add(var.set_color_scheme(scheme))
 
     # floats that may legitimately be 0.0 (falsy), checked explicitly
-    for name in [CONF_SPEED, CONF_DENSITY, CONF_STRENGTH, CONF_MIN_BRIGHTNESS]:
+    for name in [CONF_SPEED, CONF_DENSITY, CONF_STRENGTH]:
         if (value := config.get(name)) is not None:
             cg.add(getattr(var, 'set_' + name)(value))
 

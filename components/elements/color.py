@@ -70,7 +70,7 @@ COLOR_SCHEMA = cv.Any(
 # Color scheme classes and factory references
 # ---------------------------------------------------------------------------
 
-elements_ns = cg.esphome_ns.namespace('elements')
+from .element import elements_ns
 
 StaticColorScheme = elements_ns.class_('StaticColorScheme')
 GradientColorScheme = elements_ns.class_('GradientColorScheme')

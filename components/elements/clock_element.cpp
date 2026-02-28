@@ -30,29 +30,29 @@ void ClockElement::draw(display::Display &display) {
   if (second_hand_.smooth) {
     struct timeval tv;
     if (gettimeofday(&tv, nullptr) == 0) {
-      seconds += tv.tv_usec / 1000000.0;
+      seconds += tv.tv_usec / 1000000.0f;
     }
   }
   float minutes = time.minute;
   if (minute_hand_.smooth) {
-    minutes += seconds / 60.0;
+    minutes += seconds / 60.0f;
   }
   float hours = time.hour % 12;
   if (hour_hand_.smooth) {
-    hours += minutes / 60.0;
+    hours += minutes / 60.0f;
   }
 
   // Draw the hands.
   if (hour_hand_.visible) {
-    display.line_at_angle(center_x, center_y, (360.0 * hours / 12.0) - 90.0, radius * hour_hand_.start,
+    display.line_at_angle(center_x, center_y, (360.0f * hours / 12.0f) - 90.0f, radius * hour_hand_.start,
                           radius * hour_hand_.end, hour_hand_.color);
   }
   if (minute_hand_.visible) {
-    display.line_at_angle(center_x, center_y, (360.0 * minutes / 60.0) - 90.0, radius * minute_hand_.start,
+    display.line_at_angle(center_x, center_y, (360.0f * minutes / 60.0f) - 90.0f, radius * minute_hand_.start,
                           radius * minute_hand_.end, minute_hand_.color);
   }
   if (second_hand_.visible) {
-    display.line_at_angle(center_x, center_y, (360.0 * seconds / 60.0) - 90.0, radius * second_hand_.start,
+    display.line_at_angle(center_x, center_y, (360.0f * seconds / 60.0f) - 90.0f, radius * second_hand_.start,
                           radius * second_hand_.end, second_hand_.color);
   }
 }

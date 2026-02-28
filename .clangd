@@ -3,4 +3,4 @@ CompileFlags:
 Diagnostics:
   ClangTidy:
     Add: [performance*, modernize*, readability*]
-    Remove: [modernize-use-trailing-return-type, readability-magic-numbers]
+    Remove: [modernize-use-trailing-return-type, readability-magic-numbers,readability-uppercase-literal-suffix, readability-math-missing-parentheses,readability-isolate-declaration, readability-avoid-nested-conditional-operator]

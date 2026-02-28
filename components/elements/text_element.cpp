@@ -29,7 +29,7 @@ void TextElement::draw(display::Display &display) {
 
   // Update the placement, if we scroll.
   if (scroll_mode_ != ScrollMode::NONE) {
-    scroll_offset_ += get_component().get_delta_ms() * scroll_speed_ / 1000.0;
+    scroll_offset_ += get_component().get_delta_ms() * scroll_speed_ / 1000.0f;
     switch (scroll_mode_) {
       case ScrollMode::NONE:
         break;
@@ -60,7 +60,7 @@ void TextElement::draw(display::Display &display) {
   if (scroll_mode_ != ScrollMode::NONE) {
     if (bounds_x_ + bounds_w_ < 0 || display.get_width() < bounds_x_ || bounds_y_ + bounds_h_ < 0 ||
         display.get_height() < bounds_y_) {
-      scroll_offset_ = 0.0;
+      scroll_offset_ = 0.0f;
       on_next();
     }
   }
@@ -74,23 +74,23 @@ void TextElement::on_show() {
     case ScrollMode::NONE:
       break;
     case ScrollMode::LEFT_TO_RIGHT:
-      anchor_.fraction.x = 1.0;
+      anchor_.fraction.x = 1.0f;
       align_ = TextAlign((int(align_) & ~TEXT_ALIGN_X) | int(TextAlign::LEFT));
       break;
     case ScrollMode::RIGHT_TO_LEFT:
-      anchor_.fraction.x = 0.0;
+      anchor_.fraction.x = 0.0f;
       align_ = TextAlign((int(align_) & ~TEXT_ALIGN_X) | int(TextAlign::RIGHT));
       break;
     case ScrollMode::BOTTOM_TO_TOP:
-      anchor_.fraction.y = 1.0;
+      anchor_.fraction.y = 1.0f;
       align_ = TextAlign((int(align_) & ~TEXT_ALIGN_Y) | int(TextAlign::TOP));
       break;
     case ScrollMode::TOP_TO_BOTTOM:
-      anchor_.fraction.y = 0.0;
+      anchor_.fraction.y = 0.0f;
       align_ = TextAlign((int(align_) & ~TEXT_ALIGN_Y) | int(TextAlign::BOTTOM));
       break;
   }
-  scroll_offset_ = 0.0;
+  scroll_offset_ = 0.0f;
 }
 
 bool TextElement::is_active() { return !get_text().empty(); };

@@ -43,8 +43,8 @@ class TextElement : public Element {
   display::TextAlign align_;
 
   ScrollMode scroll_mode_ = ScrollMode::NONE;
-  float scroll_speed_ = 10.0;  // pixels per second
-  float scroll_offset_ = 0.0;
+  float scroll_speed_ = 10.0f;  // pixels per second
+  float scroll_offset_ = 0.0f;
 
   std::string text_;
   bool request_measurement_ = true;

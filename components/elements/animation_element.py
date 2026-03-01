@@ -329,8 +329,8 @@ FireAnimationElement = shared.elements_ns.class_(
 FIRE_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
     {
         cv.GenerateID(CONF_ID): cv.declare_id(FireAnimationElement),
-        cv.Optional(CONF_STRENGTH, default=1.0): cv.float_range(min=0.1, max=5.0),
-        cv.Optional(CONF_COOLING, default=0.02): cv.float_range(min=0.001, max=1.0),
+        cv.Optional(CONF_STRENGTH, default=0.98): cv.float_range(min=0.0, max=5.0),
+        cv.Optional(CONF_COOLING, default=0.02): cv.float_range(min=0.0, max=1.0),
     }
 )
 

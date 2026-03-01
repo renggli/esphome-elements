@@ -293,10 +293,11 @@ void FireAnimationElement::draw(display::Display &display, int width, int height
     next_heat.assign(width * height, 0.0f);
   }
 
-  // Seed the bottom row with high heat and a flickering source
+  // Seed the bottom row with noise
   float t = time / 200.0f;
   for (int x = 0; x < width; x++) {
-    next_heat[(height - 1) * width + x] = 0.5f + 0.5f * noise(x, (int) t, 123);
+    // Seed with full [0, 1] range, but keep it hot overall
+    next_heat[(height - 1) * width + x] = std::pow(noise(x, (int) t, 123), 0.5f);
   }
 
   // Propagate heat upwards with diffusion and cooling
@@ -312,7 +313,9 @@ void FireAnimationElement::draw(display::Display &display, int width, int height
 
       // Random jitter for the cooling factor makes it look "wispy"
       float jitter = 0.8f + 0.4f * noise(x, y, (int) (time / 100));
-      next_heat[y * width + x] = std::clamp(h - (this->cooling_ * jitter), 0.0f, 1.0f);
+      // Cooling factor increases with height to ensure it hits black at the top
+      float height_factor = 1.0f + (float) (height - 1 - y) / height;
+      next_heat[y * width + x] = std::clamp(h - (this->cooling_ * jitter * height_factor), 0.0f, 1.0f);
     }
   }
 
@@ -320,7 +323,9 @@ void FireAnimationElement::draw(display::Display &display, int width, int height
 
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
-      display.draw_pixel_at(x, y, this->get_gradient_color_(this->heat_buffer_[y * width + x]));
+      // Apply a gamma-like curve to "stretch" the lower heat values (reds/oranges)
+      float heat = std::pow(this->heat_buffer_[y * width + x], 0.8f);
+      display.draw_pixel_at(x, y, this->get_gradient_color_(heat));
     }
   }
 }

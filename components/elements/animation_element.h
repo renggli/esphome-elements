@@ -146,7 +146,7 @@ class FireAnimationElement : public AnimationElement {
   void draw(display::Display &display, int width, int height, uint32_t time) override;
 
  protected:
-  float strength_{1.0f};
+  float strength_{0.98f};
   float cooling_{0.02f};
   std::vector<float> heat_buffer_;
 };

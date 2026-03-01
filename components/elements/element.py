@@ -1,15 +1,15 @@
-from .shared import elements_ns
+import esphome.codegen as cg
 import esphome.config_validation as cv
+from esphome.const import CONF_ID
 
-# base class of all elements
-Element = elements_ns.class_("Element")
+from . import shared
 
-# base schema of all elements
+# Abstract Element
+Element = shared.elements_ns.class_("Element")
+
 ELEMENT_SCHEMA = cv.Schema({})
 
 
-# import the typed element schema lazily
-def TYPED_ELEMENT_SCHEMA(value):
-    from . import TYPED_ELEMENT_SCHEMA as TYPED_ELEMENT_SCHEMA_IMPL
-
-    return TYPED_ELEMENT_SCHEMA_IMPL(value)
+async def element_to_code(config, component, parent):
+    var = cg.new_Pvariable(config.get(CONF_ID), component, parent)
+    return var

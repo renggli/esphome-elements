@@ -20,8 +20,8 @@ class ElementComponent : public Component {
   void setup() override;
   void dump_config() override;
 
-  void set_root(Element *root);
   void set_display(display::Display *display) { display_ = display; }
+  void set_root(Element *root);
 
   /// Return the root element of this component.
   Element *get_root() const { return root_; }

@@ -1,38 +1,29 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import font, time
-from esphome.const import (
-    CONF_BACKGROUND_COLOR,
-    CONF_COLOR,
-    CONF_FONT,
-    CONF_FORMAT,
-    CONF_ID,
-    CONF_LAMBDA,
-    CONF_TEXT,
-    CONF_TIME,
-)
-from .element import Element, elements_ns, ELEMENT_SCHEMA
-from .color import COLOR_SCHEMA
-from .geometry import anchor_schema
-from .shared import TextAlign
+from esphome.const import CONF_ID
 
-
-TextElement = elements_ns.class_("TextElement", Element)
-StaticTextElement = elements_ns.class_("StaticTextElement", TextElement)
-DynamicTextElement = elements_ns.class_("DynamicTextElement", TextElement)
-TimeTextElement = elements_ns.class_("TimeTextElement", TextElement)
-
-CONF_DYNAMIC_TEXT = "dynamic_text"
-CONF_STATIC_TEXT = "static_text"
-CONF_TIME_TEXT = "time_text"
+from . import shared
+from . import element
+from . import element_registry
+from . import color
+from . import geometry
 
 CONF_ALIGN = "align"
 CONF_ANCHOR = "anchor"
+CONF_BACKGROUND_COLOR = "background_color"
+CONF_COLOR = "color"
+CONF_FONT = "font"
+CONF_FORMAT = "format"
+CONF_LAMBDA = "lambda"
 CONF_SCROLL_MODE = "scroll_mode"
 CONF_SCROLL_SPEED = "scroll_speed"
+CONF_TEXT = "text"
+CONF_TIME = "time"
 
-scroll_mode_ns = elements_ns.namespace("ScrollMode")
-ScrollMode = scroll_mode_ns.enum("ScrollMode")
+# Scroll Mode
+
+ScrollMode = shared.elements_ns.enum("ScrollMode", is_class=True)
 
 SCROLL_MODE = {
     "NONE": ScrollMode.NONE,
@@ -41,6 +32,10 @@ SCROLL_MODE = {
     "BOTTOM_TO_TOP": ScrollMode.BOTTOM_TO_TOP,
     "TOP_TO_BOTTOM": ScrollMode.TOP_TO_BOTTOM,
 }
+
+# Text Align
+
+TextAlign = shared.display_ns.enum("TextAlign", is_class=True)
 
 TEXT_ALIGN = {
     "TOP": TextAlign.TOP,
@@ -64,12 +59,16 @@ TEXT_ALIGN = {
     "BOTTOM_RIGHT": TextAlign.BOTTOM_RIGHT,
 }
 
-TEXT_ELEMENT_SCHEMA = ELEMENT_SCHEMA.extend(
+# Abstract Text Element
+
+TextElement = shared.elements_ns.class_("TextElement", element.Element)
+
+TEXT_ELEMENT_SCHEMA = element.ELEMENT_SCHEMA.extend(
     {
         cv.Required(CONF_FONT): cv.use_id(font.Font),
-        cv.Optional(CONF_COLOR, default="#ffffff"): COLOR_SCHEMA,
-        cv.Optional(CONF_BACKGROUND_COLOR): COLOR_SCHEMA,
-        cv.Optional(CONF_ANCHOR, default={}): anchor_schema(),
+        cv.Optional(CONF_COLOR, default="#ffffff"): color.COLOR_SCHEMA,
+        cv.Optional(CONF_BACKGROUND_COLOR): color.COLOR_SCHEMA,
+        cv.Optional(CONF_ANCHOR, default={}): geometry.anchor_schema(),
         cv.Optional(CONF_ALIGN, default="CENTER"): cv.enum(
             TEXT_ALIGN, upper=True, space="_"
         ),
@@ -78,24 +77,105 @@ TEXT_ELEMENT_SCHEMA = ELEMENT_SCHEMA.extend(
     }
 )
 
-TYPED_TEXT_ELEMENT_SCHEMAS = {
-    CONF_DYNAMIC_TEXT: TEXT_ELEMENT_SCHEMA.extend(
-        {
-            cv.GenerateID(CONF_ID): cv.declare_id(DynamicTextElement),
-            cv.Required(CONF_LAMBDA): cv.returning_lambda,
-        }
-    ),
-    CONF_STATIC_TEXT: TEXT_ELEMENT_SCHEMA.extend(
-        {
-            cv.GenerateID(CONF_ID): cv.declare_id(StaticTextElement),
-            cv.Optional(CONF_TEXT): cv.string,
-        }
-    ),
-    CONF_TIME_TEXT: TEXT_ELEMENT_SCHEMA.extend(
-        {
-            cv.GenerateID(CONF_ID): cv.declare_id(TimeTextElement),
-            cv.Required(CONF_TIME): cv.use_id(time.RealTimeClock),
-            cv.Optional(CONF_FORMAT, default="%H:%M:%S"): cv.string,
-        }
-    ),
-}
+
+async def text_element_to_code(config, component, parent):
+    var = await element.element_to_code(config, component, parent)
+    if conf := config.get(CONF_FONT):
+        value = await cg.get_variable(conf)
+        cg.add(var.set_font(value))
+    if conf := config.get(CONF_COLOR):
+        value = await color.color_to_code(conf)
+        cg.add(var.set_color(value))
+    if conf := config.get(CONF_BACKGROUND_COLOR):
+        value = await color.color_to_code(conf)
+        cg.add(var.set_background_color(value))
+    if conf := config.get(CONF_ANCHOR):
+        value = await geometry.anchor_to_code(conf)
+        cg.add(var.set_anchor(value))
+    if conf := config.get(CONF_ALIGN):
+        cg.add(var.set_align(conf))
+    if conf := config.get(CONF_SCROLL_MODE):
+        cg.add(var.set_scroll_mode(conf))
+    if conf := config.get(CONF_SCROLL_SPEED):
+        cg.add(var.set_scroll_speed(conf))
+    return var
+
+
+# Static Text Element
+
+StaticTextElement = shared.elements_ns.class_("StaticTextElement", TextElement)
+
+STATIC_TEXT_ELEMENT_SCHEMA = TEXT_ELEMENT_SCHEMA.extend(
+    {
+        cv.GenerateID(CONF_ID): cv.declare_id(StaticTextElement),
+        cv.Optional(CONF_TEXT): cv.string,
+    }
+)
+
+
+async def static_text_element_to_code(config, component, parent):
+    var = await text_element_to_code(config, component, parent)
+    if conf := config.get(CONF_TEXT):
+        cg.add(var.set_text(conf))
+    return var
+
+
+element_registry.register_element(
+    "static_text", STATIC_TEXT_ELEMENT_SCHEMA, static_text_element_to_code
+)
+
+# Dynamic Text Element
+
+DynamicTextElement = shared.elements_ns.class_("DynamicTextElement", TextElement)
+DynamicTextRef = DynamicTextElement.operator("ref")
+
+DYNAMIC_TEXT_ELEMENT_SCHEMA = TEXT_ELEMENT_SCHEMA.extend(
+    {
+        cv.GenerateID(CONF_ID): cv.declare_id(DynamicTextElement),
+        cv.Required(CONF_LAMBDA): cv.returning_lambda,
+    }
+)
+
+
+async def dynamic_text_element_to_code(config, component, parent):
+    var = await text_element_to_code(config, component, parent)
+    if conf := config.get(CONF_LAMBDA):
+        value = await cg.process_lambda(
+            conf,
+            [(DynamicTextRef, "element")],
+            return_type=cg.std_string,
+        )
+        cg.add(var.set_lambda(value))
+    return var
+
+
+element_registry.register_element(
+    "dynamic_text", DYNAMIC_TEXT_ELEMENT_SCHEMA, dynamic_text_element_to_code
+)
+
+# Time Text Element
+
+TimeTextElement = shared.elements_ns.class_("TimeTextElement", TextElement)
+
+TIME_TEXT_ELEMENT_SCHEMA = TEXT_ELEMENT_SCHEMA.extend(
+    {
+        cv.GenerateID(CONF_ID): cv.declare_id(TimeTextElement),
+        cv.Required(CONF_TIME): cv.use_id(time.RealTimeClock),
+        cv.Optional(CONF_FORMAT, default="%H:%M:%S"): cv.string,
+    }
+)
+
+
+async def time_text_element_to_code(config, component, parent):
+    var = await text_element_to_code(config, component, parent)
+    if conf := config.get(CONF_TIME):
+        value = await cg.get_variable(conf)
+        cg.add(var.set_time(value))
+    if conf := config.get(CONF_FORMAT):
+        cg.add(var.set_format(conf))
+    return var
+
+
+element_registry.register_element(
+    "time_text", TIME_TEXT_ELEMENT_SCHEMA, time_text_element_to_code
+)

@@ -1,149 +1,420 @@
+import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.const import CONF_COUNT, CONF_ID
-from .color import COLOR_SCHEME_SCHEMA, CONF_COLOR_SCHEME
-from .element import Element, ELEMENT_SCHEMA
-from .shared import elements_ns
+from esphome.const import CONF_ID
 
-AnimationElement = elements_ns.class_("AnimationElement", Element)
+from . import shared
+from . import color
+from . import element
+from . import element_registry
 
-MetaballsAnimationElement = elements_ns.class_(
-    "MetaballsAnimationElement", AnimationElement
-)
-AuroraAnimationElement = elements_ns.class_("AuroraAnimationElement", AnimationElement)
-KaleidoscopeAnimationElement = elements_ns.class_(
-    "KaleidoscopeAnimationElement", AnimationElement
-)
-PlasmaAnimationElement = elements_ns.class_("PlasmaAnimationElement", AnimationElement)
-RipplesAnimationElement = elements_ns.class_(
-    "RipplesAnimationElement", AnimationElement
-)
-SpiralAnimationElement = elements_ns.class_("SpiralAnimationElement", AnimationElement)
-VoronoiAnimationElement = elements_ns.class_(
-    "VoronoiAnimationElement", AnimationElement
-)
-InterferenceAnimationElement = elements_ns.class_(
-    "InterferenceAnimationElement", AnimationElement
-)
-JuliaAnimationElement = elements_ns.class_("JuliaAnimationElement", AnimationElement)
-MatrixAnimationElement = elements_ns.class_("MatrixAnimationElement", AnimationElement)
-GradientAnimationElement = elements_ns.class_(
-    "GradientAnimationElement", AnimationElement
-)
-FireAnimationElement = elements_ns.class_("FireAnimationElement", AnimationElement)
-TunnelAnimationElement = elements_ns.class_("TunnelAnimationElement", AnimationElement)
-WaveAnimationElement = elements_ns.class_("WaveAnimationElement", AnimationElement)
-StarsAnimationElement = elements_ns.class_("StarsAnimationElement", AnimationElement)
-
-CONF_METABALLS_ANIMATION = "meatballs_animation"
-CONF_AURORA_ANIMATION = "aurora_animation"
-CONF_KALEIDOSCOPE_ANIMATION = "kaleidoscope_animation"
-CONF_PLASMA_ANIMATION = "plasma_animation"
-CONF_RIPPLES_ANIMATION = "ripples_animation"
-CONF_SPIRAL_ANIMATION = "spiral_animation"
-CONF_VORONOI_ANIMATION = "voronoi_animation"
-CONF_INTERFERENCE_ANIMATION = "interference_animation"
-CONF_JULIA_ANIMATION = "julia_animation"
-CONF_MATRIX_ANIMATION = "matrix_animation"
-CONF_GRADIENT_ANIMATION = "gradient_animation"
-CONF_FIRE_ANIMATION = "fire_animation"
-CONF_TUNNEL_ANIMATION = "tunnel_animation"
-CONF_WAVE_ANIMATION = "wave_animation"
-CONF_STARS_ANIMATION = "stars_animation"
-
+CONF_COLOR_SCHEME = "color_scheme"
+CONF_COOLING = "cooling"
+CONF_COUNT = "count"
 CONF_DENSITY = "density"
 CONF_LENGTH = "length"
 CONF_SPEED = "speed"
 CONF_STRENGTH = "strength"
-CONF_COOLING = "cooling"
 
-ANIMATION_ELEMENT_SCHEMA = ELEMENT_SCHEMA.extend(
+
+# Animation Element
+
+AnimationElement = shared.elements_ns.class_("AnimationElement", element.Element)
+
+ANIMATION_ELEMENT_SCHEMA = element.ELEMENT_SCHEMA.extend(
     {
-        cv.Required(CONF_COLOR_SCHEME): COLOR_SCHEME_SCHEMA,
+        cv.Required(CONF_COLOR_SCHEME): color.COLOR_SCHEME_SCHEMA,
         cv.Optional(CONF_SPEED, default=1.0): cv.float_range(min=0.0),
     }
 )
 
-TYPED_ANIMATION_ELEMENT_SCHEMAS = {
-    CONF_METABALLS_ANIMATION: ANIMATION_ELEMENT_SCHEMA.extend(
-        {
-            cv.GenerateID(CONF_ID): cv.declare_id(MetaballsAnimationElement),
-            cv.Optional(CONF_COUNT, default=3): cv.int_range(min=1),
-        }
-    ),
-    CONF_AURORA_ANIMATION: ANIMATION_ELEMENT_SCHEMA.extend(
-        {
-            cv.GenerateID(CONF_ID): cv.declare_id(AuroraAnimationElement),
-        }
-    ),
-    CONF_KALEIDOSCOPE_ANIMATION: ANIMATION_ELEMENT_SCHEMA.extend(
-        {
-            cv.GenerateID(CONF_ID): cv.declare_id(KaleidoscopeAnimationElement),
-        }
-    ),
-    CONF_PLASMA_ANIMATION: ANIMATION_ELEMENT_SCHEMA.extend(
-        {
-            cv.GenerateID(CONF_ID): cv.declare_id(PlasmaAnimationElement),
-        }
-    ),
-    CONF_RIPPLES_ANIMATION: ANIMATION_ELEMENT_SCHEMA.extend(
-        {
-            cv.GenerateID(CONF_ID): cv.declare_id(RipplesAnimationElement),
-        }
-    ),
-    CONF_SPIRAL_ANIMATION: ANIMATION_ELEMENT_SCHEMA.extend(
-        {
-            cv.GenerateID(CONF_ID): cv.declare_id(SpiralAnimationElement),
-        }
-    ),
-    CONF_VORONOI_ANIMATION: ANIMATION_ELEMENT_SCHEMA.extend(
-        {
-            cv.GenerateID(CONF_ID): cv.declare_id(VoronoiAnimationElement),
-            cv.Optional(CONF_COUNT, default=6): cv.int_range(min=1),
-        }
-    ),
-    CONF_INTERFERENCE_ANIMATION: ANIMATION_ELEMENT_SCHEMA.extend(
-        {
-            cv.GenerateID(CONF_ID): cv.declare_id(InterferenceAnimationElement),
-        }
-    ),
-    CONF_JULIA_ANIMATION: ANIMATION_ELEMENT_SCHEMA.extend(
-        {
-            cv.GenerateID(CONF_ID): cv.declare_id(JuliaAnimationElement),
-        }
-    ),
-    CONF_MATRIX_ANIMATION: ANIMATION_ELEMENT_SCHEMA.extend(
-        {
-            cv.GenerateID(CONF_ID): cv.declare_id(MatrixAnimationElement),
-            cv.Optional(CONF_LENGTH, default=10.0): cv.float_range(min=1.0),
-            cv.Optional(CONF_DENSITY, default=0.5): cv.float_range(min=0.0, max=1.0),
-        }
-    ),
-    CONF_GRADIENT_ANIMATION: ANIMATION_ELEMENT_SCHEMA.extend(
-        {
-            cv.GenerateID(CONF_ID): cv.declare_id(GradientAnimationElement),
-        }
-    ),
-    CONF_FIRE_ANIMATION: ANIMATION_ELEMENT_SCHEMA.extend(
-        {
-            cv.GenerateID(CONF_ID): cv.declare_id(FireAnimationElement),
-            cv.Optional(CONF_STRENGTH, default=0.9): cv.float_range(min=0.1, max=5.0),
-            cv.Optional(CONF_COOLING, default=0.12): cv.float_range(min=0.01, max=1.0),
-        }
-    ),
-    CONF_TUNNEL_ANIMATION: ANIMATION_ELEMENT_SCHEMA.extend(
-        {
-            cv.GenerateID(CONF_ID): cv.declare_id(TunnelAnimationElement),
-        }
-    ),
-    CONF_WAVE_ANIMATION: ANIMATION_ELEMENT_SCHEMA.extend(
-        {
-            cv.GenerateID(CONF_ID): cv.declare_id(WaveAnimationElement),
-        }
-    ),
-    CONF_STARS_ANIMATION: ANIMATION_ELEMENT_SCHEMA.extend(
-        {
-            cv.GenerateID(CONF_ID): cv.declare_id(StarsAnimationElement),
-            cv.Optional(CONF_DENSITY, default=0.02): cv.float_range(min=0.0, max=1.0),
-        }
-    ),
-}
+
+async def animation_element_to_code(config, component, parent):
+    var = await element.element_to_code(config, component, parent)
+    if conf := config.get(CONF_COLOR_SCHEME):
+        value = await color.color_scheme_to_code(conf)
+        cg.add(var.set_color_scheme(value))
+    if conf := config.get(CONF_SPEED):
+        cg.add(var.set_speed(conf))
+    return var
+
+
+# Metaballs Animation
+
+MetaballsAnimationElement = shared.elements_ns.class_(
+    "MetaballsAnimationElement", AnimationElement
+)
+
+MEATBALLS_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
+    {
+        cv.GenerateID(CONF_ID): cv.declare_id(MetaballsAnimationElement),
+        cv.Optional(CONF_COUNT, default=3): cv.int_range(min=1),
+    }
+)
+
+
+async def metaballs_animation_to_code(config, component, parent):
+    var = await animation_element_to_code(config, component, parent)
+    if conf := config.get(CONF_COUNT):
+        cg.add(var.set_count(conf))
+    return var
+
+
+element_registry.register_element(
+    "meatballs_animation",
+    MEATBALLS_ANIMATION_ELEMENT_SCHEMA,
+    metaballs_animation_to_code,
+)
+
+# Aurora Animation
+
+AuroraAnimationElement = shared.elements_ns.class_(
+    "AuroraAnimationElement", AnimationElement
+)
+
+AURORA_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
+    {
+        cv.GenerateID(CONF_ID): cv.declare_id(AuroraAnimationElement),
+    }
+)
+
+
+async def aurora_animation_to_code(config, component, parent):
+    var = await animation_element_to_code(config, component, parent)
+    return var
+
+
+element_registry.register_element(
+    "aurora_animation",
+    AURORA_ANIMATION_ELEMENT_SCHEMA,
+    aurora_animation_to_code,
+)
+
+# Kaleidoscope Animation
+
+KaleidoscopeAnimationElement = shared.elements_ns.class_(
+    "KaleidoscopeAnimationElement", AnimationElement
+)
+
+KALEIDOSCOPE_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
+    {
+        cv.GenerateID(CONF_ID): cv.declare_id(KaleidoscopeAnimationElement),
+    }
+)
+
+
+async def kaleidoscope_animation_to_code(config, component, parent):
+    var = await animation_element_to_code(config, component, parent)
+    return var
+
+
+element_registry.register_element(
+    "kaleidoscope_animation",
+    KALEIDOSCOPE_ANIMATION_ELEMENT_SCHEMA,
+    kaleidoscope_animation_to_code,
+)
+
+# Plasma Animation
+
+PlasmaAnimationElement = shared.elements_ns.class_(
+    "PlasmaAnimationElement", AnimationElement
+)
+
+PLASMA_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
+    {
+        cv.GenerateID(CONF_ID): cv.declare_id(PlasmaAnimationElement),
+    }
+)
+
+
+async def plasma_animation_to_code(config, component, parent):
+    var = await animation_element_to_code(config, component, parent)
+    return var
+
+
+element_registry.register_element(
+    "plasma_animation",
+    PLASMA_ANIMATION_ELEMENT_SCHEMA,
+    plasma_animation_to_code,
+)
+
+# Ripples Animation
+
+RipplesAnimationElement = shared.elements_ns.class_(
+    "RipplesAnimationElement", AnimationElement
+)
+
+RIPPLES_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
+    {
+        cv.GenerateID(CONF_ID): cv.declare_id(RipplesAnimationElement),
+    }
+)
+
+
+async def ripples_animation_to_code(config, component, parent):
+    var = await animation_element_to_code(config, component, parent)
+    return var
+
+
+element_registry.register_element(
+    "ripples_animation",
+    RIPPLES_ANIMATION_ELEMENT_SCHEMA,
+    ripples_animation_to_code,
+)
+
+# Spiral Animation
+
+SpiralAnimationElement = shared.elements_ns.class_(
+    "SpiralAnimationElement", AnimationElement
+)
+
+SPIRAL_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
+    {
+        cv.GenerateID(CONF_ID): cv.declare_id(SpiralAnimationElement),
+    }
+)
+
+
+async def spiral_animation_to_code(config, component, parent):
+    var = await animation_element_to_code(config, component, parent)
+    return var
+
+
+element_registry.register_element(
+    "spiral_animation",
+    SPIRAL_ANIMATION_ELEMENT_SCHEMA,
+    spiral_animation_to_code,
+)
+
+# Voronoi Animation
+
+VoronoiAnimationElement = shared.elements_ns.class_(
+    "VoronoiAnimationElement", AnimationElement
+)
+
+VORONOI_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
+    {
+        cv.GenerateID(CONF_ID): cv.declare_id(VoronoiAnimationElement),
+        cv.Optional(CONF_COUNT, default=6): cv.int_range(min=1),
+    }
+)
+
+
+async def voronoi_animation_to_code(config, component, parent):
+    var = await animation_element_to_code(config, component, parent)
+    if conf := config.get(CONF_COUNT):
+        cg.add(var.set_count(conf))
+    return var
+
+
+element_registry.register_element(
+    "voronoi_animation",
+    VORONOI_ANIMATION_ELEMENT_SCHEMA,
+    voronoi_animation_to_code,
+)
+
+# Interference Animation
+
+InterferenceAnimationElement = shared.elements_ns.class_(
+    "InterferenceAnimationElement", AnimationElement
+)
+
+INTERFERENCE_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
+    {
+        cv.GenerateID(CONF_ID): cv.declare_id(InterferenceAnimationElement),
+    }
+)
+
+
+async def interference_animation_to_code(config, component, parent):
+    var = await animation_element_to_code(config, component, parent)
+    return var
+
+
+element_registry.register_element(
+    "interference_animation",
+    INTERFERENCE_ANIMATION_ELEMENT_SCHEMA,
+    interference_animation_to_code,
+)
+
+# Julia Animation
+
+JuliaAnimationElement = shared.elements_ns.class_(
+    "JuliaAnimationElement", AnimationElement
+)
+
+JULIA_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
+    {
+        cv.GenerateID(CONF_ID): cv.declare_id(JuliaAnimationElement),
+    }
+)
+
+
+async def julia_animation_to_code(config, component, parent):
+    var = await animation_element_to_code(config, component, parent)
+    return var
+
+
+element_registry.register_element(
+    "julia_animation",
+    JULIA_ANIMATION_ELEMENT_SCHEMA,
+    julia_animation_to_code,
+)
+
+# Matrix Animation
+
+MatrixAnimationElement = shared.elements_ns.class_(
+    "MatrixAnimationElement", AnimationElement
+)
+
+MATRIX_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
+    {
+        cv.GenerateID(CONF_ID): cv.declare_id(MatrixAnimationElement),
+        cv.Optional(CONF_LENGTH, default=10.0): cv.float_range(min=1.0),
+        cv.Optional(CONF_DENSITY, default=0.5): cv.float_range(min=0.0, max=1.0),
+    }
+)
+
+
+async def matrix_animation_to_code(config, component, parent):
+    var = await animation_element_to_code(config, component, parent)
+    if conf := config.get(CONF_LENGTH):
+        cg.add(var.set_length(conf))
+    if conf := config.get(CONF_DENSITY):
+        cg.add(var.set_density(conf))
+    return var
+
+
+element_registry.register_element(
+    "matrix_animation",
+    MATRIX_ANIMATION_ELEMENT_SCHEMA,
+    matrix_animation_to_code,
+)
+
+# Gradient Animation
+
+GradientAnimationElement = shared.elements_ns.class_(
+    "GradientAnimationElement", AnimationElement
+)
+
+GRADIENT_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
+    {
+        cv.GenerateID(CONF_ID): cv.declare_id(GradientAnimationElement),
+    }
+)
+
+
+async def gradient_animation_to_code(config, component, parent):
+    var = await animation_element_to_code(config, component, parent)
+    return var
+
+
+element_registry.register_element(
+    "gradient_animation",
+    GRADIENT_ANIMATION_ELEMENT_SCHEMA,
+    gradient_animation_to_code,
+)
+
+# Fire Animation
+
+FireAnimationElement = shared.elements_ns.class_(
+    "FireAnimationElement", AnimationElement
+)
+
+FIRE_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
+    {
+        cv.GenerateID(CONF_ID): cv.declare_id(FireAnimationElement),
+        cv.Optional(CONF_STRENGTH, default=2.0): cv.float_range(min=0.1, max=5.0),
+        cv.Optional(CONF_COOLING, default=0.12): cv.float_range(min=0.01, max=1.0),
+    }
+)
+
+
+async def fire_animation_to_code(config, component, parent):
+    var = await animation_element_to_code(config, component, parent)
+    if conf := config.get(CONF_STRENGTH):
+        cg.add(var.set_strength(conf))
+    if conf := config.get(CONF_COOLING):
+        cg.add(var.set_cooling(conf))
+    return var
+
+
+element_registry.register_element(
+    "fire_animation",
+    FIRE_ANIMATION_ELEMENT_SCHEMA,
+    fire_animation_to_code,
+)
+
+# Tunnel Animation
+
+TunnelAnimationElement = shared.elements_ns.class_(
+    "TunnelAnimationElement", AnimationElement
+)
+
+TUNNEL_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
+    {
+        cv.GenerateID(CONF_ID): cv.declare_id(TunnelAnimationElement),
+    }
+)
+
+
+async def tunnel_animation_to_code(config, component, parent):
+    var = await animation_element_to_code(config, component, parent)
+    return var
+
+
+element_registry.register_element(
+    "tunnel_animation",
+    TUNNEL_ANIMATION_ELEMENT_SCHEMA,
+    tunnel_animation_to_code,
+)
+
+# Wave Animation
+
+WaveAnimationElement = shared.elements_ns.class_(
+    "WaveAnimationElement", AnimationElement
+)
+
+WAVE_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
+    {
+        cv.GenerateID(CONF_ID): cv.declare_id(WaveAnimationElement),
+    }
+)
+
+
+async def wave_animation_to_code(config, component, parent):
+    var = await animation_element_to_code(config, component, parent)
+    return var
+
+
+element_registry.register_element(
+    "wave_animation",
+    WAVE_ANIMATION_ELEMENT_SCHEMA,
+    wave_animation_to_code,
+)
+
+# Stars Animation
+
+StarsAnimationElement = shared.elements_ns.class_(
+    "StarsAnimationElement", AnimationElement
+)
+
+STARS_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
+    {
+        cv.GenerateID(CONF_ID): cv.declare_id(StarsAnimationElement),
+        cv.Optional(CONF_DENSITY, default=0.02): cv.float_range(min=0.0, max=1.0),
+    }
+)
+
+
+async def stars_animation_to_code(config, component, parent):
+    var = await animation_element_to_code(config, component, parent)
+    if conf := config.get(CONF_DENSITY):
+        cg.add(var.set_density(conf))
+    return var
+
+
+element_registry.register_element(
+    "stars_animation",
+    STARS_ANIMATION_ELEMENT_SCHEMA,
+    stars_animation_to_code,
+)

@@ -5,7 +5,7 @@ import esphome.config_validation as cv
 import esphome.core as core
 from esphome.components import color
 from esphome.const import CONF_COLOR
-from .element import elements_ns
+from . import shared
 
 
 def color_validation(value):
@@ -86,21 +86,21 @@ COLOR_SCHEMA = cv.Any(
 )
 
 
-StaticColorScheme = elements_ns.class_("StaticColorScheme")
-GradientColorScheme = elements_ns.class_("GradientColorScheme")
-SequenceColorScheme = elements_ns.class_("SequenceColorScheme")
-ModifierColorScheme = elements_ns.class_("ModifierColorScheme")
-MirrorColorScheme = elements_ns.class_("MirrorColorScheme")
-ColorScheme = elements_ns.class_("ColorScheme")
+StaticColorScheme = shared.elements_ns.class_("StaticColorScheme")
+GradientColorScheme = shared.elements_ns.class_("GradientColorScheme")
+SequenceColorScheme = shared.elements_ns.class_("SequenceColorScheme")
+ModifierColorScheme = shared.elements_ns.class_("ModifierColorScheme")
+MirrorColorScheme = shared.elements_ns.class_("MirrorColorScheme")
+ColorScheme = shared.elements_ns.class_("ColorScheme")
 
-make_monochromatic = elements_ns.namespace("").operation("make_monochromatic")
-make_analogous = elements_ns.namespace("").operation("make_analogous")
-make_complementary = elements_ns.namespace("").operation("make_complementary")
-make_split_complementary = elements_ns.namespace("").operation(
+make_monochromatic = shared.elements_ns.namespace("").operation("make_monochromatic")
+make_analogous = shared.elements_ns.namespace("").operation("make_analogous")
+make_complementary = shared.elements_ns.namespace("").operation("make_complementary")
+make_split_complementary = shared.elements_ns.namespace("").operation(
     "make_split_complementary"
 )
-make_triadic = elements_ns.namespace("make_triadic")
-make_square = elements_ns.namespace("").operation("make_square")
+make_triadic = shared.elements_ns.namespace("").operation("make_triadic")
+make_square = shared.elements_ns.namespace("").operation("make_square")
 
 CONF_COLOR_SCHEME = "color_scheme"
 
@@ -247,86 +247,78 @@ async def _hsv_from_color(config):
 
 
 async def color_scheme_to_code(config):
-    scheme_type = config["type"]
+    scheme_type = config.get("type")
 
     # -- Primitives --
     if scheme_type == "static":
         var = cg.new_Pvariable(core.ID(_new_id("cs_static"), True, StaticColorScheme))
-        cg.add(var.set_color(await color_to_code(config[CONF_COLOR])))
+        cg.add(var.set_color(await color_to_code(config.get(CONF_COLOR))))
         return var
 
     elif scheme_type == "gradient":
         var = cg.new_Pvariable(core.ID(_new_id("cs_grad"), True, GradientColorScheme))
-        cg.add(var.set_from(await color_to_code(config[CONF_CS_FROM])))
-        cg.add(var.set_to(await color_to_code(config[CONF_CS_TO])))
+        cg.add(var.set_from(await color_to_code(config.get(CONF_CS_FROM))))
+        cg.add(var.set_to(await color_to_code(config.get(CONF_CS_TO))))
         return var
 
     elif scheme_type == "mirror":
         var = cg.new_Pvariable(core.ID(_new_id("cs_mirror"), True, MirrorColorScheme))
-        child = await color_scheme_to_code(config[CONF_CS_SCHEME])
+        child = await color_scheme_to_code(config.get(CONF_CS_SCHEME))
         cg.add(var.set_scheme(child))
         return var
 
     elif scheme_type == "sequence":
         var = cg.new_Pvariable(core.ID(_new_id("cs_seq"), True, SequenceColorScheme))
-        for child_config in config[CONF_CS_SCHEMES]:
+        for child_config in config.get(CONF_CS_SCHEMES):
             child = await color_scheme_to_code(child_config)
             cg.add(var.add_scheme(child))
         return var
 
     elif scheme_type == "modifier":
         var = cg.new_Pvariable(core.ID(_new_id("cs_mod"), True, ModifierColorScheme))
-        child = await color_scheme_to_code(config[CONF_CS_SCHEME])
+        child = await color_scheme_to_code(config.get(CONF_CS_SCHEME))
         cg.add(var.set_scheme(child))
-        cg.add(var.set_hue_offset(config[CONF_CS_HUE_OFFSET]))
-        cg.add(var.set_saturation_scale(config[CONF_CS_SATURATION_SCALE]))
-        cg.add(var.set_value_scale(config[CONF_CS_VALUE_SCALE]))
+        cg.add(var.set_hue_offset(config.get(CONF_CS_HUE_OFFSET)))
+        cg.add(var.set_saturation_scale(config.get(CONF_CS_SATURATION_SCALE)))
+        cg.add(var.set_value_scale(config.get(CONF_CS_VALUE_SCALE)))
         return var
 
     # -- Palette shorthands (call C++ factory functions directly) --
     # We extract actual H/S/V values in Python so we can call the C++ free functions.
-    raw_color = config[CONF_COLOR]
-    if isinstance(raw_color, tuple):
-        r, g, b = raw_color[0] / 255.0, raw_color[1] / 255.0, raw_color[2] / 255.0
-    else:
-        # It's an ID reference to a color component — fall back to passing it as Color.
-        # In this case we generate set_color calls instead of set_from_hsv.
-        r, g, b = 1.0, 0.0, 0.0  # placeholder; handled below via color ref path
-    h_f, s_f, v_f = colorsys.rgb_to_hsv(r, g, b)
-    h_deg = h_f * 360.0
+    h_deg, s_f, v_f = await _hsv_from_color(config.get(CONF_COLOR))
 
     if scheme_type == "monochromatic":
-        min_v = config[CONF_CS_MIN_BRIGHTNESS]
+        min_v = config.get(CONF_CS_MIN_BRIGHTNESS)
         return cg.RawExpression(
             f"esphome::elements::make_monochromatic({h_deg:.3f}f, {s_f:.3f}f, {v_f:.3f}f, {min_v:.3f}f)"
         )
 
     elif scheme_type == "analogous":
-        sweep = config[CONF_CS_SWEEP]
+        sweep = config.get(CONF_CS_SWEEP)
         return cg.RawExpression(
             f"esphome::elements::make_analogous({h_deg:.3f}f, {s_f:.3f}f, {v_f:.3f}f, {sweep:.3f}f)"
         )
 
     elif scheme_type == "complementary":
-        sweep = config[CONF_CS_SWEEP]
+        sweep = config.get(CONF_CS_SWEEP)
         return cg.RawExpression(
             f"esphome::elements::make_complementary({h_deg:.3f}f, {s_f:.3f}f, {v_f:.3f}f, {sweep:.3f}f)"
         )
 
     elif scheme_type == "split_complementary":
-        sweep = config[CONF_CS_SWEEP]
+        sweep = config.get(CONF_CS_SWEEP)
         return cg.RawExpression(
             f"esphome::elements::make_split_complementary({h_deg:.3f}f, {s_f:.3f}f, {v_f:.3f}f, {sweep:.3f}f)"
         )
 
     elif scheme_type == "triadic":
-        sweep = config[CONF_CS_SWEEP]
+        sweep = config.get(CONF_CS_SWEEP)
         return cg.RawExpression(
             f"esphome::elements::make_triadic({h_deg:.3f}f, {s_f:.3f}f, {v_f:.3f}f, {sweep:.3f}f)"
         )
 
     elif scheme_type == "square":
-        sweep = config[CONF_CS_SWEEP]
+        sweep = config.get(CONF_CS_SWEEP)
         return cg.RawExpression(
             f"esphome::elements::make_square({h_deg:.3f}f, {s_f:.3f}f, {v_f:.3f}f, {sweep:.3f}f)"
         )

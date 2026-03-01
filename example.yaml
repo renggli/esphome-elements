@@ -601,71 +601,126 @@ elements:
           hour_hand:
             color: gray_300
       # Animations
-      # - type: meatballs_animation
-      #   color_scheme:
-      #     type: triadic
-      #     color: "#FF5722"
-      # - type: aurora_animation
-      #   color_scheme:
-      #     type: analogous
-      #     color: "#4CAF50"
-      # - type: kaleidoscope_animation
-      #   color_scheme:
-      #     type: complementary
-      #     color: "#2196F3"
-      # - type: plasma_animation
-      #   color_scheme:
-      #     type: analogous
-      #     color: "#9C27B0"
-      #     sweep: 60.0
-      # - type: ripples_animation
-      #   color_scheme:
-      #     type: split_complementary
-      #     color: "#00BCD4"
-      # - type: spiral_animation
-      #   color_scheme:
-      #     type: triadic
-      #     color: "#FFEB3B"
-      # - type: voronoi_animation
-      #   color_scheme:
-      #     type: triadic
-      #     color: "#E91E63"
-      # - type: interference_animation
-      #   color_scheme:
-      #     type: analogous
-      #     color: "#673AB7"
-      #     sweep: 60.0
-      # - type: julia_animation
-      #   color_scheme:
-      #     type: complementary
-      #     color: "#ff0000"
-      # - type: matrix_animation
-      #   color_scheme:
-      #     type: monochromatic
-      #     color: "#00FF41"
-      #     min_brightness: 0.0
-      # - type: fire_animation
-      #   color_scheme:
-      #     type: sequence
-      #     schemes:
-      #       - type: static
-      #         color: "#212121"
-      #       - type: gradient
-      #         from: "#B71C1C"
-      #         to: "#FF6F00"
-      #       - type: static
-      #         color: "#FFEB3B"
-      # - type: tunnel_animation
-      #   color_scheme:
-      #     type: triadic
-      #     color: "#AA00FF"
-      # - type: wave_animation
-      #   color_scheme:
-      #     type: analogous
-      #     color: "#00E5FF"
-      # - type: stars_animation
-      #   color_scheme:
-      #     type: analogous
-      #     color: "#90CAF9"
-      #     sweep: 80.0
-
+      - type: timeout
+        duration: 10s
+        element:
+          type: random
+          elements:
+            - type: timeout
+              duration: 10s
+              element:
+                type: meatballs_animation
+                color_scheme:
+                  type: triadic
+                  color: "#FF5722"
+            - type: timeout
+              duration: 10s
+              element:
+                type: aurora_animation
+                color_scheme:
+                  type: sequence
+                  schemes:
+                    - type: static
+                      color: "#000000"
+                    - type: gradient
+                      from: "#000000"
+                      to: "#4CAF50"
+                    - type: gradient
+                      from: "#4CAF50"
+                      to: "#00FF41"
+            - type: timeout
+              duration: 10s
+              element:
+                type: kaleidoscope_animation
+                color_scheme:
+                  type: complementary
+                  color: "#2196F3"
+            - type: timeout
+              duration: 10s
+              element:
+                type: plasma_animation
+                color_scheme:
+                  type: analogous
+                  color: "#9C27B0"
+                  sweep: 60.0
+            - type: timeout
+              duration: 10s
+              element:
+                type: ripples_animation
+                color_scheme:
+                  type: gradient
+                  to: "#40E0D0"
+                  from: "#010810"
+            - type: timeout
+              duration: 10s
+              element:
+                type: spiral_animation
+                color_scheme:
+                  type: triadic
+                  color: "#FFEB3B"
+            - type: timeout
+              duration: 10s
+              element:
+                type: voronoi_animation
+                color_scheme:
+                  type: triadic
+                  color: "#E91E63"
+            - type: timeout
+              duration: 10s
+              element:
+                type: interference_animation
+                color_scheme:
+                  type: analogous
+                  color: "#673AB7"
+                  sweep: 60.0
+            - type: timeout
+              duration: 10s
+              element:
+                type: julia_animation
+                color_scheme:
+                  type: complementary
+                  color: "#ff0000"
+            - type: timeout
+              duration: 10s
+              element:
+                type: matrix_animation
+                color_scheme:
+                  type: monochromatic
+                  color: "#00FF41"
+                  min_brightness: 0.0
+            - type: timeout
+              duration: 10s
+              element:
+                type: fire_animation
+                color_scheme:
+                  type: sequence
+                  schemes:
+                    - type: static
+                      color: "#000000"
+                    - type: gradient
+                      from: "#A01010"
+                      to: "#FF6000"
+                    - type: static
+                      color: "#FFF000"
+            - type: timeout
+              duration: 10s
+              element:
+                type: tunnel_animation
+                color_scheme:
+                  type: triadic
+                  color: "#AA00FF"
+            - type: timeout
+              duration: 10s
+              element:
+                type: wave_animation
+                color_scheme:
+                  type: analogous
+                  color: "#00E5FF"
+            - type: timeout
+              duration: 10s
+              element:
+                type: stars_animation
+                color_scheme:
+                  type: gradient
+                  from: "#000000"
+                  to: "#90CAF9"

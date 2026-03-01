@@ -1,4 +1,5 @@
 #include "animation_element.h"
+#include "esphome/core/color.h"
 #include "color.h"
 #include <algorithm>
 #include <cmath>
@@ -8,6 +9,13 @@ namespace esphome::elements {
 namespace {
 const float PI_F = (float) M_PI;
 const float TWO_PI_F = 2.0f * PI_F;
+
+static GradientColorScheme *default_color_scheme = []() {
+  auto *scheme = new GradientColorScheme();
+  scheme->set_from(Color(0, 0, 0));
+  scheme->set_to(Color(255, 255, 255));
+  return scheme;
+}();
 
 uint32_t hash(uint32_t v) {
   v ^= v >> 16;
@@ -22,18 +30,17 @@ float noise(int x, int y, uint32_t seed) {
   uint32_t val = hash(seed + (y * 10000) + x);
   return (val % 1000) / 1000.0f;
 }
+float fract(float v) { return v - std::floor(v); }
 }  // namespace
 
 void AnimationElement::draw(display::Display &display) {
+  if (this->color_scheme_ == nullptr) {
+    this->color_scheme_ = default_color_scheme;
+  }
   this->draw(display, display.get_width(), display.get_height(), this->get_component().get_current_ms() * this->speed_);
 }
 
-Color AnimationElement::get_gradient_color_(float p) {
-  if (color_scheme_ != nullptr) {
-    return color_scheme_->get_color(std::clamp(p, 0.0f, 1.0f));
-  }
-  return Color(0, 0, 0);
-}
+Color AnimationElement::get_gradient_color_(float p) { return color_scheme_->get_color(std::clamp(p, 0.0f, 1.0f)); }
 
 void MetaballsAnimationElement::draw(display::Display &display, int width, int height, uint32_t time) {
   float t = time / 5000.0f;
@@ -103,35 +110,45 @@ void PlasmaAnimationElement::draw(display::Display &display, int width, int heig
   float t = time / 5000.0f;
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
-      float v1 = std::sin(x / 10.0f + t * TWO_PI_F);
-      float v2 = std::sin(y / 8.0f + t * TWO_PI_F);
-      float v3 = std::sin((x + y) / 12.0f + t * TWO_PI_F);
-      float v4 = std::sin(
-          std::sqrt((x - width / 2.0f) * (x - width / 2.0f) + (y - height / 2.0f) * (y - height / 2.0f)) / 8.0f +
-          t * TWO_PI_F);
-      float val = (v1 + v2 + v3 + v4) / 4.0f;
-      val = (val + 1.0f) / 2.0f;
+      float nx = x / (float) width;
+      float ny = y / (float) height;
+      float val = std::sin(nx * 10.0f + t * TWO_PI_F);
+      val += std::sin(10.0f * (nx * std::sin(t * PI_F) + ny * std::cos(t * TWO_PI_F * 0.5f)) + t * TWO_PI_F);
+      float cx = nx + 0.5f * std::sin(t * TWO_PI_F * 0.33f);
+      float cy = ny + 0.5f * std::cos(t * TWO_PI_F * 0.5f);
+      val += std::sin(std::sqrt(128.0f * (cx * cx + cy * cy) + 1.0f) + t * TWO_PI_F);
+      val = (val / 3.0f + 1.0f) / 2.0f;
       display.draw_pixel_at(x, y, this->get_gradient_color_(val));
     }
   }
 }
 
 void RipplesAnimationElement::draw(display::Display &display, int width, int height, uint32_t time) {
-  float t = time / 5000.0f;
-  for (int y = 0; y < height; ++y) {
-    for (int x = 0; x < width; ++x) {
-      // Two sources orbiting in opposite directions — their interference creates rich patterns
-      float cx1 = width / 2.0f + std::sin(t * TWO_PI_F) * (width / 4.0f);
-      float cy1 = height / 2.0f + std::cos(t * TWO_PI_F) * (height / 4.0f);
-      float cx2 = width / 2.0f + std::sin(t * TWO_PI_F + PI_F) * (width / 4.0f);
-      float cy2 = height / 2.0f + std::cos(t * TWO_PI_F * 0.7f) * (height / 4.0f);
-      float d1 = std::sqrt((x - cx1) * (x - cx1) + (y - cy1) * (y - cy1));
-      float d2 = std::sqrt((x - cx2) * (x - cx2) + (y - cy2) * (y - cy2));
-      float v1 = std::sin(d1 / 2.0f - t * 4.0f * PI_F);
-      float v2 = std::sin(d2 / 2.0f - t * 4.0f * PI_F + 0.8f);
-      float val = (v1 + v2) / 2.0f;
-      val = (val + 1.0f) / 2.0f;
-      display.draw_pixel_at(x, y, this->get_gradient_color_(val));
+  float t = time / 1000.0f;
+  display.clear();
+  // Simulate raindrops expanding
+  for (int i = 0; i < this->count_; i++) {
+    float burst_t = fract(t * 0.2f + i * (1.0f / this->count_));
+    float bx = 0.1f + 0.8f * noise(i, 0, 123);
+    float by = 0.1f + 0.8f * noise(i, 1, 123);
+    float cx = bx * width;
+    float cy = by * height;
+
+    float max_radius = std::max(width, height) * 0.6f;
+    float radius = burst_t * max_radius;
+    float fade = 1.0f - burst_t;
+
+    for (int y = 0; y < height; ++y) {
+      for (int x = 0; x < width; ++x) {
+        float dx = x - cx;
+        float dy = y - cy;
+        float dist = std::sqrt(dx * dx + dy * dy);
+        float ring = std::exp(-std::pow((dist - radius) / 1.5f, 2.0f));
+        if (ring > 0.01f) {
+          float current_val = ring * fade;
+          display.draw_pixel_at(x, y, this->get_gradient_color_(current_val));
+        }
+      }
     }
   }
 }
@@ -188,16 +205,17 @@ void InterferenceAnimationElement::draw(display::Display &display, int width, in
   float t = time / 5000.0f;
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
-      // Both sources orbit slowly so the interference pattern rotates and morphs
-      float cx1 = width * (0.5f + 0.3f * std::sin(t * TWO_PI_F));
-      float cy1 = height * (0.5f + 0.3f * std::cos(t * TWO_PI_F * 0.7f));
-      float cx2 = width * (0.5f - 0.3f * std::sin(t * TWO_PI_F + 1.0f));
-      float cy2 = height * (0.5f - 0.3f * std::cos(t * TWO_PI_F * 0.7f + 1.0f));
-      float d1 = std::sqrt((x - cx1) * (x - cx1) + (y - cy1) * (y - cy1));
-      float d2 = std::sqrt((x - cx2) * (x - cx2) + (y - cy2) * (y - cy2));
-      float v1 = std::sin(d1 / 1.5f - t * TWO_PI_F);
-      float v2 = std::sin(d2 / 1.5f - t * TWO_PI_F);
-      float val = (v1 * v2 + 1.0f) / 2.0f;
+      // Configurable number of wave sources create complex moiré patterns
+      float v = 0;
+      for (int i = 0; i < this->count_; i++) {
+        float phase = i * TWO_PI_F / (float) this->count_;
+        float cx = width * (0.5f + 0.35f * std::sin(t * TWO_PI_F * 0.2f + phase));
+        float cy = height * (0.5f + 0.35f * std::cos(t * TWO_PI_F * 0.3f + phase));
+        float d = std::sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy));
+        // Lower spatial frequency (0.4f instead of 1.5f) for less noise on 32x32
+        v += std::sin(d * 0.4f - t * TWO_PI_F);
+      }
+      float val = (v / (float) this->count_ + 1.0f) / 2.0f;
       display.draw_pixel_at(x, y, this->get_gradient_color_(val));
     }
   }
@@ -269,36 +287,40 @@ void FireAnimationElement::draw(display::Display &display, int width, int height
     this->heat_buffer_.assign(width * height, 0.0f);
   }
 
-  // Cooling factor: how quickly the fire dies down
-  float cooling = this->cooling_;
-  // Strength: how much heat is carried upward
-  float strength = this->strength_;
+  // Use a second buffer for the next state to avoid using already-cooled pixels in the same pass
+  static std::vector<float> next_heat;
+  if (next_heat.size() != width * height) {
+    next_heat.assign(width * height, 0.0f);
+  }
 
-  // Propagate heat upward with diffusion and cooling
-  for (int y = 0; y < height - 2; ++y) {
-    for (int x = 0; x < width; ++x) {
-      int idx = y * width + x;
-      // Average the heat from below (diffusion)
-      float h1 = this->heat_buffer_[(y + 1) * width + std::max(0, x - 1)];
-      float h2 = this->heat_buffer_[(y + 1) * width + x];
-      float h3 = this->heat_buffer_[(y + 1) * width + std::min(width - 1, x + 1)];
-      float h4 = this->heat_buffer_[(y + 2) * width + x];
+  // Seed the bottom row with high heat and a flickering source
+  float t = time / 200.0f;
+  for (int x = 0; x < width; x++) {
+    next_heat[(height - 1) * width + x] = 0.5f + 0.5f * noise(x, (int) t, 123);
+  }
 
-      float h = (h1 + h2 + h3 + h4) / 4.0f * strength;
-      this->heat_buffer_[idx] = std::max(0.0f, h - cooling);
+  // Propagate heat upwards with diffusion and cooling
+  for (int y = 0; y < height - 1; y++) {
+    for (int x = 0; x < width; x++) {
+      // Average 3 cells below to diffuse upwards
+      float h = 0;
+      h += this->heat_buffer_[(y + 1) * width + std::max(0, x - 1)];
+      h += this->heat_buffer_[(y + 1) * width + x];
+      h += this->heat_buffer_[(y + 1) * width + std::min(width - 1, x + 1)];
 
-      // Draw with a slight curve to push the hottest colors to the very bottom
-      display.draw_pixel_at(x, y, this->get_gradient_color_(std::pow(this->heat_buffer_[idx], 1.2f)));
+      h = (h / 3.0f) * this->strength_;
+
+      // Random jitter for the cooling factor makes it look "wispy"
+      float jitter = 0.8f + 0.4f * noise(x, y, (int) (time / 100));
+      next_heat[y * width + x] = std::clamp(h - (this->cooling_ * jitter), 0.0f, 1.0f);
     }
   }
 
-  // Seed bottom rows with noise
-  float t = time / 400.0f;
-  for (int y = height - 2; y < height; ++y) {
-    for (int x = 0; x < width; ++x) {
-      int idx = y * width + x;
-      this->heat_buffer_[idx] = 0.6f + 0.4f * noise(x, y + (int) t, (uint32_t) (t * 100));
-      display.draw_pixel_at(x, y, this->get_gradient_color_(this->heat_buffer_[idx]));
+  this->heat_buffer_ = next_heat;
+
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      display.draw_pixel_at(x, y, this->get_gradient_color_(this->heat_buffer_[y * width + x]));
     }
   }
 }
@@ -309,32 +331,29 @@ void TunnelAnimationElement::draw(display::Display &display, int width, int heig
     for (int x = 0; x < width; ++x) {
       float dx = x - width / 2.0f;
       float dy = y - height / 2.0f;
-      // Minimum dist of 1.0 prevents huge depth values at center, but 1.5 was too flat
-      float dist = std::sqrt(dx * dx + dy * dy) + 1.2f;
-      float angle = std::atan2(dy, dx) / TWO_PI_F;
-      // Increased depth constant for more rings/perspective
-      float depth = 8.0f / dist;
-      float stripe = std::fmod(depth - t * 2.0f, 1.0f);
-      float twist = std::fmod(angle + depth * 0.25f, 1.0f);
-      float val = std::fmod(std::abs(stripe) + std::abs(twist), 1.0f);
+      float dist = std::sqrt(dx * dx + dy * dy) + 0.1f;
+      // Use fract and 0.5 offset to avoid the atan2 jump singularity
+      float angle = fract(std::atan2(dy, dx) / TWO_PI_F);
+      float depth = 10.0f / dist;
+
+      float stripe = fract(depth - t * 2.0f);
+      float twist = fract(angle + depth * 0.25f);
+      float val = fract(stripe + twist);
       display.draw_pixel_at(x, y, this->get_gradient_color_(val));
     }
   }
 }
 
 void WaveAnimationElement::draw(display::Display &display, int width, int height, uint32_t time) {
-  float t = time / 4000.0f;
+  float t = time / 3000.0f;
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
-      float nx = x / (float) width - 0.5f;
-      float ny = y / (float) height - 0.5f;
-      // Increased spatial frequencies to show more cycles on 32x32
-      float v = 0;
-      v += std::sin(nx * 12.0f + t * TWO_PI_F);
-      v += std::sin(ny * 10.0f + t * TWO_PI_F * 0.7f);
-      v += std::sin((nx + ny) * 8.0f + t * TWO_PI_F * 1.3f);
-      v += std::sin(std::sqrt(nx * nx + ny * ny) * 15.0f - t * TWO_PI_F);
-      float val = (v / 4.0f + 1.0f) / 2.0f;
+      float nx = x / (float) width;
+      float ny = y / (float) height;
+      // Direct, structured waves
+      float v = std::sin(nx * 15.0f + t * TWO_PI_F);
+      v += std::sin(ny * 10.0f - t * TWO_PI_F * 0.5f);
+      float val = (v / 2.0f + 1.0f) / 2.0f;
       display.draw_pixel_at(x, y, this->get_gradient_color_(val));
     }
   }
@@ -351,7 +370,7 @@ void StarsAnimationElement::draw(display::Display &display, int width, int heigh
       float phase = noise(x, y, seed + 2) * TWO_PI_F;
       float twinkle = (std::sin(t * freq * TWO_PI_F + phase) + 1.0f) / 2.0f;
       // Only show pixels above a density threshold
-      float threshold = 1.0f - 0.05f * this->density_;
+      float threshold = 1.0f - this->density_;
       float val = (base_brightness > threshold) ? base_brightness * twinkle : 0.0f;
       display.draw_pixel_at(x, y, this->get_gradient_color_(val));
     }

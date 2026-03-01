@@ -65,7 +65,11 @@ class RipplesAnimationElement : public AnimationElement {
   using AnimationElement::AnimationElement;
   const char *get_type_name() const override { return "ripples_animation"; }
 
+  void set_count(int count) { count_ = count; }
   void draw(display::Display &display, int width, int height, uint32_t time) override;
+
+ protected:
+  int count_{8};
 };
 
 class SpiralAnimationElement : public AnimationElement {
@@ -93,7 +97,11 @@ class InterferenceAnimationElement : public AnimationElement {
   using AnimationElement::AnimationElement;
   const char *get_type_name() const override { return "interference_animation"; }
 
+  void set_count(int count) { count_ = count; }
   void draw(display::Display &display, int width, int height, uint32_t time) override;
+
+ protected:
+  int count_{3};
 };
 
 class JuliaAnimationElement : public AnimationElement {
@@ -138,8 +146,8 @@ class FireAnimationElement : public AnimationElement {
   void draw(display::Display &display, int width, int height, uint32_t time) override;
 
  protected:
-  float strength_{2.0f};
-  float cooling_{0.12f};
+  float strength_{1.0f};
+  float cooling_{0.02f};
   std::vector<float> heat_buffer_;
 };
 
@@ -169,7 +177,7 @@ class StarsAnimationElement : public AnimationElement {
   void draw(display::Display &display, int width, int height, uint32_t time) override;
 
  protected:
-  float density_{0.02f};
+  float density_{0.05f};
 };
 
 }  // namespace esphome::elements

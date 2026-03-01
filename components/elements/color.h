@@ -62,6 +62,16 @@ class MirrorColorScheme : public ColorScheme {
   ColorScheme *scheme_{nullptr};
 };
 
+// Wraps another scheme and inverts p: maps [0,1] to [1,0].
+class InverseColorScheme : public ColorScheme {
+ public:
+  void set_scheme(ColorScheme *scheme);
+  void get_hsv(float p, float &h, float &s, float &v) override;
+
+ private:
+  ColorScheme *scheme_{nullptr};
+};
+
 // Splits [0,1] into equal segments and maps each to a child scheme.
 class SequenceColorScheme : public ColorScheme {
  public:
@@ -70,22 +80,6 @@ class SequenceColorScheme : public ColorScheme {
 
  private:
   std::vector<ColorScheme *> schemes_;
-};
-
-// Wraps another scheme and applies hue/saturation/value offsets.
-class ModifierColorScheme : public ColorScheme {
- public:
-  void set_scheme(ColorScheme *scheme);
-  void set_hue_offset(float h);
-  void set_saturation_scale(float s);
-  void set_value_scale(float v);
-  void get_hsv(float p, float &h, float &s, float &v) override;
-
- private:
-  ColorScheme *scheme_{nullptr};
-  float hue_offset_{0.0f};
-  float sat_scale_{1.0f};
-  float val_scale_{1.0f};
 };
 
 // Palette factory functions

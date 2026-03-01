@@ -154,6 +154,18 @@ void MirrorColorScheme::get_hsv(float p, float &h, float &s, float &v) {
   scheme_->get_hsv(mirrored, h, s, v);
 }
 
+// InverseColorScheme
+
+void InverseColorScheme::set_scheme(ColorScheme *scheme) { scheme_ = scheme; }
+
+void InverseColorScheme::get_hsv(float p, float &h, float &s, float &v) {
+  if (scheme_ == nullptr) {
+    h = s = v = 0;
+    return;
+  }
+  scheme_->get_hsv(1.0f - std::clamp(p, 0.0f, 1.0f), h, s, v);
+}
+
 // SequenceColorScheme
 
 void SequenceColorScheme::add_scheme(ColorScheme *scheme) { schemes_.push_back(scheme); }
@@ -168,24 +180,6 @@ void SequenceColorScheme::get_hsv(float p, float &h, float &s, float &v) {
   int idx = std::clamp((int) scaled, 0, (int) schemes_.size() - 1);
   float local_p = scaled - (float) idx;
   schemes_[idx]->get_hsv(local_p, h, s, v);
-}
-
-// ModifierColorScheme
-
-void ModifierColorScheme::set_scheme(ColorScheme *scheme) { scheme_ = scheme; }
-void ModifierColorScheme::set_hue_offset(float h) { hue_offset_ = h; }
-void ModifierColorScheme::set_saturation_scale(float s) { sat_scale_ = s; }
-void ModifierColorScheme::set_value_scale(float v) { val_scale_ = v; }
-
-void ModifierColorScheme::get_hsv(float p, float &h, float &s, float &v) {
-  if (scheme_ == nullptr) {
-    h = s = v = 0;
-    return;
-  }
-  scheme_->get_hsv(p, h, s, v);
-  h += hue_offset_;
-  s = std::clamp(s * sat_scale_, 0.0f, 1.0f);
-  v = std::clamp(v * val_scale_, 0.0f, 1.0f);
 }
 
 // Palette factory implementations

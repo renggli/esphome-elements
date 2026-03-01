@@ -22,7 +22,7 @@ AnimationElement = shared.elements_ns.class_("AnimationElement", element.Element
 
 ANIMATION_ELEMENT_SCHEMA = element.ELEMENT_SCHEMA.extend(
     {
-        cv.Required(CONF_COLOR_SCHEME): color.COLOR_SCHEME_SCHEMA,
+        cv.Optional(CONF_COLOR_SCHEME): color.COLOR_SCHEME_SCHEMA,
         cv.Optional(CONF_SPEED, default=1.0): cv.float_range(min=0.0),
     }
 )
@@ -146,12 +146,15 @@ RipplesAnimationElement = shared.elements_ns.class_(
 RIPPLES_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
     {
         cv.GenerateID(CONF_ID): cv.declare_id(RipplesAnimationElement),
+        cv.Optional(CONF_COUNT, default=8): cv.int_range(min=1),
     }
 )
 
 
 async def ripples_animation_to_code(config, component, parent):
     var = await animation_element_to_code(config, component, parent)
+    if conf := config.get(CONF_COUNT):
+        cg.add(var.set_count(conf))
     return var
 
 
@@ -221,12 +224,15 @@ InterferenceAnimationElement = shared.elements_ns.class_(
 INTERFERENCE_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
     {
         cv.GenerateID(CONF_ID): cv.declare_id(InterferenceAnimationElement),
+        cv.Optional(CONF_COUNT, default=3): cv.int_range(min=1),
     }
 )
 
 
 async def interference_animation_to_code(config, component, parent):
     var = await animation_element_to_code(config, component, parent)
+    if conf := config.get(CONF_COUNT):
+        cg.add(var.set_count(conf))
     return var
 
 
@@ -323,8 +329,8 @@ FireAnimationElement = shared.elements_ns.class_(
 FIRE_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
     {
         cv.GenerateID(CONF_ID): cv.declare_id(FireAnimationElement),
-        cv.Optional(CONF_STRENGTH, default=2.0): cv.float_range(min=0.1, max=5.0),
-        cv.Optional(CONF_COOLING, default=0.12): cv.float_range(min=0.01, max=1.0),
+        cv.Optional(CONF_STRENGTH, default=1.0): cv.float_range(min=0.1, max=5.0),
+        cv.Optional(CONF_COOLING, default=0.02): cv.float_range(min=0.001, max=1.0),
     }
 )
 
@@ -401,7 +407,7 @@ StarsAnimationElement = shared.elements_ns.class_(
 STARS_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
     {
         cv.GenerateID(CONF_ID): cv.declare_id(StarsAnimationElement),
-        cv.Optional(CONF_DENSITY, default=0.02): cv.float_range(min=0.0, max=1.0),
+        cv.Optional(CONF_DENSITY, default=0.05): cv.float_range(min=0.0, max=1.0),
     }
 )
 

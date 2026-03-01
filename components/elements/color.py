@@ -7,8 +7,20 @@ from esphome.components import color
 from esphome.const import CONF_COLOR
 from . import shared
 
+CONF_CS_FROM = "from"
+CONF_CS_HUE_OFFSET = "hue_offset"
+CONF_CS_MIN_BRIGHTNESS = "min_brightness"
+CONF_CS_SATURATION_SCALE = "saturation_scale"
+CONF_CS_SCHEME = "scheme"
+CONF_CS_SCHEMES = "schemes"
+CONF_CS_SWEEP = "sweep"
+CONF_CS_TO = "to"
+CONF_CS_VALUE_SCALE = "value_scale"
 
-def color_validation(value):
+# Color
+
+
+def _color_validation(value):
     if not isinstance(value, str) or value[0] != "#":
         raise cv.Invalid("Invalid value for hex color")
     value = value[1:]
@@ -21,7 +33,12 @@ def color_validation(value):
                 int(value[6:8], 16),
             )
         elif len(value) == 6:
-            return (int(value[0:2], 16), int(value[2:4], 16), int(value[4:6], 16), 0)
+            return (
+                int(value[0:2], 16),
+                int(value[2:4], 16),
+                int(value[4:6], 16),
+                0,
+            )
         elif len(value) == 4:
             return (
                 17 * int(value[0], 16),
@@ -50,7 +67,7 @@ _RGB_SCHEMA = cv.Schema(
 )
 
 
-def rgb_validation(value):
+def _rgb_validation(value):
     value = _RGB_SCHEMA(value)
     return (value["r"], value["g"], value["b"], value["w"])
 
@@ -64,10 +81,18 @@ _HSV_SCHEMA = cv.Schema(
 )
 
 
-def hsv_validation(value):
+def _hsv_validation(value):
     value = _HSV_SCHEMA(value)
     r, g, b = colorsys.hsv_to_rgb(value["h"] / 360.0, value["s"], value["v"])
     return (round(r * 255), round(g * 255), round(b * 255), 0)
+
+
+COLOR_SCHEMA = cv.Any(
+    cv.use_id(color.ColorStruct),
+    _color_validation,
+    _rgb_validation,
+    _hsv_validation,
+)
 
 
 async def color_to_code(config):
@@ -78,20 +103,14 @@ async def color_to_code(config):
         return cg.ArrayInitializer(r, g, b, w)
 
 
-COLOR_SCHEMA = cv.Any(
-    cv.use_id(color.ColorStruct),
-    color_validation,
-    rgb_validation,
-    hsv_validation,
-)
+# Color Scheme
 
-
+ColorScheme = shared.elements_ns.class_("ColorScheme")
 StaticColorScheme = shared.elements_ns.class_("StaticColorScheme")
 GradientColorScheme = shared.elements_ns.class_("GradientColorScheme")
 SequenceColorScheme = shared.elements_ns.class_("SequenceColorScheme")
-ModifierColorScheme = shared.elements_ns.class_("ModifierColorScheme")
 MirrorColorScheme = shared.elements_ns.class_("MirrorColorScheme")
-ColorScheme = shared.elements_ns.class_("ColorScheme")
+InverseColorScheme = shared.elements_ns.class_("InverseColorScheme")
 
 make_monochromatic = shared.elements_ns.namespace("").operation("make_monochromatic")
 make_analogous = shared.elements_ns.namespace("").operation("make_analogous")
@@ -101,18 +120,6 @@ make_split_complementary = shared.elements_ns.namespace("").operation(
 )
 make_triadic = shared.elements_ns.namespace("").operation("make_triadic")
 make_square = shared.elements_ns.namespace("").operation("make_square")
-
-CONF_COLOR_SCHEME = "color_scheme"
-
-CONF_CS_FROM = "from"
-CONF_CS_TO = "to"
-CONF_CS_SCHEME = "scheme"
-CONF_CS_SCHEMES = "schemes"
-CONF_CS_HUE_OFFSET = "hue_offset"
-CONF_CS_SATURATION_SCALE = "saturation_scale"
-CONF_CS_VALUE_SCALE = "value_scale"
-CONF_CS_SWEEP = "sweep"
-CONF_CS_MIN_BRIGHTNESS = "min_brightness"
 
 
 def color_scheme_schema(value):  # forward-declare for recursion
@@ -141,22 +148,13 @@ SEQUENCE_CS_SCHEMA = cv.Schema(
     }
 )
 
-MODIFIER_CS_SCHEMA = cv.Schema(
+MIRROR_CS_SCHEMA = cv.Schema(
     {
         cv.Required(CONF_CS_SCHEME): color_scheme_schema,
-        cv.Optional(CONF_CS_HUE_OFFSET, default=0.0): cv.float_range(
-            min=-360.0, max=360.0
-        ),
-        cv.Optional(CONF_CS_SATURATION_SCALE, default=1.0): cv.float_range(
-            min=0.0, max=10.0
-        ),
-        cv.Optional(CONF_CS_VALUE_SCALE, default=1.0): cv.float_range(
-            min=0.0, max=10.0
-        ),
     }
 )
 
-MIRROR_CS_SCHEMA = cv.Schema(
+INVERSE_CS_SCHEMA = cv.Schema(
     {
         cv.Required(CONF_CS_SCHEME): color_scheme_schema,
     }
@@ -216,8 +214,8 @@ COLOR_SCHEME_SCHEMA = cv.typed_schema(
         "static": STATIC_CS_SCHEMA,
         "gradient": GRADIENT_CS_SCHEMA,
         "sequence": SEQUENCE_CS_SCHEMA,
-        "modifier": MODIFIER_CS_SCHEMA,
         "mirror": MIRROR_CS_SCHEMA,
+        "inverse": INVERSE_CS_SCHEMA,
         "monochromatic": MONOCHROMATIC_CS_SCHEMA,
         "analogous": ANALOGOUS_CS_SCHEMA,
         "complementary": COMPLEMENTARY_CS_SCHEMA,
@@ -267,20 +265,17 @@ async def color_scheme_to_code(config):
         cg.add(var.set_scheme(child))
         return var
 
+    elif scheme_type == "inverse":
+        var = cg.new_Pvariable(core.ID(_new_id("cs_inverse"), True, InverseColorScheme))
+        child = await color_scheme_to_code(config.get(CONF_CS_SCHEME))
+        cg.add(var.set_scheme(child))
+        return var
+
     elif scheme_type == "sequence":
         var = cg.new_Pvariable(core.ID(_new_id("cs_seq"), True, SequenceColorScheme))
         for child_config in config.get(CONF_CS_SCHEMES):
             child = await color_scheme_to_code(child_config)
             cg.add(var.add_scheme(child))
-        return var
-
-    elif scheme_type == "modifier":
-        var = cg.new_Pvariable(core.ID(_new_id("cs_mod"), True, ModifierColorScheme))
-        child = await color_scheme_to_code(config.get(CONF_CS_SCHEME))
-        cg.add(var.set_scheme(child))
-        cg.add(var.set_hue_offset(config.get(CONF_CS_HUE_OFFSET)))
-        cg.add(var.set_saturation_scale(config.get(CONF_CS_SATURATION_SCALE)))
-        cg.add(var.set_value_scale(config.get(CONF_CS_VALUE_SCALE)))
         return var
 
     # -- Palette shorthands (call C++ factory functions directly) --

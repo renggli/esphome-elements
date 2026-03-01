@@ -1,9 +1,9 @@
 import esphome.codegen as cg
 
-# elements namespace
+# Elements namespace
 elements_ns = cg.esphome_ns.namespace("elements")
 
-# esphome display namespace and types
+# ESPHome display namespace and related types
 display_ns = cg.esphome_ns.namespace("display")
 
 DisplayRef = display_ns.class_("Display").operator("ref")
@@ -14,6 +14,6 @@ TextAlign = text_align_ns.enum("TextAlign")
 image_align_ns = display_ns.namespace("ImageAlign")
 ImageAlign = image_align_ns.enum("ImageAlign")
 
-# other type definitions
+# Other types
 nullptr = cg.esphome_ns.class_("nullptr")
 nullopt = cg.esphome_ns.class_("nullopt")

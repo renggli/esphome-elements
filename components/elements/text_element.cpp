@@ -20,7 +20,7 @@ void TextElement::draw(display::Display &display) {
 
   // Skip, if no text.
   if (text_.empty()) {
-    on_next();
+    this->on_complete();
     return;
   }
 
@@ -29,7 +29,7 @@ void TextElement::draw(display::Display &display) {
 
   // Update the placement, if we scroll.
   if (scroll_mode_ != ScrollMode::NONE) {
-    scroll_offset_ += get_component().get_delta_ms() * scroll_speed_ / 1000.0f;
+    scroll_offset_ += get_component()->get_delta_ms() * scroll_speed_ / 1000.0f;
     switch (scroll_mode_) {
       case ScrollMode::NONE:
         break;
@@ -61,7 +61,7 @@ void TextElement::draw(display::Display &display) {
     if (bounds_x_ + bounds_w_ < 0 || display.get_width() < bounds_x_ || bounds_y_ + bounds_h_ < 0 ||
         display.get_height() < bounds_y_) {
       scroll_offset_ = 0.0f;
-      on_next();
+      this->on_complete();
     }
   }
 
@@ -92,6 +92,8 @@ void TextElement::on_show() {
   }
   scroll_offset_ = 0.0f;
 }
+
+void TextElement::on_complete() { this->on_complete_callbacks_.call(this); }
 
 bool TextElement::is_active() { return !get_text().empty(); };
 

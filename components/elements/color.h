@@ -1,7 +1,8 @@
 #pragma once
 
-#include "esphome/core/color.h"
 #include <vector>
+
+#include "esphome/core/color.h"
 
 namespace esphome::elements {
 

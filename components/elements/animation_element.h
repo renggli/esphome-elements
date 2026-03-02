@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <vector>
+
 #include "color.h"
 #include "element.h"
 

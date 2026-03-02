@@ -73,12 +73,14 @@ button:
     name: "Previous Screen"
     icon: mdi:chevron-left
     on_press:
-      - lambda: "id(elements_display).get_root()->on_prev();"
+      - then:
+        - elements.random.prev: primary_elements
   - platform: template
     name: "Next Screen"
     icon: mdi:chevron-right
     on_press:
-      - lambda: "id(elements_display).get_root()->on_next();"
+      - then:
+        - elements.random.next: primary_elements
 
 switch:
   - platform: template
@@ -397,336 +399,263 @@ elements:
   id: elements_display
   display: led_display
   element:
-    type: sequence
+    type: random
+    id: primary_elements
     elements:
       # Message
-      - type: delay
-        count: 2
-        element:
-          type: static_text
-          id: message_text_element
-          font: font_spleen_5x8
-          scroll_mode: LEFT_TO_RIGHT
-          scroll_speed: 24  # pixel per second
-          color: purple_500
+      - type: static_text
+        id: message_text_element
+        font: font_spleen_5x8
+        scroll_mode: LEFT_TO_RIGHT
+        scroll_speed: 24  # pixel per second
+        color: purple_500
       # Quote
-      - type: delay
-        count: 1
-        element:
-          type: static_text
-          id: quote_text_element
-          font: font_spleen_5x8
-          scroll_mode: LEFT_TO_RIGHT
-          scroll_speed: 24  # pixel per second
-          color: green_500
+      - type: static_text
+        id: quote_text_element
+        font: font_spleen_5x8
+        scroll_mode: LEFT_TO_RIGHT
+        scroll_speed: 24  # pixel per second
+        color: green_500
       # Time and Date
-      - type: timeout
-        duration: 10s
-        element:
-          type: vertical
-          elements:
-            - type: time_text
-              time: current_time
-              font: font_matrix_chunky_6
-              color: light_blue_900
-              format: "%a %e" # abbr weekday name, day of month
-            - type: time_text
-              time: current_time
-              font: font_matrix_chunky_6
-              color: cyan_700
-              format: "%b %Y" # abbr month name, year
-            - type: time_text
-              time: current_time
-              font: font_matrix_chunky_6
-              color: teal_500
-              format: "%H:%M:%S"
+      - type: vertical
+        elements:
+          - type: time_text
+            time: current_time
+            font: font_matrix_chunky_6
+            color: light_blue_900
+            format: "%a %e" # abbr weekday name, day of month
+          - type: time_text
+            time: current_time
+            font: font_matrix_chunky_6
+            color: cyan_700
+            format: "%b %Y" # abbr month name, year
+          - type: time_text
+            time: current_time
+            font: font_matrix_chunky_6
+            color: teal_500
+            format: "%H:%M:%S"
       # Weather
-      - type: timeout
-        duration: 10s
-        element:
-          type: image
-          id: weather_image_element
+      - type: image
+        id: weather_image_element
       # Calendar
-      - type: delay
-        count: 4
-        element:
-          type: vertical
-          active_mode: any
-          elements:
-            - type: static_text
-              id: calendar_current_event_text_element
-              font: font_spleen_5x8
-              color: lime_800
-              scroll_mode: LEFT_TO_RIGHT
-            - type: static_text
-              id: calendar_next_event_text_element
-              font: font_spleen_5x8
-              color: green_800
-              scroll_mode: LEFT_TO_RIGHT
+      - type: vertical
+        active_mode: any
+        elements:
+          - type: static_text
+            id: calendar_current_event_text_element
+            font: font_spleen_5x8
+            color: lime_800
+            scroll_mode: LEFT_TO_RIGHT
+          - type: static_text
+            id: calendar_next_event_text_element
+            font: font_spleen_5x8
+            color: green_800
+            scroll_mode: LEFT_TO_RIGHT
       # Dishwasher
-      - type: delay
-        count: 4
-        element:
-          type: vertical
-          active_mode: any
-          elements:
-            - type: static_text
-              id: dishwasher_status_text_element
-              font: font_spleen_5x8
-              color: indigo_800
-              scroll_mode: LEFT_TO_RIGHT
-            - type: static_text
-              id: dishwasher_notification_text_element
-              font: font_spleen_5x8
-              color: indigo_800
-              scroll_mode: LEFT_TO_RIGHT
+      - type: vertical
+        active_mode: any
+        elements:
+          - type: static_text
+            id: dishwasher_status_text_element
+            font: font_spleen_5x8
+            color: indigo_800
+            scroll_mode: LEFT_TO_RIGHT
+          - type: static_text
+            id: dishwasher_notification_text_element
+            font: font_spleen_5x8
+            color: indigo_800
+            scroll_mode: LEFT_TO_RIGHT
       # Timer
-      - type: timeout
-        duration: 10s
-        element:
-          type: dynamic_text
-          font: font_matrix_chunky_6
-          lambda: |-
-            auto state = id(default_timer).get_state();
-            if (state == "Stopped") return "";
-            element.set_color(
-              state == "Expired" ? id(red_500) :
-              state == "Paused" ? id(blue_500) :
-              id(blue_gray_500));
-            int remaining = id(default_timer).get_remaining() / 1000;
-            int seconds = remaining % 60;
-            int minutes = (remaining - seconds) / 60;
-            const char* sign = remaining >= 0 ? "" : "-";
-            return str_snprintf("%s%d:%02d", 12, sign, abs(minutes), abs(seconds));
+      - type: dynamic_text
+        font: font_matrix_chunky_6
+        lambda: |-
+          auto state = id(default_timer).get_state();
+          if (state == "Stopped") return "";
+          element.set_color(
+            state == "Expired" ? id(red_500) :
+            state == "Paused" ? id(blue_500) :
+            id(blue_gray_500));
+          int remaining = id(default_timer).get_remaining() / 1000;
+          int seconds = remaining % 60;
+          int minutes = (remaining - seconds) / 60;
+          const char* sign = remaining >= 0 ? "" : "-";
+          return str_snprintf("%s%d:%02d", 12, sign, abs(minutes), abs(seconds));
       # Temperature
-      - type: timeout
-        duration: 5s
-        element:
-          type: vertical
-          elements:
-            - id: outside_temperature_text_element
-              type: static_text
-              font: font_matrix_chunky_8
-            - id: inside_temperature_text_element
-              type: static_text
-              font: font_matrix_chunky_8
+      - type: vertical
+        elements:
+          - id: outside_temperature_text_element
+            type: static_text
+            font: font_matrix_chunky_8
+          - id: inside_temperature_text_element
+            type: static_text
+            font: font_matrix_chunky_8
       # Particles
-      - type: timeout
-        duration: 10s
-        element:
-          type: vertical
-          elements:
-            - id: outside_particles_text_element
-              type: static_text
-              font: font_matrix_chunky_8
-            - id: inside_particles_text_element
-              type: static_text
-              font: font_matrix_chunky_8
+      - type: vertical
+        elements:
+          - id: outside_particles_text_element
+            type: static_text
+            font: font_matrix_chunky_8
+          - id: inside_particles_text_element
+            type: static_text
+            font: font_matrix_chunky_8
       # Sun, Moon, and Wind
-      - type: timeout
-        duration: 10s
-        element:
-          type: custom
-          is_active: |-
-            return (id(sun_azimuth).has_state() && id(sun_elevation).has_state() && id(sun_elevation).state > 0)
-                || (id(moon_azimuth).has_state() && id(moon_elevation).has_state() && id(moon_elevation).state > 0)
-                || (id(wind_direction).has_state() && id(wind_speed).has_state());
-          draw: |-
-            const float offset = 3;
-            int center_x = display.get_width() / 2;
-            int center_y = display.get_height() / 2;
-            int radius = std::min(center_x, center_y) - offset;
-            bool has_sun = id(sun_azimuth).has_state()
-                        && id(sun_elevation).has_state()
-                        && id(sun_elevation).state > 0;
-            bool has_moon = id(moon_azimuth).has_state()
-                        && id(moon_elevation).has_state()
-                        && id(moon_elevation).state > 0;
-            bool has_wind = id(wind_direction).has_state()
-                        && id(wind_speed).has_state();
-            // draw sun
-            if (has_sun) {
-              float azimuth = id(sun_azimuth).state - 90;
-              float elevation = id(sun_elevation).state;
-              float pos_r = radius * remap(cos(radians(elevation)), 0.0, 1.0, 0.5, 1.0);
-              int pos_x = (pos_r * cos(radians(azimuth))) + center_x;
-              int pos_y = (pos_r * sin(radians(azimuth))) + center_y;
-              display.filled_circle(pos_x, pos_y, offset, id(yellow_500));
-              display.printf(center_x, center_y + 1, id(font_matrix_chunky_6),
-                id(yellow_500), TextAlign::TOP_CENTER, "%.0f°", elevation);
+      - type: custom
+        is_active: |-
+          return (id(sun_azimuth).has_state() && id(sun_elevation).has_state() && id(sun_elevation).state > 0)
+              || (id(moon_azimuth).has_state() && id(moon_elevation).has_state() && id(moon_elevation).state > 0)
+              || (id(wind_direction).has_state() && id(wind_speed).has_state());
+        draw: |-
+          const float offset = 3;
+          int center_x = display.get_width() / 2;
+          int center_y = display.get_height() / 2;
+          int radius = std::min(center_x, center_y) - offset;
+          bool has_sun = id(sun_azimuth).has_state()
+                      && id(sun_elevation).has_state()
+                      && id(sun_elevation).state > 0;
+          bool has_moon = id(moon_azimuth).has_state()
+                      && id(moon_elevation).has_state()
+                      && id(moon_elevation).state > 0;
+          bool has_wind = id(wind_direction).has_state()
+                      && id(wind_speed).has_state();
+          // draw sun
+          if (has_sun) {
+            float azimuth = id(sun_azimuth).state - 90;
+            float elevation = id(sun_elevation).state;
+            float pos_r = radius * remap(cos(radians(elevation)), 0.0, 1.0, 0.5, 1.0);
+            int pos_x = (pos_r * cos(radians(azimuth))) + center_x;
+            int pos_y = (pos_r * sin(radians(azimuth))) + center_y;
+            display.filled_circle(pos_x, pos_y, offset, id(yellow_500));
+            display.printf(center_x, center_y + 1, id(font_matrix_chunky_6),
+              id(yellow_500), TextAlign::TOP_CENTER, "%.0f°", elevation);
+          }
+          // draw moon
+          if (has_moon) {
+            float azimuth = id(moon_azimuth).state - 90;
+            float elevation = id(moon_elevation).state;
+            float pos_r = radius * remap(cos(radians(elevation)), 0.0, 1.0, 0.5, 1.0);
+            int pos_x = (pos_r * cos(radians(azimuth))) + center_x;
+            int pos_y = (pos_r * sin(radians(azimuth))) + center_y;
+            if (id(moon_illumination).has_state()) {
+              uint8_t value = remap<int, float>(id(moon_illumination).state, 0.0, 100.0, 0x00, 0xff);
+              display.filled_circle(pos_x, pos_y, offset, ESPHSVColor(0x00, 0x00, value).to_rgb());
             }
-            // draw moon
-            if (has_moon) {
-              float azimuth = id(moon_azimuth).state - 90;
-              float elevation = id(moon_elevation).state;
-              float pos_r = radius * remap(cos(radians(elevation)), 0.0, 1.0, 0.5, 1.0);
-              int pos_x = (pos_r * cos(radians(azimuth))) + center_x;
-              int pos_y = (pos_r * sin(radians(azimuth))) + center_y;
-              if (id(moon_illumination).has_state()) {
-                uint8_t value = remap<int, float>(id(moon_illumination).state, 0.0, 100.0, 0x00, 0xff);
-                display.filled_circle(pos_x, pos_y, offset, ESPHSVColor(0x00, 0x00, value).to_rgb());
-              }
-              display.circle(pos_x, pos_y, offset, id(gray_500));
-              if (!has_sun) {
-                display.printf(center_x, center_y - 1, id(font_matrix_chunky_6),
-                  id(gray_500), TextAlign::TOP_CENTER, "%.0f°", elevation);
-              }
+            display.circle(pos_x, pos_y, offset, id(gray_500));
+            if (!has_sun) {
+              display.printf(center_x, center_y - 1, id(font_matrix_chunky_6),
+                id(gray_500), TextAlign::TOP_CENTER, "%.0f°", elevation);
             }
-            // draw wind
-            if (id(wind_direction).has_state() && id(wind_speed).has_state()) {
-              for (int i = -1; i <= 1; i++) {
-                float angle = id(wind_direction).state + 10 * i - 90;
-                display.line_at_angle(center_x, center_y, angle,
-                    radius - offset, radius + offset, id(light_blue_500));
-              }
-              display.printf(center_x, center_y - offset, id(font_matrix_chunky_6),
-                  id(light_blue_500), TextAlign::BOTTOM_CENTER, "%.0f", id(wind_speed).state);
+          }
+          // draw wind
+          if (id(wind_direction).has_state() && id(wind_speed).has_state()) {
+            for (int i = -1; i <= 1; i++) {
+              float angle = id(wind_direction).state + 10 * i - 90;
+              display.line_at_angle(center_x, center_y, angle,
+                  radius - offset, radius + offset, id(light_blue_500));
             }
+            display.printf(center_x, center_y - offset, id(font_matrix_chunky_6),
+                id(light_blue_500), TextAlign::BOTTOM_CENTER, "%.0f", id(wind_speed).state);
+          }
       # Analog Clock
-      - type: timeout
-        duration: 10s
-        element:
-          type: clock
-          time: current_time
-          minute_markers:
-            color: blue_800
-          hour_markers:
-            color: blue_800
-          quarter_markers:
-            color: blue_800
-          second_hand:
-            color: red_800
-          minute_hand:
-            color: gray_300
-          hour_hand:
-            color: gray_300
+      - type: clock
+        time: current_time
+        minute_markers:
+          color: blue_800
+        hour_markers:
+          color: blue_800
+        quarter_markers:
+          color: blue_800
+        second_hand:
+          color: red_800
+        minute_hand:
+          color: gray_300
+        hour_hand:
+          color: gray_300
       # Animations
-      - type: timeout
-        duration: 10s
-        element:
-          type: random
-          elements:
-          - type: timeout
-            duration: 10s
-            element:
-              type: meatballs_animation
-              color_scheme:
-                type: sequence
-                schemes:
-                  - type: static
-                    color: "#000000"
-                  - type: triadic
-                    color: "#FF5722"
-          - type: timeout
-            duration: 10s
-            element:
-              type: aurora_animation
-              color_scheme:
-                type: sequence
-                schemes:
-                  - type: static
-                    color: "#000000"
-                  - type: gradient
-                    from: "#000000"
-                    to: "#4CAF50"
-                  - type: gradient
-                    from: "#4CAF50"
-                    to: "#00FF41"
-          - type: timeout
-            duration: 10s
-            element:
-              type: kaleidoscope_animation
-              color_scheme:
-                type: complementary
-                color: "#2196F3"
-          - type: timeout
-            duration: 10s
-            element:
-              type: plasma_animation
-              color_scheme:
-                type: analogous
-                color: "#9C27B0"
-                sweep: 60.0
-          - type: timeout
-            duration: 10s
-            element:
-              type: ripples_animation
-              color_scheme:
-                type: gradient
-                to: "#40E0D0"
-                from: "#010810"
-          - type: timeout
-            duration: 10s
-            element:
-              type: spiral_animation
-              color_scheme:
-                type: triadic
-                color: "#FFEB3B"
-          - type: timeout
-            duration: 10s
-            element:
-              type: voronoi_animation
-              color_scheme:
-                type: triadic
-                color: "#E91E63"
-          - type: timeout
-            duration: 10s
-            element:
-              type: interference_animation
-              color_scheme:
-                type: analogous
-                color: "#673AB7"
-                sweep: 60.0
-          - type: timeout
-            duration: 10s
-            element:
-              type: julia_animation
-              color_scheme:
-                type: complementary
-                color: "#ff0000"
-          - type: timeout
-            duration: 10s
-            element:
-              type: matrix_animation
-              color_scheme:
-                type: monochromatic
-                color: "#00FF41"
-                min_brightness: 0.0
-          - type: timeout
-            duration: 10s
-            element:
-              type: fire_animation
-              color_scheme:
-                type: sequence
-                schemes:
-                  - type: gradient
-                    from: "#000000"
-                    to: "#A01010"
-                  - type: gradient
-                    from: "#A01010"
-                    to: "#FF6000"
-                  - type: gradient
-                    from: "#FF6000"
-                    to: "#FFF000"
-          - type: timeout
-            duration: 10s
-            element:
-              type: tunnel_animation
-              color_scheme:
-                type: triadic
-                color: "#AA00FF"
-          - type: timeout
-            duration: 10s
-            element:
-              type: wave_animation
-              color_scheme:
-                type: analogous
-                color: "#00E5FF"
-          - type: timeout
-            duration: 10s
-            element:
-              type: stars_animation
-              color_scheme:
-                type: gradient
+      - type: random
+        id: animation_sequence
+        on_hide:
+          - then:
+            - elements.random.next: animation_sequence
+        elements:
+        - type: meatballs_animation
+          color_scheme:
+            type: sequence
+            schemes:
+              - type: static
+                color: "#000000"
+              - type: triadic
+                color: "#FF5722"
+        - type: aurora_animation
+          color_scheme:
+            type: sequence
+            schemes:
+              - type: static
+                color: "#000000"
+              - type: gradient
                 from: "#000000"
-                to: "#90CAF9"
+                to: "#4CAF50"
+              - type: gradient
+                from: "#4CAF50"
+                to: "#00FF41"
+        - type: kaleidoscope_animation
+          color_scheme:
+            type: complementary
+            color: "#2196F3"
+        - type: plasma_animation
+          color_scheme:
+            type: analogous
+            color: "#9C27B0"
+            sweep: 60.0
+        - type: ripples_animation
+          color_scheme:
+            type: gradient
+            to: "#40E0D0"
+            from: "#010810"
+        - type: spiral_animation
+          color_scheme:
+            type: triadic
+            color: "#FFEB3B"
+        - type: voronoi_animation
+          color_scheme:
+            type: triadic
+            color: "#E91E63"
+        - type: interference_animation
+          color_scheme:
+            type: analogous
+            color: "#673AB7"
+            sweep: 60.0
+        - type: julia_animation
+          color_scheme:
+            type: complementary
+            color: "#ff0000"
+        - type: matrix_animation
+          color_scheme:
+            type: monochromatic
+            color: "#00FF41"
+            min_brightness: 0.0
+        - type: fire_animation
+          color_scheme:
+            type: sequence
+            schemes:
+              - type: gradient
+                from: "#000000"
+                to: "#A01010"
+              - type: gradient
+                from: "#A01010"
+                to: "#FF6000"
+              - type: gradient
+                from: "#FF6000"
+                to: "#FFF000"
+        - type: tunnel_animation
+          color_scheme:
+            type: triadic
+            color: "#AA00FF"
+        - type: wave_animation
+          color_scheme:
+            type: analogous
+            color: "#00E5FF"
+        - type: stars_animation
+          color_scheme:
+            type: gradient
+            from: "#000000"
+            to: "#90CAF9"

@@ -17,24 +17,8 @@ void Element::dump_config(int level, const char *format, ...) {
   va_end(arg);
 }
 
-void Element::on_show() {}
+void Element::on_show() { this->on_show_callbacks_.call(this); }
 
-void Element::on_hide() {}
-
-void Element::on_next() {
-  if (parent_ == nullptr) {
-    ESP_LOGW(ELEMENT_TAG, "Unhandled next-event");
-  } else {
-    parent_->on_next();
-  }
-}
-
-void Element::on_prev() {
-  if (parent_ == nullptr) {
-    ESP_LOGW(ELEMENT_TAG, "Unhandled prev-event");
-  } else {
-    parent_->on_prev();
-  }
-}
+void Element::on_hide() { this->on_hide_callbacks_.call(this); }
 
 }  // namespace esphome::elements

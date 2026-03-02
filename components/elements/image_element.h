@@ -1,8 +1,9 @@
 #pragma once
 
-#include "element.h"
 #include "esphome/components/display/display.h"
 #include "geometry.h"
+
+#include "element.h"
 
 namespace esphome::elements {
 

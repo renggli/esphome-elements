@@ -1,8 +1,10 @@
 #include "animation_element.h"
-#include "esphome/core/color.h"
-#include "color.h"
+
 #include <algorithm>
 #include <cmath>
+
+#include "esphome/core/color.h"
+#include "color.h"
 
 namespace esphome::elements {
 
@@ -37,7 +39,8 @@ void AnimationElement::draw(display::Display &display) {
   if (this->color_scheme_ == nullptr) {
     this->color_scheme_ = default_color_scheme;
   }
-  this->draw(display, display.get_width(), display.get_height(), this->get_component().get_current_ms() * this->speed_);
+  this->draw(display, display.get_width(), display.get_height(),
+             this->get_component()->get_current_ms() * this->speed_);
 }
 
 Color AnimationElement::get_gradient_color_(float p) { return color_scheme_->get_color(std::clamp(p, 0.0f, 1.0f)); }

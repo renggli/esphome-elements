@@ -1,7 +1,8 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import font, time
-from esphome.const import CONF_ID
+import esphome.automation as automation
+from esphome.const import CONF_ID, CONF_TRIGGER_ID
 
 from . import shared
 from . import element
@@ -20,6 +21,7 @@ CONF_SCROLL_MODE = "scroll_mode"
 CONF_SCROLL_SPEED = "scroll_speed"
 CONF_TEXT = "text"
 CONF_TIME = "time"
+CONF_ON_COMPLETE = "on_complete"
 
 # Scroll Mode
 
@@ -62,6 +64,10 @@ TEXT_ALIGN = {
 # Abstract Text Element
 
 TextElement = shared.elements_ns.class_("TextElement", element.Element)
+TextElementRef = TextElement.operator("ref")
+TextElementCompleteTrigger = shared.elements_ns.class_(
+    "TextElementCompleteTrigger", automation.Trigger.template(TextElementRef)
+)
 
 TEXT_ELEMENT_SCHEMA = element.ELEMENT_SCHEMA.extend(
     {
@@ -74,6 +80,13 @@ TEXT_ELEMENT_SCHEMA = element.ELEMENT_SCHEMA.extend(
         ),
         cv.Optional(CONF_SCROLL_MODE): cv.enum(SCROLL_MODE, upper=True, space="_"),
         cv.Optional(CONF_SCROLL_SPEED): cv.float_range(min=0),
+        cv.Optional(CONF_ON_COMPLETE): automation.validate_automation(
+            {
+                cv.GenerateID(CONF_TRIGGER_ID): cv.declare_id(
+                    TextElementCompleteTrigger
+                ),
+            }
+        ),
     }
 )
 
@@ -98,6 +111,9 @@ async def text_element_to_code(config, component, parent):
         cg.add(var.set_scroll_mode(conf))
     if conf := config.get(CONF_SCROLL_SPEED):
         cg.add(var.set_scroll_speed(conf))
+    for conf in config.get(CONF_ON_COMPLETE, []):
+        trigger = cg.new_Pvariable(conf[CONF_TRIGGER_ID], var)
+        await automation.build_automation(trigger, [(TextElementRef, "element")], conf)
     return var
 
 

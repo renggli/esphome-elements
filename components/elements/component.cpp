@@ -1,9 +1,8 @@
 #include "component.h"
 
-#include "element.h"
-#include "display.h"
-
 #include <cstdint>
+
+#include "element.h"
 
 namespace esphome::elements {
 

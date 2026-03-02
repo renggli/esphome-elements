@@ -33,9 +33,10 @@ class ContainerElement : public Element {
 
   void dump_config(int level) override;
 
+  bool is_active() override;
+
   void on_show() override;
   void on_hide() override;
-  bool is_active() override;
 
  protected:
   std::vector<Element *> elements_;
@@ -101,16 +102,36 @@ class RandomElement : public ContainerElement {
 
   void draw(display::Display &display) override;
   void go_to(int index);
-  void update_history();
+
+  void prev();
+  void next();
 
   void on_show() override;
   void on_hide() override;
-  void on_prev() override;
-  void on_next() override;
 
  protected:
   int index_ = -1;
   std::deque<int> history_;
+
+  void update_history_();
+};
+
+template<typename... Ts> class RandomNextAction : public Action<Ts...> {
+ public:
+  RandomNextAction(RandomElement *element) : element_(element) {}
+  void play(const Ts &...x) override { this->element_->next(); }
+
+ protected:
+  RandomElement *element_;
+};
+
+template<typename... Ts> class RandomPrevAction : public Action<Ts...> {
+ public:
+  RandomPrevAction(RandomElement *element) : element_(element) {}
+  void play(const Ts &...x) override { this->element_->prev(); }
+
+ protected:
+  RandomElement *element_;
 };
 
 /// Draws multiple elements in sequence.
@@ -124,13 +145,32 @@ class SequenceElement : public ContainerElement {
   void draw(display::Display &display) override;
   void go_to(int index);
 
+  void prev();
+  void next();
+
   void on_show() override;
   void on_hide() override;
-  void on_prev() override;
-  void on_next() override;
 
  protected:
   int index_ = -1;
+};
+
+template<typename... Ts> class SequenceNextAction : public Action<Ts...> {
+ public:
+  SequenceNextAction(SequenceElement *element) : element_(element) {}
+  void play(const Ts &...x) override { this->element_->next(); }
+
+ protected:
+  SequenceElement *element_;
+};
+
+template<typename... Ts> class SequencePrevAction : public Action<Ts...> {
+ public:
+  SequencePrevAction(SequenceElement *element) : element_(element) {}
+  void play(const Ts &...x) override { this->element_->prev(); }
+
+ protected:
+  SequenceElement *element_;
 };
 
 }  // namespace esphome::elements

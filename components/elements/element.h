@@ -17,10 +17,10 @@ class Element {
   virtual const char *get_type_name() const = 0;
 
   /// Returns the parent element of this element, if any.
-  Element *get_parent() const { return this->parent_; }
+  Element *get_parent() const { return parent_; }
 
   /// Returns the component of this element.
-  ElementComponent *get_component() const { return this->component_; }
+  ElementComponent *get_component() const { return component_; }
 
   /// Abstract method that dumps this element's configuration.
   virtual void dump_config(int level);
@@ -36,17 +36,13 @@ class Element {
   virtual bool is_active() { return true; }
 
   /// Register a callback that is called when the element is about to be shown.
-  void add_on_show_callback(std::function<void(Element *)> &&callback) {
-    this->on_show_callbacks_.add(std::move(callback));
-  }
+  void add_on_show_callback(std::function<void(Element *)> &&callback) { on_show_callbacks_.add(std::move(callback)); }
 
   /// Called by when the element is about to be shown.
   virtual void on_show();
 
   /// Register a callback that is called when the element is about to be hidden.
-  void add_on_hide_callback(std::function<void(Element *)> &&callback) {
-    this->on_hide_callbacks_.add(std::move(callback));
-  }
+  void add_on_hide_callback(std::function<void(Element *)> &&callback) { on_hide_callbacks_.add(std::move(callback)); }
 
   /// Called by when the element is about to be hidden.
   virtual void on_hide();
@@ -62,14 +58,14 @@ class Element {
 class ElementShowTrigger : public Trigger<Element &> {
  public:
   explicit ElementShowTrigger(Element *parent) {
-    parent->add_on_show_callback([this](Element *element) { this->trigger(*element); });
+    parent->add_on_show_callback([this](Element *element) { trigger(*element); });
   }
 };
 
 class ElementHideTrigger : public Trigger<Element &> {
  public:
   explicit ElementHideTrigger(Element *parent) {
-    parent->add_on_hide_callback([this](Element *element) { this->trigger(*element); });
+    parent->add_on_hide_callback([this](Element *element) { trigger(*element); });
   }
 };
 

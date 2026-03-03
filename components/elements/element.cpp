@@ -1,4 +1,5 @@
 #include "element.h"
+#include "esphome/core/log.h"
 
 namespace esphome::elements {
 
@@ -17,8 +18,14 @@ void Element::dump_config(int level, const char *format, ...) {
   va_end(arg);
 }
 
-void Element::on_show() { this->on_show_callbacks_.call(this); }
+void Element::on_show() {
+  ESP_LOGI(ELEMENT_TAG, "Triggering on_show callbacks");
+  on_show_callbacks_.call(this);
+}
 
-void Element::on_hide() { this->on_hide_callbacks_.call(this); }
+void Element::on_hide() {
+  ESP_LOGI(ELEMENT_TAG, "Triggering on_hide callbacks");
+  on_hide_callbacks_.call(this);
+}
 
 }  // namespace esphome::elements

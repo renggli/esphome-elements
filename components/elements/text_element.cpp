@@ -61,7 +61,7 @@ void TextElement::draw(display::Display &display) {
     if (bounds_x_ + bounds_w_ < 0 || display.get_width() < bounds_x_ || bounds_y_ + bounds_h_ < 0 ||
         display.get_height() < bounds_y_) {
       scroll_offset_ = 0.0f;
-      this->on_complete();
+      on_complete();
     }
   }
 
@@ -91,9 +91,13 @@ void TextElement::on_show() {
       break;
   }
   scroll_offset_ = 0.0f;
+  Element::on_show();
 }
 
-void TextElement::on_complete() { this->on_complete_callbacks_.call(this); }
+void TextElement::on_complete() {
+  ESP_LOGI(TEXT_ELEMENT_TAG, "Triggering `on_complete` callbacks");
+  on_complete_callbacks_.call(this);
+}
 
 bool TextElement::is_active() { return !get_text().empty(); };
 

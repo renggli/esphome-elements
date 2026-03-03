@@ -17,11 +17,11 @@ CONF_COLOR = "color"
 CONF_FONT = "font"
 CONF_FORMAT = "format"
 CONF_LAMBDA = "lambda"
+CONF_ON_COMPLETE = "on_complete"
 CONF_SCROLL_MODE = "scroll_mode"
 CONF_SCROLL_SPEED = "scroll_speed"
 CONF_TEXT = "text"
 CONF_TIME = "time"
-CONF_ON_COMPLETE = "on_complete"
 
 # Scroll Mode
 

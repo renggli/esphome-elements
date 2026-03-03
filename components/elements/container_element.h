@@ -119,7 +119,7 @@ class RandomElement : public ContainerElement {
 template<typename... Ts> class RandomNextAction : public Action<Ts...> {
  public:
   RandomNextAction(RandomElement *element) : element_(element) {}
-  void play(const Ts &...x) override { this->element_->next(); }
+  void play(const Ts &...x) override { element_->next(); }
 
  protected:
   RandomElement *element_;
@@ -128,7 +128,7 @@ template<typename... Ts> class RandomNextAction : public Action<Ts...> {
 template<typename... Ts> class RandomPrevAction : public Action<Ts...> {
  public:
   RandomPrevAction(RandomElement *element) : element_(element) {}
-  void play(const Ts &...x) override { this->element_->prev(); }
+  void play(const Ts &...x) override { element_->prev(); }
 
  protected:
   RandomElement *element_;
@@ -158,7 +158,7 @@ class SequenceElement : public ContainerElement {
 template<typename... Ts> class SequenceNextAction : public Action<Ts...> {
  public:
   SequenceNextAction(SequenceElement *element) : element_(element) {}
-  void play(const Ts &...x) override { this->element_->next(); }
+  void play(const Ts &...x) override { element_->next(); }
 
  protected:
   SequenceElement *element_;
@@ -167,7 +167,7 @@ template<typename... Ts> class SequenceNextAction : public Action<Ts...> {
 template<typename... Ts> class SequencePrevAction : public Action<Ts...> {
  public:
   SequencePrevAction(SequenceElement *element) : element_(element) {}
-  void play(const Ts &...x) override { this->element_->prev(); }
+  void play(const Ts &...x) override { element_->prev(); }
 
  protected:
   SequenceElement *element_;

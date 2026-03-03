@@ -35,10 +35,10 @@ class TextElement : public Element {
   void draw(display::Display &display) override;
   bool is_active() override;
   void on_show() override;
-  virtual void on_complete();
+  void on_complete();
 
   void add_on_complete_callback(std::function<void(TextElement *)> &&callback) {
-    this->on_complete_callbacks_.add(std::move(callback));
+    on_complete_callbacks_.add(std::move(callback));
   }
 
  protected:
@@ -55,7 +55,15 @@ class TextElement : public Element {
   std::string text_;
   bool request_measurement_ = true;
   int bounds_x_, bounds_y_, bounds_w_, bounds_h_;
+
   LazyCallbackManager<void(TextElement *)> on_complete_callbacks_;
+};
+
+class TextElementCompleteTrigger : public Trigger<TextElement &> {
+ public:
+  explicit TextElementCompleteTrigger(TextElement *parent) {
+    parent->add_on_complete_callback([this](TextElement *element) { trigger(*element); });
+  }
 };
 
 /// Text element that displays a fixed string.
@@ -102,13 +110,6 @@ class TimeTextElement : public TextElement {
  protected:
   time::RealTimeClock *time_;
   std::string format_;
-};
-
-class TextElementCompleteTrigger : public Trigger<TextElement &> {
- public:
-  explicit TextElementCompleteTrigger(TextElement *parent) {
-    parent->add_on_complete_callback([this](TextElement *element) { this->trigger(*element); });
-  }
 };
 
 }  // namespace esphome::elements

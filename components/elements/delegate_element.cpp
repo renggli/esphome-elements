@@ -21,12 +21,14 @@ void DelegateElement::on_show() {
   if (element_ != nullptr) {
     element_->on_show();
   }
+  Element::on_show();
 }
 
 void DelegateElement::on_hide() {
   if (element_ != nullptr) {
     element_->on_hide();
   }
+  Element::on_hide();
 }
 
 // Timeout Element

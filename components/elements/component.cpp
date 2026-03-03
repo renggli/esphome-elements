@@ -128,8 +128,9 @@ void ElementComponentHandler::handleRequest(AsyncWebServerRequest *request) {
   ImageDisplay display_buffer(width, height);
   component_->draw(display_buffer);
 
-  if (display_buffer.is_valid()) {
+  if (!display_buffer.is_valid()) {
     request->send(500, "text/plain", "Unable to allocate display buffer.");
+    return;
   }
 
   // Calculate BMP properties

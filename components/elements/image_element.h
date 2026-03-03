@@ -25,8 +25,8 @@ class ImageElement : public Element {
 
  protected:
   display::BaseImage *image_ = nullptr;
-  Anchor anchor_;
-  display::ImageAlign align_;
+  Anchor anchor_ = {};
+  display::ImageAlign align_ = display::ImageAlign::CENTER;
 };
 
 }  // namespace esphome::elements

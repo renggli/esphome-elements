@@ -9,11 +9,11 @@ namespace esphome::elements {
 
 /// Options for the various graphical elements of the analog clock.
 struct ClockOptions {
-  float start;
-  float end;
-  Color color;
-  bool visible;
-  bool smooth;
+  float start = 0.0f;
+  float end = 1.0f;
+  Color color = Color::WHITE;
+  bool visible = false;
+  bool smooth = false;
 };
 
 /// Analog clock element.

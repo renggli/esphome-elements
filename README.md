@@ -53,6 +53,13 @@ For a complete configuration example demonstrating various features, refer to [e
 
 _ESPHome Elements_ provides a variety of configurable elements to dynamically compose and sequence content on your LED matrix, allowing for sophisticated displays with text, images, and advanced visualizations.
 
+### Common Element Triggers
+
+All elements support the following triggers out-of-the-box:
+
+- **on_show** (Optional, Action): An automation to perform when the element becomes visible on the display. This is useful for performing setup tasks or starting other actions.
+- **on_hide** (Optional, Action): An automation to perform when the element is no longer visible on the display. This can be used to clean up resources or stop actions.
+
 ### Text Elements
 
 _Displays textual information, labels, or dynamic messages._
@@ -75,8 +82,9 @@ All text elements support the following configuration variables:
 - **anchor** (Optional, Anchor): Specifies the reference point of the text box with an absolute `offset` and/or a relative `fraction`. This is used in conjunction with align to position the text.
 - **align** (Optional, enum): Specifies how the text is aligned at the point defined by the anchor. Possible values are
   `TOP`, `CENTER_VERTICAL`, `BASELINE`, `BOTTOM`, `LEFT`, `CENTER_HORIZONTAL`, `RIGHT`, `TOP_LEFT`, `TOP_CENTER`, `TOP_RIGHT`, `CENTER_LEFT`, `CENTER` (default), `CENTER_RIGHT`, `BASELINE_LEFT`, `BASELINE_CENTER`, `BASELINE_RIGHT`, `BOTTOM_LEFT`, `BOTTOM_CENTER`, and `BOTTOM_RIGHT`.
-- **scroll_mode** (Optional, enum): Specifies the scrolling behavior of the text, if any. Useful for long texts that exceed the display area. Possible values are `NONE` (default), `LEFT_TO_RIGHT`, `RIGHT_TO_LEFT`, `BOTTOM_TO_TOP`, and `TOP_TO_BOTTOM`. If scrolling is enabled, an `on_next` event is sent to the parent element on completion of the animation.
+- **scroll_mode** (Optional, enum): Specifies the scrolling behavior of the text, if any. Useful for long texts that exceed the display area. Possible values are `NONE` (default), `LEFT_TO_RIGHT`, `RIGHT_TO_LEFT`, `BOTTOM_TO_TOP`, and `TOP_TO_BOTTOM`. If scrolling is enabled, an `on_complete` trigger is fired on completion of the animation.
 - **scroll_speed** (Optional, float): Specifies the speed of the scrolling animation in pixels per second.
+- **on_complete** (Optional, Action): An automation to perform when the text scrolling has completed.
 
 The following example scrolls the string "Hello World" over the display:
 
@@ -188,6 +196,19 @@ hour_hand:
   smooth: true
 ```
 
+### Animation Elements
+
+Provides complex procedural animations to serve as backgrounds or standalone visualizations. The following animations are available:
+
+`aurora_animation`, `fire_animation`, `gradient_animation`, `interference_animation`, `julia_animation`, `kaleidoscope_animation`, `matrix_animation`, `meatballs_animation`, `plasma_animation`, `ripples_animation`, `spiral_animation`, `stars_animation`, `tunnel_animation`, `voronoi_animation`, and `wave_animation`.
+
+All animations support the following configuration variables:
+
+- **color_scheme** (Optional, ColorScheme): Configures the color palette and gradients of the animation. Depending on the `type`, it can be `static`, `gradient`, `sequence`, `mirror`, `inverse`, `monochromatic`, `analogous`, `complementary`, `split_complementary`, `triadic`, or `square`.
+- **speed** (Optional, float): A multiplier to speed up or slow down the animation. Defaults to `1.0`.
+
+Depending on the animation type, extra options like `strength`, `cooling`, `length`, `density`, or `count` might also be available.
+
 ### Custom Element
 
 Allows for user-defined, highly specific visual elements or behaviors beyond the built-in options.
@@ -195,9 +216,6 @@ Allows for user-defined, highly specific visual elements or behaviors beyond the
 The following configuration variables are supported:
 
 - **draw** (Optional, lambda): A lambda function that defines how the element is rendered on the display. This is the core of a custom element, allowing you to draw anything you want using the [Display](https://esphome.io/components/display/index.html#display-rendering-engine) drawing primitives. The variable `element` refers to the custom element, `display` to the render display. If the lambda is not set, the [default lissajous animation](#basic-setup) is displayed.
-- **on_show** (Optional, lambda): A lambda function that is executed when the element becomes visible on the display. This is useful for performing setup tasks, starting animations, or loading data. The variable `element` refers to the custom element.
-- **on_hide** (Optional, lambda): A lambda function that is executed when the element is no longer visible on the display. This can be used to clean up resources, stop animations, or save data. The variable `element` refers to the custom element.
-- **on_next** (Optional, lambda): A lambda function that is executed when the element should transition to its next state or frame in a sequence. The variable `element` refers to the custom element.
 - **is_active** (Optional, lambda): A lambda that returns a boolean which determines whether the element is currently active and should be displayed. The variable `element` refers to the custom element.
 
 The following example displays a yellow circle when the weather is sunny, and otherwise a blue rectangle:
@@ -251,8 +269,17 @@ elements:
 This category of elements governs how child elements are displayed over time, allowing for dynamic and interactive displays.
 
 - `priority`: Displays the first active child element in its list, determined by each child's individual `is_active` state.
-- `sequence`: Presents its children in a defined order. An `on_next` call advances to the next active child. A `go_to` action with a target index jumps to a specific child.
-- `random`: Shows its active children in a random order. An `on_next` call attempts to display another random active child.
+- `sequence`: Presents its children in a defined order. You can use the `elements.sequence.next` and `elements.sequence.prev` actions to manually navigate to the next or previous active child in the sequence.
+- `random`: Shows its active children in a random order. You can use the `elements.random.next` and `elements.random.prev` actions to manually navigate to another random active child.
+
+**Navigation Actions:**
+
+To control `sequence` and `random` elements from automations, you can use their respective actions:
+
+- `elements.sequence.next` / `elements.sequence.prev`
+- `elements.random.next` / `elements.random.prev`
+
+Both require the `id` of the target container element to be provided.
 
 The same configuration variables as [Composition Elements](#composition-elements) are supported.
 
@@ -260,10 +287,9 @@ The same configuration variables as [Composition Elements](#composition-elements
 
 Changes the default behavior of elements by wrapping them.
 
-- `delay`: This element generates a _next_ event after observing a specified count of _next_ events from its child element. Resets the counter when being shown.
-  - **count** (Optional, int): The number of events before the _next_ event should be triggered. If unset, swallow all _next_ events from its child element.
-- `timeout`: This element generates a _next_ event after a specified timeout. It passes through _next_ events from its child element. Resets the timer when being shown.
-  - **duration** (Optional, duration): The time after which a _next_ event should be triggered.
+- `timeout`: This element generates an `on_complete` trigger after a specified timeout. Resets the timer when being shown.
+  - **duration** (Optional, time): The time after which the `on_complete` trigger should be fired.
+  - **on_complete** (Optional, Action): An automation to perform when the timeout expires.
 
 The following configuration variable is supported:
 

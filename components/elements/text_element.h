@@ -45,8 +45,8 @@ class TextElement : public Element {
   display::BaseFont *font_ = nullptr;
   Color color_ = Color::WHITE;
   Color background_color_ = Color::BLACK;
-  Anchor anchor_;
-  display::TextAlign align_;
+  Anchor anchor_ = {};
+  display::TextAlign align_ = display::TextAlign::CENTER;
 
   ScrollMode scroll_mode_ = ScrollMode::NONE;
   float scroll_speed_ = 10.0f;  // pixels per second

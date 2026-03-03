@@ -4,8 +4,8 @@ namespace esphome::elements {
 
 /// A point in the x-y-plane.
 template<typename T> struct Point {
-  T x;
-  T y;
+  T x = 0;
+  T y = 0;
 
   // Constructs an extent from the width and height of another object.
   template<typename C> static Point<T> from_extent(C &object) {
@@ -15,8 +15,8 @@ template<typename T> struct Point {
 
 /// An anchor with both absolute relative offsets.
 struct Anchor {
-  Point<int> offset;
-  Point<float> fraction;
+  Point<int> offset = {};
+  Point<float> fraction = {0.5f, 0.5f};
 
   Point<int> get(const Point<int> &extent) const {
     return {

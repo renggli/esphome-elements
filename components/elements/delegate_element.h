@@ -19,7 +19,7 @@ class DelegateElement : public Element {
   void on_hide() override;
 
  protected:
-  Element *element_;
+  Element *element_ = nullptr;
 };
 
 /// An element that generates an complete event after a specified time the element is visible.

@@ -19,12 +19,12 @@ void Element::dump_config(int level, const char *format, ...) {
 }
 
 void Element::on_show() {
-  ESP_LOGI(ELEMENT_TAG, "Triggering on_show callbacks");
+  ESP_LOGI(ELEMENT_TAG, "Triggering `on_show` callbacks");
   on_show_callbacks_.call(this);
 }
 
 void Element::on_hide() {
-  ESP_LOGI(ELEMENT_TAG, "Triggering on_hide callbacks");
+  ESP_LOGI(ELEMENT_TAG, "Triggering `on_hide` callbacks");
   on_hide_callbacks_.call(this);
 }
 

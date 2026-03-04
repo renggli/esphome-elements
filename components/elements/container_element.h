@@ -33,7 +33,7 @@ class ContainerElement : public Element {
 
   void dump_config(int level) override;
 
-  bool is_active() override;
+  bool is_active() const override;
 
   void on_show() override;
   void on_hide() override;
@@ -62,6 +62,7 @@ class PriorityElement : public ContainerElement {
   const char *get_type_name() const override { return "priority"; }
 
   void draw(display::Display &display) override;
+  bool has_visible_child(const Element *child) const override;
 
   void on_show() override;
   void on_hide() override;
@@ -101,6 +102,7 @@ class RandomElement : public ContainerElement {
   const char *get_type_name() const override { return "random"; }
 
   void draw(display::Display &display) override;
+  bool has_visible_child(const Element *child) const override;
   void go_to(int index);
 
   void prev();
@@ -143,6 +145,7 @@ class SequenceElement : public ContainerElement {
   const char *get_type_name() const override { return "sequence"; }
 
   void draw(display::Display &display) override;
+  bool has_visible_child(const Element *child) const override;
   void go_to(int index);
 
   void prev();

@@ -29,7 +29,7 @@ void ContainerElement::on_hide() {
   Element::on_hide();
 }
 
-bool ContainerElement::is_active() {
+bool ContainerElement::is_active() const {
   switch (active_mode_) {
     case ActiveMode::ALWAYS:
       return true;
@@ -63,9 +63,13 @@ void PriorityElement::draw(display::Display &display) {
   int index = find_active_index_();
   if (index_ != index) {
     ESP_LOGI(PRIORITY_ELEMENT_TAG, "Switching from %i to %i", index_, index);
-    on_hide();
+    if (is_visible() && index_ != -1) {
+      elements_[index_]->on_hide();
+    }
     index_ = index;
-    on_show();
+    if (is_visible() && index_ != -1) {
+      elements_[index_]->on_show();
+    }
   }
   if (index_ != -1) {
     elements_[index_]->draw(display);
@@ -84,6 +88,10 @@ void PriorityElement::on_hide() {
     elements_[index_]->on_hide();
   }
   Element::on_hide();
+}
+
+bool PriorityElement::has_visible_child(const Element *child) const {
+  return index_ != -1 && elements_[index_] == child;
 }
 
 int PriorityElement::find_active_index_() {
@@ -129,9 +137,13 @@ void RandomElement::draw(display::Display &display) {
 void RandomElement::go_to(int index) {
   if (index_ != index) {
     ESP_LOGI(RANDOM_ELEMENT_TAG, "Switching from %i to %i", index_, index);
-    on_hide();
+    if (is_visible() && index_ != -1) {
+      elements_[index_]->on_hide();
+    }
     index_ = index;
-    on_show();
+    if (is_visible() && index_ != -1) {
+      elements_[index_]->on_show();
+    }
   }
 }
 
@@ -157,6 +169,8 @@ void RandomElement::on_hide() {
   }
   Element::on_hide();
 }
+
+bool RandomElement::has_visible_child(const Element *child) const { return index_ != -1 && elements_[index_] == child; }
 
 void RandomElement::prev() {
   while (!history_.empty()) {
@@ -210,9 +224,13 @@ void SequenceElement::draw(display::Display &display) {
 void SequenceElement::go_to(int index) {
   if (index_ != index) {
     ESP_LOGI(SEQUENCE_ELEMENT_TAG, "Switching from %i to %i", index_, index);
-    on_hide();
+    if (is_visible() && index_ != -1) {
+      elements_[index_]->on_hide();
+    }
     index_ = index;
-    on_show();
+    if (is_visible() && index_ != -1) {
+      elements_[index_]->on_show();
+    }
   }
 }
 
@@ -228,6 +246,10 @@ void SequenceElement::on_hide() {
     elements_[index_]->on_hide();
   }
   Element::on_hide();
+}
+
+bool SequenceElement::has_visible_child(const Element *child) const {
+  return index_ != -1 && elements_[index_] == child;
 }
 
 void SequenceElement::prev() {

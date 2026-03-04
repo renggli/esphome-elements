@@ -21,7 +21,7 @@ enum class ScrollMode : std::uint8_t {
 class TextElement : public Element {
  public:
   using Element::Element;
-  virtual std::string get_text() = 0;
+  virtual std::string get_text() const = 0;
 
   void set_font(display::BaseFont *font) { font_ = font; }
   void set_color(Color color) { color_ = color; }
@@ -33,7 +33,7 @@ class TextElement : public Element {
   void set_scroll_speed(float scroll_speed) { scroll_speed_ = scroll_speed; }
 
   void draw(display::Display &display) override;
-  bool is_active() override;
+  bool is_active() const override;
   void on_show() override;
   void on_complete();
 
@@ -74,7 +74,7 @@ class StaticTextElement : public TextElement {
   const char *get_type_name() const override { return "static_text"; }
 
   void set_text(std::string text) { text_ = std::move(text); }
-  std::string get_text() override;
+  std::string get_text() const override;
 
  protected:
   std::string text_;
@@ -87,7 +87,7 @@ class DynamicTextElement : public TextElement {
 
   const char *get_type_name() const override { return "dynamic_text"; }
 
-  std::string get_text() override;
+  std::string get_text() const override;
 
   void set_lambda(std::function<std::string(DynamicTextElement &)> lambda) { lambda_ = std::move(lambda); }
 
@@ -102,7 +102,7 @@ class TimeTextElement : public TextElement {
 
   const char *get_type_name() const override { return "time_text"; }
 
-  std::string get_text() override;
+  std::string get_text() const override;
 
   void set_time(time::RealTimeClock *time) { time_ = time; }
   void set_format(std::string format) { format_ = std::move(format); }

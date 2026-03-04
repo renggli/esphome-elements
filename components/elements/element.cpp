@@ -18,6 +18,10 @@ void Element::dump_config(int level, const char *format, ...) {
   va_end(arg);
 }
 
+bool Element::is_visible() const {
+  return parent_ == nullptr || (parent_->has_visible_child(this) && parent_->is_visible());
+}
+
 void Element::on_show() {
   ESP_LOGI(ELEMENT_TAG, "Triggering `on_show` callbacks");
   on_show_callbacks_.call(this);

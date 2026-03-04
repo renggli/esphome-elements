@@ -99,12 +99,12 @@ void TextElement::on_complete() {
   on_complete_callbacks_.call(this);
 }
 
-bool TextElement::is_active() { return !get_text().empty(); };
+bool TextElement::is_active() const { return !get_text().empty(); }
 
-std::string StaticTextElement::get_text() { return text_; }
+std::string StaticTextElement::get_text() const { return text_; }
 
-std::string DynamicTextElement::get_text() { return lambda_(*this); }
+std::string DynamicTextElement::get_text() const { return lambda_(const_cast<DynamicTextElement &>(*this)); }
 
-std::string TimeTextElement::get_text() { return time_->now().strftime(format_); }
+std::string TimeTextElement::get_text() const { return time_->now().strftime(format_); }
 
 }  // namespace esphome::elements

@@ -33,7 +33,13 @@ class Element {
 
   /// Property of an element indicating if it wants to be shown. Parents
   /// might decide to skip the display of the element if it returns false.
-  virtual bool is_active() { return true; }
+  virtual bool is_active() const { return true; }
+
+  /// Property indicating if this element is currently visible (drawn by its parent, recursively).
+  bool is_visible() const;
+
+  /// Property indicating if this element is currently drawing the given child.
+  virtual bool has_visible_child(const Element *child) const { return false; }
 
   /// Register a callback that is called when the element is about to be shown.
   void add_on_show_callback(std::function<void(Element *)> &&callback) { on_show_callbacks_.add(std::move(callback)); }

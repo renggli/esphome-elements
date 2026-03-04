@@ -13,7 +13,9 @@ class DelegateElement : public Element {
 
   void dump_config(int level) override;
   void draw(display::Display &display) override;
-  bool is_active() override;
+
+  bool is_active() const override;
+  bool has_visible_child(const Element *child) const override { return child == element_; }
 
   void on_show() override;
   void on_hide() override;

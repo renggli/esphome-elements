@@ -16,7 +16,7 @@ void DelegateElement::draw(display::Display &display) {
   }
 }
 
-bool DelegateElement::is_active() { return element_ != nullptr && element_->is_active(); }
+bool DelegateElement::is_active() const { return element_ != nullptr && element_->is_active(); }
 
 void DelegateElement::on_show() {
   if (element_ != nullptr) {

@@ -12,9 +12,9 @@ void CustomElement::draw(display::Display &display) {
   }
 }
 
-bool CustomElement::is_active() {
+bool CustomElement::is_active() const {
   if (is_active_) {
-    return is_active_(*this);
+    return is_active_(const_cast<CustomElement &>(*this));
   }
   return Element::is_active();
 }

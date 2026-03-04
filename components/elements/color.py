@@ -16,6 +16,7 @@ CONF_CS_SCHEMES = "schemes"
 CONF_CS_SWEEP = "sweep"
 CONF_CS_TO = "to"
 CONF_CS_VALUE_SCALE = "value_scale"
+CONF_CS_FRACTION = "fraction"
 
 # Color
 
@@ -126,20 +127,27 @@ def color_scheme_schema(value):  # forward-declare for recursion
     return COLOR_SCHEME_SCHEMA(value)
 
 
-STATIC_CS_SCHEMA = cv.Schema(
+CS_BASE_SCHEMA = cv.Schema(
+    {
+        cv.Optional(CONF_CS_FRACTION, default=1.0): cv.float_range(min=0.001),
+    }
+)
+
+
+STATIC_CS_SCHEMA = CS_BASE_SCHEMA.extend(
     {
         cv.Required(CONF_COLOR): COLOR_SCHEMA,
     }
 )
 
-GRADIENT_CS_SCHEMA = cv.Schema(
+GRADIENT_CS_SCHEMA = CS_BASE_SCHEMA.extend(
     {
         cv.Required(CONF_CS_FROM): COLOR_SCHEMA,
         cv.Required(CONF_CS_TO): COLOR_SCHEMA,
     }
 )
 
-SEQUENCE_CS_SCHEMA = cv.Schema(
+SEQUENCE_CS_SCHEMA = CS_BASE_SCHEMA.extend(
     {
         cv.Required(CONF_CS_SCHEMES): cv.All(
             cv.ensure_list(color_scheme_schema),
@@ -148,63 +156,59 @@ SEQUENCE_CS_SCHEMA = cv.Schema(
     }
 )
 
-MIRROR_CS_SCHEMA = cv.Schema(
+MIRROR_CS_SCHEMA = CS_BASE_SCHEMA.extend(
     {
         cv.Required(CONF_CS_SCHEME): color_scheme_schema,
     }
 )
 
-INVERSE_CS_SCHEMA = cv.Schema(
+INVERSE_CS_SCHEMA = CS_BASE_SCHEMA.extend(
     {
         cv.Required(CONF_CS_SCHEME): color_scheme_schema,
     }
 )
 
 
-PALETTE_BASE_SCHEMA = {
-    cv.Required(CONF_COLOR): COLOR_SCHEMA,
-}
-
-MONOCHROMATIC_CS_SCHEMA = cv.Schema(
-    PALETTE_BASE_SCHEMA
-    | {
+MONOCHROMATIC_CS_SCHEMA = CS_BASE_SCHEMA.extend(
+    {
+        cv.Required(CONF_COLOR): COLOR_SCHEMA,
         cv.Optional(CONF_CS_MIN_BRIGHTNESS, default=0.2): cv.float_range(
             min=0.0, max=1.0
         ),
     }
 )
 
-ANALOGOUS_CS_SCHEMA = cv.Schema(
-    PALETTE_BASE_SCHEMA
-    | {
+ANALOGOUS_CS_SCHEMA = CS_BASE_SCHEMA.extend(
+    {
+        cv.Required(CONF_COLOR): COLOR_SCHEMA,
         cv.Optional(CONF_CS_SWEEP, default=30.0): cv.float_range(min=0.0, max=180.0),
     }
 )
 
-COMPLEMENTARY_CS_SCHEMA = cv.Schema(
-    PALETTE_BASE_SCHEMA
-    | {
+COMPLEMENTARY_CS_SCHEMA = CS_BASE_SCHEMA.extend(
+    {
+        cv.Required(CONF_COLOR): COLOR_SCHEMA,
         cv.Optional(CONF_CS_SWEEP, default=20.0): cv.float_range(min=0.0, max=90.0),
     }
 )
 
-SPLIT_COMPLEMENTARY_CS_SCHEMA = cv.Schema(
-    PALETTE_BASE_SCHEMA
-    | {
+SPLIT_COMPLEMENTARY_CS_SCHEMA = CS_BASE_SCHEMA.extend(
+    {
+        cv.Required(CONF_COLOR): COLOR_SCHEMA,
         cv.Optional(CONF_CS_SWEEP, default=20.0): cv.float_range(min=0.0, max=45.0),
     }
 )
 
-TRIADIC_CS_SCHEMA = cv.Schema(
-    PALETTE_BASE_SCHEMA
-    | {
+TRIADIC_CS_SCHEMA = CS_BASE_SCHEMA.extend(
+    {
+        cv.Required(CONF_COLOR): COLOR_SCHEMA,
         cv.Optional(CONF_CS_SWEEP, default=20.0): cv.float_range(min=0.0, max=45.0),
     }
 )
 
-SQUARE_CS_SCHEMA = cv.Schema(
-    PALETTE_BASE_SCHEMA
-    | {
+SQUARE_CS_SCHEMA = CS_BASE_SCHEMA.extend(
+    {
+        cv.Required(CONF_COLOR): COLOR_SCHEMA,
         cv.Optional(CONF_CS_SWEEP, default=15.0): cv.float_range(min=0.0, max=45.0),
     }
 )
@@ -252,30 +256,27 @@ async def color_scheme_to_code(config):
         var = cg.new_Pvariable(core.ID(_new_id("cs_static"), True, StaticColorScheme))
         cg.add(var.set_color(await color_to_code(config.get(CONF_COLOR))))
         return var
-
     elif scheme_type == "gradient":
         var = cg.new_Pvariable(core.ID(_new_id("cs_grad"), True, GradientColorScheme))
         cg.add(var.set_from(await color_to_code(config.get(CONF_CS_FROM))))
         cg.add(var.set_to(await color_to_code(config.get(CONF_CS_TO))))
         return var
-
     elif scheme_type == "mirror":
         var = cg.new_Pvariable(core.ID(_new_id("cs_mirror"), True, MirrorColorScheme))
         child = await color_scheme_to_code(config.get(CONF_CS_SCHEME))
         cg.add(var.set_scheme(child))
         return var
-
     elif scheme_type == "inverse":
         var = cg.new_Pvariable(core.ID(_new_id("cs_inverse"), True, InverseColorScheme))
         child = await color_scheme_to_code(config.get(CONF_CS_SCHEME))
         cg.add(var.set_scheme(child))
         return var
-
     elif scheme_type == "sequence":
         var = cg.new_Pvariable(core.ID(_new_id("cs_seq"), True, SequenceColorScheme))
         for child_config in config.get(CONF_CS_SCHEMES):
+            child_fraction = child_config.get(CONF_CS_FRACTION, 1.0)
             child = await color_scheme_to_code(child_config)
-            cg.add(var.add_scheme(child))
+            cg.add(var.add_scheme(child, child_fraction))
         return var
 
     # -- Palette shorthands (call C++ factory functions directly) --

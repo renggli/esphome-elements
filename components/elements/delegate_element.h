@@ -34,6 +34,7 @@ class TimeoutElement : public DelegateElement {
   void draw(display::Display &display) override;
 
   void on_show() override;
+  void on_hide() override;
   void on_complete();
 
   void add_on_complete_callback(std::function<void(TimeoutElement *)> &&callback) {

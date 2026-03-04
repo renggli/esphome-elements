@@ -1,4 +1,5 @@
 #include "delegate_element.h"
+#include <cstdint>
 
 namespace esphome::elements {
 
@@ -36,7 +37,9 @@ void DelegateElement::on_hide() {
 static const char *const TIMEOUT_ELEMENT_TAG = "elements.timeout";
 
 void TimeoutElement::draw(display::Display &display) {
-  if (next_ms_ <= get_component()->get_current_ms()) {
+  uint32_t current_ms = get_component()->get_current_ms();
+  if (next_ms_ != 0 && next_ms_ <= current_ms) {
+    next_ms_ = current_ms + duration_ms_;
     on_complete();
   }
   DelegateElement::draw(display);
@@ -45,6 +48,11 @@ void TimeoutElement::draw(display::Display &display) {
 void TimeoutElement::on_show() {
   next_ms_ = get_component()->get_current_ms() + duration_ms_;
   DelegateElement::on_show();
+}
+
+void TimeoutElement::on_hide() {
+  next_ms_ = 0;
+  DelegateElement::on_hide();
 }
 
 void TimeoutElement::on_complete() {

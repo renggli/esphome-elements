@@ -30,10 +30,11 @@ class StaticColorScheme : public ColorScheme {
  public:
   void set_color(Color c);
   void set_hsv(float h, float s, float v);
+
   void get_hsv(float p, float &h, float &s, float &v) override;
 
  private:
-  float h_{0.0f}, s_{1.0f}, v_{1.0f};
+  float h_ = 0.0f, s_ = 1.0f, v_ = 1.0f;
 };
 
 // Interpolates two HSV endpoints using shortest-path hue blending.
@@ -48,8 +49,8 @@ class GradientColorScheme : public ColorScheme {
   void get_hsv(float p, float &h, float &s, float &v) override;
 
  private:
-  float from_h_{0.0f}, from_s_{1.0f}, from_v_{1.0f};
-  float to_h_{180.0f}, to_s_{1.0f}, to_v_{1.0f};
+  float from_h_ = 0.0f, from_s_ = 1.0f, from_v_ = 1.0f;
+  float to_h_ = 180.0f, to_s_ = 1.0f, to_v_ = 1.0f;
 };
 
 // Wraps another scheme and reflects p: maps [0,1] to a triangle 0→1→0.
@@ -60,7 +61,7 @@ class MirrorColorScheme : public ColorScheme {
   void get_hsv(float p, float &h, float &s, float &v) override;
 
  private:
-  ColorScheme *scheme_{nullptr};
+  ColorScheme *scheme_ = nullptr;
 };
 
 // Wraps another scheme and inverts p: maps [0,1] to [1,0].
@@ -70,17 +71,23 @@ class InverseColorScheme : public ColorScheme {
   void get_hsv(float p, float &h, float &s, float &v) override;
 
  private:
-  ColorScheme *scheme_{nullptr};
+  ColorScheme *scheme_ = nullptr;
 };
 
-// Splits [0,1] into equal segments and maps each to a child scheme.
+// Splits [0,1] into segments and maps each to a child scheme.
 class SequenceColorScheme : public ColorScheme {
  public:
-  void add_scheme(ColorScheme *scheme);
+  void add_scheme(ColorScheme *scheme, float fraction = 1.0f);
   void get_hsv(float p, float &h, float &s, float &v) override;
 
  private:
-  std::vector<ColorScheme *> schemes_;
+  struct SequenceItem {
+    ColorScheme *scheme;
+    float fraction;
+    float cumulative_fraction;
+  };
+  std::vector<SequenceItem> schemes_;
+  float total_fraction_ = 0.0f;
 };
 
 // Palette factory functions

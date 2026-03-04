@@ -259,7 +259,8 @@ text_sensor:
     entity_id: sensor.dishwasher_status
     on_value:
       then:
-        - lambda: id(dishwasher_status_text_element).set_text(x);
+        - lambda: |-
+            id(dishwasher_status_text_element).set_text(x == "standby" ? "" : x);
   - platform: homeassistant
     id: dishwasher_notification
     entity_id: sensor.dishwasher_notification
@@ -704,12 +705,15 @@ elements:
                   - type: gradient
                     from: "#000000"
                     to: "#A01010"
+                    fraction: 0.1
                   - type: gradient
                     from: "#A01010"
                     to: "#FF6000"
+                    fraction: 0.2
                   - type: gradient
                     from: "#FF6000"
                     to: "#FFF000"
+                    fraction: 0.7
             - type: tunnel_animation
               color_scheme:
                 type: triadic

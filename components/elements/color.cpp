@@ -169,18 +169,28 @@ void InverseColorScheme::get_hsv(float p, float &h, float &s, float &v) {
 
 // SequenceColorScheme
 
-void SequenceColorScheme::add_scheme(ColorScheme *scheme) { schemes_.push_back(scheme); }
+void SequenceColorScheme::add_scheme(ColorScheme *scheme, float fraction) {
+  float safe_fraction = std::max(0.001f, fraction);
+  total_fraction_ += safe_fraction;
+  schemes_.push_back({scheme, safe_fraction, total_fraction_});
+}
 
 void SequenceColorScheme::get_hsv(float p, float &h, float &s, float &v) {
   if (schemes_.empty()) {
     h = s = v = 0;
     return;
   }
-  p = std::clamp(p, 0.0f, 1.0f);
-  float scaled = p * (float) schemes_.size();
-  int idx = std::clamp((int) scaled, 0, (int) schemes_.size() - 1);
-  float local_p = scaled - (float) idx;
-  schemes_[idx]->get_hsv(local_p, h, s, v);
+  p = std::clamp(p, 0.0f, 1.0f) * total_fraction_;
+  for (const auto &item : schemes_) {
+    if (p <= item.cumulative_fraction) {
+      float start_p = item.cumulative_fraction - item.fraction;
+      float local_p = std::clamp((p - start_p) / item.fraction, 0.0f, 1.0f);
+      item.scheme->get_hsv(local_p, h, s, v);
+      return;
+    }
+  }
+  // Fallback to last scheme, due to floating point inaccuracies.
+  schemes_.back().scheme->get_hsv(1.0f, h, s, v);
 }
 
 // Palette factory implementations

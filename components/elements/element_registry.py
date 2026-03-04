@@ -14,7 +14,8 @@ def register_element(name, schema, to_code):
 # The typed schema of all elements
 def TYPED_ELEMENT_SCHEMA(value):
     return cv.typed_schema(
-        {name: schema for name, (schema, _) in _ELEMENT_REGISTRY.items()}
+        {name.lower(): schema for name, (schema, _) in _ELEMENT_REGISTRY.items()},
+        lower=True,
     )(value)
 
 

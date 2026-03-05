@@ -200,14 +200,14 @@ hour_hand:
 
 Provides complex procedural animations to serve as backgrounds or standalone visualizations. The following animations are available:
 
-`aurora_animation`, `fire_animation`, `gradient_animation`, `interference_animation`, `julia_animation`, `kaleidoscope_animation`, `matrix_animation`, `meatballs_animation`, `plasma_animation`, `ripples_animation`, `spiral_animation`, `stars_animation`, `tunnel_animation`, `voronoi_animation`, and `wave_animation`.
+`aurora_animation`, `fire_animation`, `game_of_life_animation`, `gradient_animation`, `interference_animation`, `julia_animation`, `kaleidoscope_animation`, `matrix_animation`, `meatballs_animation`, `plasma_animation`, `ripples_animation`, `spiral_animation`, `stars_animation`, `tunnel_animation`, `voronoi_animation`, and `wave_animation`.
 
 All animations support the following configuration variables:
 
 - **color_scheme** (Optional, ColorScheme): Configures the color palette and gradients of the animation. Depending on the `type`, it can be `static`, `gradient`, `sequence`, `mirror`, `inverse`, `monochromatic`, `analogous`, `complementary`, `split_complementary`, `triadic`, or `square`.
 - **speed** (Optional, float): A multiplier to speed up or slow down the animation. Defaults to `1.0`.
 
-Depending on the animation type, extra options like `strength`, `cooling`, `length`, `density`, or `count` might also be available.
+Depending on the animation type, extra options like `strength`, `cooling`, `length`, `density`, `fade_steps`, or `count` might also be available.
 
 ### Custom Element
 

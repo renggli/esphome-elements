@@ -127,30 +127,22 @@ void PlasmaAnimationElement::draw(display::Display &display, int width, int heig
 
 void RipplesAnimationElement::draw(display::Display &display, int width, int height, uint32_t time) {
   float t = time / 1000.0f;
-  display.clear();
-  // Simulate raindrops expanding
-  for (int i = 0; i < count_; i++) {
-    float burst_t = fract(t * 0.2f + i * (1.0f / count_));
-    float bx = 0.1f + 0.8f * noise(i, 0, 123);
-    float by = 0.1f + 0.8f * noise(i, 1, 123);
-    float cx = bx * width;
-    float cy = by * height;
-
-    float max_radius = std::max(width, height) * 0.6f;
-    float radius = burst_t * max_radius;
-    float fade = 1.0f - burst_t;
-
-    for (int y = 0; y < height; ++y) {
-      for (int x = 0; x < width; ++x) {
+  float max_radius = std::max(width, height) * 0.6f;
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      float val = 0.0f;
+      for (int i = 0; i < count_; i++) {
+        float burst_t = fract(t * 0.2f + i * (1.0f / count_));
+        float cx = (0.1f + 0.8f * noise(i, 0, 123)) * width;
+        float cy = (0.1f + 0.8f * noise(i, 1, 123)) * height;
+        float radius = burst_t * max_radius;
+        float fade = 1.0f - burst_t;
         float dx = x - cx;
         float dy = y - cy;
         float dist = std::sqrt(dx * dx + dy * dy);
-        float ring = std::exp(-std::pow((dist - radius) / 1.5f, 2.0f));
-        if (ring > 0.01f) {
-          float current_val = ring * fade;
-          display.draw_pixel_at(x, y, get_gradient_color_(current_val));
-        }
+        val += std::exp(-std::pow((dist - radius) / 1.5f, 2.0f)) * fade;
       }
+      display.draw_pixel_at(x, y, get_gradient_color_(std::min(val, 1.0f)));
     }
   }
 }
@@ -284,24 +276,27 @@ void GradientAnimationElement::draw(display::Display &display, int width, int he
   }
 }
 
-void FireAnimationElement::draw(display::Display &display, int width, int height, uint32_t time) {
-  if (heat_buffer_.size() != width * height) {
-    heat_buffer_.assign(width * height, 0.0f);
-  }
+void FireAnimationElement::on_hide() {
+  heat_buffer_.clear();
+  Element::on_hide();
+}
 
+void FireAnimationElement::draw(display::Display &display, int width, int height, uint32_t time) {
+  int size = width * height;
+  if (heat_buffer_.size() != size) {
+    heat_buffer_.assign(size, 0.0f);
+  }
   // Use a second buffer for the next state to avoid using already-cooled pixels in the same pass
   static std::vector<float> next_heat;
-  if (next_heat.size() != width * height) {
-    next_heat.assign(width * height, 0.0f);
+  if (next_heat.size() != size) {
+    next_heat.assign(size, 0.0f);
   }
-
   // Seed the bottom row with noise
   float t = time / 200.0f;
   for (int x = 0; x < width; x++) {
     // Seed with full [0, 1] range, but keep it hot overall
     next_heat[(height - 1) * width + x] = std::pow(noise(x, (int) t, 123), 0.5f);
   }
-
   // Propagate heat upwards with diffusion and cooling
   for (int y = 0; y < height - 1; y++) {
     for (int x = 0; x < width; x++) {
@@ -310,9 +305,7 @@ void FireAnimationElement::draw(display::Display &display, int width, int height
       h += heat_buffer_[(y + 1) * width + std::max(0, x - 1)];
       h += heat_buffer_[(y + 1) * width + x];
       h += heat_buffer_[(y + 1) * width + std::min(width - 1, x + 1)];
-
       h = (h / 3.0f) * strength_;
-
       // Random jitter for the cooling factor makes it look "wispy"
       float jitter = 0.8f + 0.4f * noise(x, y, (int) (time / 100));
       // Cooling factor increases with height to ensure it hits black at the top
@@ -320,9 +313,7 @@ void FireAnimationElement::draw(display::Display &display, int width, int height
       next_heat[y * width + x] = std::clamp(h - (cooling_ * jitter * height_factor), 0.0f, 1.0f);
     }
   }
-
   heat_buffer_ = next_heat;
-
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
       // Apply a gamma-like curve to "stretch" the lower heat values (reds/oranges)
@@ -379,6 +370,109 @@ void StarsAnimationElement::draw(display::Display &display, int width, int heigh
       // Only show pixels above a density threshold
       float threshold = 1.0f - density_;
       float val = (base_brightness > threshold) ? base_brightness * twinkle : 0.0f;
+      display.draw_pixel_at(x, y, get_gradient_color_(val));
+    }
+  }
+}
+
+void GameOfLifeAnimationElement::on_hide() {
+  grid_.clear();
+  Element::on_hide();
+}
+
+void GameOfLifeAnimationElement::seed_grid_(int size, uint32_t time) {
+  uint32_t seed = time ^ (uint32_t) (uintptr_t) this;
+  grid_.resize(size);
+  for (int i = 0; i < size; i++) {
+    uint32_t h = hash(seed + i);
+    bool alive = (h % 1000) < (uint32_t) (density_ * 1000.0f);
+    grid_[i] = alive ? (0x10 | (uint8_t) fade_steps_) : 0;
+  }
+  near_dead_count_ = 0;
+  last_step_time_ = time;
+}
+
+void GameOfLifeAnimationElement::draw(display::Display &display, int width, int height, uint32_t time) {
+  // Seed the grid if it is empty (first draw or after on_hide cleared it)
+  int size = width * height;
+  if ((int) grid_.size() != size) {
+    seed_grid_(size, time);
+  }
+  // Count live cells
+  uint32_t live_count = 0;
+  for (int i = 0; i < size; i++) {
+    if ((grid_[i] & 0x10) != 0) {
+      live_count++;
+    }
+  }
+  // Emergency re-seed if the board goes near-dead between on_show calls
+  // (e.g. the element stays visible indefinitely). Oscillators are never
+  // near-dead so they won't trigger this.
+  if (live_count <= 2) {
+    near_dead_count_++;
+  } else {
+    near_dead_count_ = 0;
+  }
+  if (near_dead_count_ > 60) {
+    seed_grid_(size, time);
+  }
+  // Advance one generation if enough time has elapsed
+  if (time - last_step_time_ >= step_interval_) {
+    last_step_time_ = time;
+    std::vector<uint8_t> next(size);
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        // Count live neighbours (Moore neighbourhood, wrapping)
+        int neighbours = 0;
+        for (int dy = -1; dy <= 1; dy++) {
+          for (int dx = -1; dx <= 1; dx++) {
+            if (dx == 0 && dy == 0) {
+              continue;
+            }
+            int nx = (x + dx + width) % width;
+            int ny = (y + dy + height) % height;
+            if ((grid_[ny * width + nx] & 0x10) != 0) {
+              neighbours++;
+            }
+          }
+        }
+        uint8_t cur = grid_[y * width + x];
+        bool alive = (cur & 0x10) != 0;
+        uint8_t fade = cur & 0x0F;
+        if (alive) {
+          // Conway's rules: survive with 2 or 3 neighbours
+          if (neighbours == 2 || neighbours == 3) {
+            next[y * width + x] = 0x10 | (uint8_t) fade_steps_;
+          } else {
+            // Start fading: keep high nibble clear, begin fade countdown
+            next[y * width + x] = (uint8_t) (fade_steps_ > 0 ? fade_steps_ - 1 : 0);
+          }
+        } else {
+          // Dead cell: birth with exactly 3 neighbours
+          if (neighbours == 3) {
+            next[y * width + x] = 0x10 | (uint8_t) fade_steps_;
+          } else if (fade > 0) {
+            // Continue fading out
+            next[y * width + x] = fade - 1;
+          } else {
+            next[y * width + x] = 0;
+          }
+        }
+      }
+    }
+    grid_ = next;
+  }
+  // Render: alive = full brightness, fading = proportional brightness
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      uint8_t cell = grid_[y * width + x];
+      float val;
+      if ((cell & 0x10) != 0) {
+        val = 1.0f;
+      } else {
+        uint8_t fade = cell & 0x0F;
+        val = (fade_steps_ > 0) ? ((float) fade / (float) fade_steps_) : 0.0f;
+      }
       display.draw_pixel_at(x, y, get_gradient_color_(val));
     }
   }

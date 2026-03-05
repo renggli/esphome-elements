@@ -400,7 +400,7 @@ elements:
   id: elements_display
   display: led_display
   element:
-    type: random
+    type: sequence
     id: primary_elements
     elements:
       # Message
@@ -664,13 +664,26 @@ elements:
                     to: "#00FF41"
             - type: kaleidoscope_animation
               color_scheme:
-                type: complementary
-                color: "#2196F3"
+                type: sequence
+                schemes:
+                  - type: static
+                    fraction: 0.25
+                    color: "#000000"
+                  - type: complementary
+                    color: "#2196F3"
             - type: plasma_animation
               color_scheme:
-                type: analogous
-                color: "#9C27B0"
-                sweep: 60.0
+                type: sequence
+                schemes:
+                  - type: static
+                    fraction: 0.25
+                    color: "#000000"
+                  - type: complementary
+                    color: "#9C27B0"
+                    sweep: 60.0
+                  - type: static
+                    fraction: 0.25
+                    color: "#000000"
             - type: ripples_animation
               color_scheme:
                 type: gradient
@@ -678,21 +691,37 @@ elements:
                 from: "#010810"
             - type: spiral_animation
               color_scheme:
-                type: triadic
-                color: "#FFEB3B"
+                type: sequence
+                schemes:
+                  - type: static
+                    fraction: 0.25
+                    color: "#000000"
+                  - type: triadic
+                    color: "#FFEB3B"
             - type: voronoi_animation
               color_scheme:
-                type: triadic
-                color: "#E91E63"
+                type: sequence
+                schemes:
+                  - type: static
+                    color: "#000000"
+                  - type: triadic
+                    color: "#E91E63"
             - type: interference_animation
               color_scheme:
-                type: analogous
-                color: "#673AB7"
-                sweep: 60.0
+                type: sequence
+                schemes:
+                  - type: static
+                    color: "#000000"
+                  - type: square
+                    color: "#673AB7"
             - type: julia_animation
               color_scheme:
-                type: complementary
-                color: "#ff0000"
+                type: sequence
+                schemes:
+                  - type: static
+                    color: "#000000"
+                  - type: complementary
+                    color: "#ff0000"
             - type: matrix_animation
               color_scheme:
                 type: monochromatic
@@ -720,10 +749,30 @@ elements:
                 color: "#AA00FF"
             - type: wave_animation
               color_scheme:
-                type: analogous
-                color: "#00E5FF"
+                type: sequence
+                schemes:
+                  - type: static
+                    color: "#000000"
+                  - type: analogous
+                    color: "#00E5FF"
+                  - type: analogous
+                    color: "#00e5ff"
             - type: stars_animation
               color_scheme:
                 type: gradient
                 from: "#000000"
                 to: "#90CAF9"
+            - type: game_of_life_animation
+              density: 0.3
+              fade_steps: 6
+              speed: 1.0
+              color_scheme:
+                type: sequence
+                schemes:
+                  - type: gradient
+                    fraction: 0.99
+                    from: "#000000"
+                    to: "#43a4ab"
+                  - type: static
+                    fraction: 0.01
+                    color: "#cffcff"

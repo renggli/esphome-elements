@@ -90,7 +90,7 @@ class VoronoiAnimationElement : public AnimationElement {
   void draw(display::Display &display, int width, int height, uint32_t time) override;
 
  protected:
-  int count_{6};
+  int count_{5};
 };
 
 class InterferenceAnimationElement : public AnimationElement {
@@ -144,6 +144,7 @@ class FireAnimationElement : public AnimationElement {
   void set_strength(float strength) { strength_ = strength; }
   void set_cooling(float cooling) { cooling_ = cooling; }
 
+  void on_hide() override;
   void draw(display::Display &display, int width, int height, uint32_t time) override;
 
  protected:
@@ -179,6 +180,32 @@ class StarsAnimationElement : public AnimationElement {
 
  protected:
   float density_{0.05f};
+};
+
+class GameOfLifeAnimationElement : public AnimationElement {
+ public:
+  using AnimationElement::AnimationElement;
+  const char *get_type_name() const override { return "game_of_life_animation"; }
+
+  void set_density(float density) { density_ = density; }
+  void set_fade_steps(int fade_steps) { fade_steps_ = fade_steps; }
+
+  void on_hide() override;
+  void draw(display::Display &display, int width, int height, uint32_t time) override;
+
+ protected:
+  void seed_grid_(int size, uint32_t time);
+
+  float density_{0.25f};
+  int fade_steps_{8};
+
+  // 1 byte per pixel:
+  // - high nibble (0x10): alive flag
+  // - low nibble  (0x0F): fade counter (fade_steps_..0, decremented each step while dying)
+  std::vector<uint8_t> grid_;
+  uint32_t last_step_time_{0};
+  uint32_t step_interval_{300};  // ms between generations
+  uint32_t near_dead_count_{0};  // steps with ≤2 live cells; triggers reseed
 };
 
 }  // namespace esphome::elements

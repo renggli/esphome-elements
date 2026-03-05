@@ -11,6 +11,7 @@ CONF_COLOR_SCHEME = "color_scheme"
 CONF_COOLING = "cooling"
 CONF_COUNT = "count"
 CONF_DENSITY = "density"
+CONF_FADE_STEPS = "fade_steps"
 CONF_LENGTH = "length"
 CONF_SPEED = "speed"
 CONF_STRENGTH = "strength"
@@ -197,7 +198,7 @@ VoronoiAnimationElement = shared.elements_ns.class_(
 VORONOI_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
     {
         cv.GenerateID(CONF_ID): cv.declare_id(VoronoiAnimationElement),
-        cv.Optional(CONF_COUNT, default=6): cv.int_range(min=1),
+        cv.Optional(CONF_COUNT, default=5): cv.int_range(min=1),
     }
 )
 
@@ -423,4 +424,34 @@ element_registry.register_element(
     "stars_animation",
     STARS_ANIMATION_ELEMENT_SCHEMA,
     stars_animation_to_code,
+)
+
+# Game of Life Animation
+
+GameOfLifeAnimationElement = shared.elements_ns.class_(
+    "GameOfLifeAnimationElement", AnimationElement
+)
+
+GAME_OF_LIFE_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
+    {
+        cv.GenerateID(CONF_ID): cv.declare_id(GameOfLifeAnimationElement),
+        cv.Optional(CONF_DENSITY, default=0.25): cv.float_range(min=0.0, max=1.0),
+        cv.Optional(CONF_FADE_STEPS, default=8): cv.int_range(min=0, max=15),
+    }
+)
+
+
+async def game_of_life_animation_to_code(config, component, parent):
+    var = await animation_element_to_code(config, component, parent)
+    if conf := config.get(CONF_DENSITY):
+        cg.add(var.set_density(conf))
+    if conf := config.get(CONF_FADE_STEPS):
+        cg.add(var.set_fade_steps(conf))
+    return var
+
+
+element_registry.register_element(
+    "game_of_life_animation",
+    GAME_OF_LIFE_ANIMATION_ELEMENT_SCHEMA,
+    game_of_life_animation_to_code,
 )

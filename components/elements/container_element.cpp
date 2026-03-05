@@ -6,6 +6,10 @@
 
 namespace esphome::elements {
 
+// ---------------------------------------------------------------------------
+// ContainerElement
+// ---------------------------------------------------------------------------
+
 void ContainerElement::add_element(Element *element) { elements_.push_back(element); }
 
 void ContainerElement::dump_config(int level) {
@@ -13,20 +17,6 @@ void ContainerElement::dump_config(int level) {
   for (Element *element : elements_) {
     element->dump_config(level + 1);
   }
-}
-
-void ContainerElement::on_show() {
-  for (Element *element : elements_) {
-    element->on_show();
-  }
-  Element::on_show();
-}
-
-void ContainerElement::on_hide() {
-  for (Element *element : elements_) {
-    element->on_hide();
-  }
-  Element::on_hide();
 }
 
 bool ContainerElement::is_active() const {
@@ -51,51 +41,70 @@ bool ContainerElement::is_active() const {
   return false;
 }
 
+void ContainerElement::visit_children(const std::function<void(Element *, bool)> &fn) {
+  for (Element *element : elements_) {
+    fn(element, true);
+  }
+}
+
+void ContainerElement::update_state() {
+  for (Element *element : elements_) {
+    element->update_state();
+  }
+}
+
+// ---------------------------------------------------------------------------
+// SelectElement
+// ---------------------------------------------------------------------------
+
+void SelectElement::visit_children(const std::function<void(Element *, bool)> &fn) {
+  for (int i = 0; i < (int) elements_.size(); i++) {
+    fn(elements_[i], i == index_);
+  }
+}
+
+void SelectElement::go_to(int index) { index_ = index; }
+
+void SelectElement::next() {
+  int count = elements_.size();
+  for (int offset = 1; offset < count; offset++) {
+    int new_index = (index_ + offset) % count;
+    if (elements_[new_index]->is_active()) {
+      go_to(new_index);
+      return;
+    }
+  }
+}
+
+void SelectElement::prev() {
+  int count = elements_.size();
+  for (int offset = 1; offset < count; offset++) {
+    int new_index = (index_ - offset + count) % count;
+    if (elements_[new_index]->is_active()) {
+      go_to(new_index);
+      return;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// OverlayElement
+// ---------------------------------------------------------------------------
+
 void OverlayElement::draw(display::Display &display) {
   for (Element *element : elements_) {
     element->draw(display);
   }
 }
 
+// ---------------------------------------------------------------------------
+// PriorityElement
+// ---------------------------------------------------------------------------
+
 static const char *const PRIORITY_ELEMENT_TAG = "elements.priority";
 
-void PriorityElement::draw(display::Display &display) {
-  int index = find_active_index_();
-  if (index_ != index) {
-    ESP_LOGI(PRIORITY_ELEMENT_TAG, "Switching from %i to %i", index_, index);
-    if (is_visible() && index_ != -1) {
-      elements_[index_]->on_hide();
-    }
-    index_ = index;
-    if (is_visible() && index_ != -1) {
-      elements_[index_]->on_show();
-    }
-  }
-  if (index_ != -1) {
-    elements_[index_]->draw(display);
-  }
-}
-
-void PriorityElement::on_show() {
-  if (index_ != -1) {
-    elements_[index_]->on_show();
-  }
-  Element::on_show();
-}
-
-void PriorityElement::on_hide() {
-  if (index_ != -1) {
-    elements_[index_]->on_hide();
-  }
-  Element::on_hide();
-}
-
-bool PriorityElement::has_visible_child(const Element *child) const {
-  return index_ != -1 && elements_[index_] == child;
-}
-
-int PriorityElement::find_active_index_() {
-  for (int i = 0; i < elements_.size(); i++) {
+int PriorityElement::find_active_index_() const {
+  for (int i = 0; i < (int) elements_.size(); i++) {
     if (elements_[i]->is_active()) {
       return i;
     }
@@ -103,47 +112,67 @@ int PriorityElement::find_active_index_() {
   return -1;
 }
 
+void PriorityElement::update_state() {
+  // Update children first, then re-evaluate which one has priority.
+  ContainerElement::update_state();
+  int new_index = find_active_index_();
+  if (new_index != index_) {
+    ESP_LOGI(PRIORITY_ELEMENT_TAG, "Switching from %i to %i", index_, new_index);
+    go_to(new_index);
+  }
+}
+
+void PriorityElement::draw(display::Display &display) {
+  if (index_ != -1) {
+    elements_[index_]->draw(display);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// HorizontalElement
+// ---------------------------------------------------------------------------
+
 void HorizontalElement::draw(display::Display &display) {
   if (!elements_.empty()) {
     int width = display.get_width() / elements_.size();
-    for (int i = 0; i < elements_.size(); i++) {
+    for (int i = 0; i < (int) elements_.size(); i++) {
       auto sub_display = SubDisplay(display, i * width, 0, width, display.get_height());
       elements_[i]->draw(sub_display);
     }
   }
 }
 
+// ---------------------------------------------------------------------------
+// VerticalElement
+// ---------------------------------------------------------------------------
+
 void VerticalElement::draw(display::Display &display) {
   if (!elements_.empty()) {
     int height = display.get_height() / elements_.size();
-    for (int i = 0; i < elements_.size(); i++) {
+    for (int i = 0; i < (int) elements_.size(); i++) {
       auto sub_display = SubDisplay(display, 0, i * height, display.get_width(), height);
       elements_[i]->draw(sub_display);
     }
   }
 }
 
+// ---------------------------------------------------------------------------
+// RandomElement
+// ---------------------------------------------------------------------------
+
 static const char *const RANDOM_ELEMENT_TAG = "elements.random";
 
-void RandomElement::draw(display::Display &display) {
+void RandomElement::update_state() {
+  // Update children first, then initialise if we have no selection yet.
+  ContainerElement::update_state();
   if (index_ == -1) {
     next();
   }
-  if (index_ != -1) {
-    elements_[index_]->draw(display);
-  }
 }
 
-void RandomElement::go_to(int index) {
-  if (index_ != index) {
-    ESP_LOGI(RANDOM_ELEMENT_TAG, "Switching from %i to %i", index_, index);
-    if (is_visible() && index_ != -1) {
-      elements_[index_]->on_hide();
-    }
-    index_ = index;
-    if (is_visible() && index_ != -1) {
-      elements_[index_]->on_show();
-    }
+void RandomElement::draw(display::Display &display) {
+  if (index_ != -1) {
+    elements_[index_]->draw(display);
   }
 }
 
@@ -155,22 +184,6 @@ void RandomElement::update_history_() {
     }
   }
 }
-
-void RandomElement::on_show() {
-  if (index_ != -1) {
-    elements_[index_]->on_show();
-  }
-  Element::on_show();
-}
-
-void RandomElement::on_hide() {
-  if (index_ != -1) {
-    elements_[index_]->on_hide();
-  }
-  Element::on_hide();
-}
-
-bool RandomElement::has_visible_child(const Element *child) const { return index_ != -1 && elements_[index_] == child; }
 
 void RandomElement::prev() {
   while (!history_.empty()) {
@@ -186,7 +199,7 @@ void RandomElement::prev() {
 void RandomElement::next() {
   std::vector<int> candidates;
   int min = std::numeric_limits<int>::max();
-  for (int index = 0; index < elements_.size(); index++) {
+  for (int index = 0; index < (int) elements_.size(); index++) {
     if (!elements_[index]->is_active())
       continue;
     int count = 0;
@@ -210,46 +223,24 @@ void RandomElement::next() {
   }
 }
 
+// ---------------------------------------------------------------------------
+// SequenceElement
+// ---------------------------------------------------------------------------
+
 static const char *const SEQUENCE_ELEMENT_TAG = "elements.sequence";
 
-void SequenceElement::draw(display::Display &display) {
+void SequenceElement::update_state() {
+  // Update children first, then initialise if we have no selection yet.
+  ContainerElement::update_state();
   if (index_ == -1) {
     next();
   }
+}
+
+void SequenceElement::draw(display::Display &display) {
   if (index_ != -1) {
     elements_[index_]->draw(display);
   }
-}
-
-void SequenceElement::go_to(int index) {
-  if (index_ != index) {
-    ESP_LOGI(SEQUENCE_ELEMENT_TAG, "Switching from %i to %i", index_, index);
-    if (is_visible() && index_ != -1) {
-      elements_[index_]->on_hide();
-    }
-    index_ = index;
-    if (is_visible() && index_ != -1) {
-      elements_[index_]->on_show();
-    }
-  }
-}
-
-void SequenceElement::on_show() {
-  if (index_ != -1) {
-    elements_[index_]->on_show();
-  }
-  Element::on_show();
-}
-
-void SequenceElement::on_hide() {
-  if (index_ != -1) {
-    elements_[index_]->on_hide();
-  }
-  Element::on_hide();
-}
-
-bool SequenceElement::has_visible_child(const Element *child) const {
-  return index_ != -1 && elements_[index_] == child;
 }
 
 void SequenceElement::prev() {
@@ -257,6 +248,7 @@ void SequenceElement::prev() {
   for (int offset = 1; offset < count; offset++) {
     int new_index = (index_ - offset + count) % count;
     if (elements_[new_index]->is_active()) {
+      ESP_LOGI(SEQUENCE_ELEMENT_TAG, "Switching from %i to %i", index_, new_index);
       go_to(new_index);
       return;
     }
@@ -268,6 +260,7 @@ void SequenceElement::next() {
   for (int offset = 1; offset < count; offset++) {
     int new_index = (index_ + offset) % count;
     if (elements_[new_index]->is_active()) {
+      ESP_LOGI(SEQUENCE_ELEMENT_TAG, "Switching from %i to %i", index_, new_index);
       go_to(new_index);
       return;
     }

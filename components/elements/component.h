@@ -37,7 +37,6 @@ class ElementComponent : public Component {
   Element *root_ = nullptr;
   display::Display *display_ = nullptr;
 
-  bool request_on_show_ = false;
   uint32_t current_ms_ = millis();
   uint32_t delta_ms_ = 0;
 

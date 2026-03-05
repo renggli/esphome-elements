@@ -35,30 +35,54 @@ class Element {
   /// might decide to skip the display of the element if it returns false.
   virtual bool is_active() const { return true; }
 
-  /// Property indicating if this element is currently visible (drawn by its parent, recursively).
-  bool is_visible() const;
+  /// Property indicating if this element is currently visible (drawn by its parent).
+  bool is_visible() const { return visible_; }
 
-  /// Property indicating if this element is currently drawing the given child.
-  virtual bool has_visible_child(const Element *child) const { return false; }
+  // ---------------------------------------------------------------------------
+  // Lifecycle
+  // ---------------------------------------------------------------------------
+
+  /// Called before drawing each frame to let elements update their internal
+  /// state (e.g. which child to display). Must not fire any events.
+  virtual void update_state() {}
+
+  /// Visits each child element with a flag indicating whether that child will
+  /// be visible this frame. Leaf elements have no children (default no-op).
+  /// This drives the centralised visibility + event system in ElementComponent.
+  virtual void visit_children(const std::function<void(Element *, bool)> &fn) {}
+
+  // ---------------------------------------------------------------------------
+  // Events
+  // ---------------------------------------------------------------------------
 
   /// Register a callback that is called when the element is about to be shown.
   void add_on_show_callback(std::function<void(Element *)> &&callback) { on_show_callbacks_.add(std::move(callback)); }
 
-  /// Called by when the element is about to be shown.
+  /// Called when the element transitions from hidden to visible.
   virtual void on_show();
 
   /// Register a callback that is called when the element is about to be hidden.
   void add_on_hide_callback(std::function<void(Element *)> &&callback) { on_hide_callbacks_.add(std::move(callback)); }
 
-  /// Called by when the element is about to be hidden.
+  /// Called when the element transitions from visible to hidden.
   virtual void on_hide();
 
  protected:
   ElementComponent *component_;
   Element *parent_;
 
+  /// True while this element is drawn by the component tree.
+  bool visible_ = false;
+
   LazyCallbackManager<void(Element *)> on_show_callbacks_;
   LazyCallbackManager<void(Element *)> on_hide_callbacks_;
+
+  // Allow ElementComponent to call update_visibility_.
+  friend class ElementComponent;
+
+  /// Recursively updates visible_ and fires on_show/on_hide as needed.
+  /// Called by ElementComponent before draw, after update_state.
+  void update_visibility_(bool now_visible);
 };
 
 class ElementShowTrigger : public Trigger<Element &> {

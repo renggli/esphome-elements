@@ -18,18 +18,28 @@ void Element::dump_config(int level, const char *format, ...) {
   va_end(arg);
 }
 
-bool Element::is_visible() const {
-  return parent_ == nullptr || (parent_->has_visible_child(this) && parent_->is_visible());
-}
-
 void Element::on_show() {
-  ESP_LOGI(ELEMENT_TAG, "Triggering `on_show` callbacks");
+  ESP_LOGI(ELEMENT_TAG, "Triggering `on_show` for %s", get_type_name());
   on_show_callbacks_.call(this);
 }
 
 void Element::on_hide() {
-  ESP_LOGI(ELEMENT_TAG, "Triggering `on_hide` callbacks");
+  ESP_LOGI(ELEMENT_TAG, "Triggering `on_hide` for %s", get_type_name());
   on_hide_callbacks_.call(this);
+}
+
+void Element::update_visibility_(bool now_visible) {
+  // Fire transition events.
+  if (!visible_ && now_visible) {
+    visible_ = true;
+    on_show();
+  } else if (visible_ && !now_visible) {
+    visible_ = false;
+    on_hide();
+  }
+
+  // Recurse into children with their own visibility.
+  visit_children([](Element *child, bool child_visible) { child->update_visibility_(child_visible); });
 }
 
 }  // namespace esphome::elements

@@ -18,21 +18,21 @@ void DelegateElement::draw(display::Display &display) {
 
 bool DelegateElement::is_active() const { return element_ != nullptr && element_->is_active(); }
 
-void DelegateElement::on_show() {
+void DelegateElement::visit_children(const std::function<void(Element *, bool)> &fn) {
   if (element_ != nullptr) {
-    element_->on_show();
+    fn(element_, true);
   }
-  Element::on_show();
 }
 
-void DelegateElement::on_hide() {
+void DelegateElement::update_state() {
   if (element_ != nullptr) {
-    element_->on_hide();
+    element_->update_state();
   }
-  Element::on_hide();
 }
 
-// Timeout Element
+// ---------------------------------------------------------------------------
+// TimeoutElement
+// ---------------------------------------------------------------------------
 
 static const char *const TIMEOUT_ELEMENT_TAG = "elements.timeout";
 
@@ -47,12 +47,12 @@ void TimeoutElement::draw(display::Display &display) {
 
 void TimeoutElement::on_show() {
   next_ms_ = get_component()->get_current_ms() + duration_ms_;
-  DelegateElement::on_show();
+  Element::on_show();
 }
 
 void TimeoutElement::on_hide() {
   next_ms_ = 0;
-  DelegateElement::on_hide();
+  Element::on_hide();
 }
 
 void TimeoutElement::on_complete() {

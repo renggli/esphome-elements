@@ -4,7 +4,7 @@
 
 namespace esphome::elements {
 
-/// Element that delegates to another element.
+/// Element that delegates drawing to exactly one child element.
 class DelegateElement : public Element {
  public:
   using Element::Element;
@@ -15,16 +15,17 @@ class DelegateElement : public Element {
   void draw(display::Display &display) override;
 
   bool is_active() const override;
-  bool has_visible_child(const Element *child) const override { return child == element_; }
 
-  void on_show() override;
-  void on_hide() override;
+  /// The child is visible whenever this element is visible.
+  void visit_children(const std::function<void(Element *, bool)> &fn) override;
+
+  void update_state() override;
 
  protected:
   Element *element_ = nullptr;
 };
 
-/// An element that generates an complete event after a specified time the element is visible.
+/// An element that fires on_complete after a specified time the element is visible.
 class TimeoutElement : public DelegateElement {
  public:
   using DelegateElement::DelegateElement;

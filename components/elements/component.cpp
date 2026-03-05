@@ -38,10 +38,7 @@ void ElementComponent::dump_config() {
   }
 }
 
-void ElementComponent::set_root(Element *root) {
-  root_ = root;
-  request_on_show_ = true;
-}
+void ElementComponent::set_root(Element *root) { root_ = root; }
 
 void ElementComponent::draw(display::Display &display) {
   // Check the preconditions.
@@ -50,18 +47,20 @@ void ElementComponent::draw(display::Display &display) {
     return;
   }
 
-  // Update the time.
+  // Phase 1: Update the time.
   uint32_t now = millis();
   delta_ms_ = now - current_ms_;
   current_ms_ = now;
 
-  // Call on-show the first time.
-  if (request_on_show_) {
-    root_->on_show();
-    request_on_show_ = false;
-  }
+  // Phase 2: Update element state (index selection, etc.) throughout the tree.
+  root_->update_state();
 
-  // Draw the update.
+  // Phase 3: Update visibility flags and fire on_show / on_hide events.
+  // Each element that transitions hidden→visible fires on_show exactly once;
+  // visible→hidden fires on_hide exactly once. Events are fired before drawing.
+  root_->update_visibility_(true);
+
+  // Phase 4: Draw.
   root_->draw(display);
 }
 

@@ -20,7 +20,12 @@ enum class ActiveMode : std::uint8_t {
   NEVER,
 };
 
-/// Element that delegates to a list of other elements.
+// ---------------------------------------------------------------------------
+// ContainerElement
+// ---------------------------------------------------------------------------
+
+/// Element that holds a list of child elements. Subclasses decide how many
+/// are drawn and, via visit_children(), which ones are considered visible.
 class ContainerElement : public Element {
  public:
   ContainerElement(ElementComponent *component, Element *parent, ActiveMode active_mode)
@@ -35,15 +40,48 @@ class ContainerElement : public Element {
 
   bool is_active() const override;
 
-  void on_show() override;
-  void on_hide() override;
+  /// All children are visible — correct for Overlay, Horizontal, Vertical.
+  void visit_children(const std::function<void(Element *, bool)> &fn) override;
+
+  /// Propagates update_state() to all children before the container's own update.
+  void update_state() override;
 
  protected:
   std::vector<Element *> elements_;
   ActiveMode active_mode_;
 };
 
-/// Draws multiple elements on top of each other.
+// ---------------------------------------------------------------------------
+// SelectElement
+// ---------------------------------------------------------------------------
+
+/// Base class for containers that display exactly ONE child at a time.
+/// Subclasses call go_to() / next() / prev() to change the selection.
+/// visit_children() marks only the selected child as visible, so events
+/// are dispatched correctly by the centralised ElementComponent machinery.
+class SelectElement : public ContainerElement {
+ public:
+  SelectElement(ElementComponent *component, Element *parent, ActiveMode active_mode)
+      : ContainerElement(component, parent, active_mode) {}
+
+  bool has_visible_child(const Element *child) const { return index_ != -1 && elements_[index_] == child; }
+
+  /// Only the selected child is visible.
+  void visit_children(const std::function<void(Element *, bool)> &fn) override;
+
+  void go_to(int index);
+  void prev();
+  void next();
+
+ protected:
+  int index_ = -1;
+};
+
+// ---------------------------------------------------------------------------
+// OverlayElement
+// ---------------------------------------------------------------------------
+
+/// Draws multiple elements on top of each other (all visible simultaneously).
 class OverlayElement : public ContainerElement {
  public:
   OverlayElement(ElementComponent *component, Element *parent) : ContainerElement(component, parent, ActiveMode::ANY) {}
@@ -53,24 +91,29 @@ class OverlayElement : public ContainerElement {
   void draw(display::Display &display) override;
 };
 
-/// Draws the first element that is active.
-class PriorityElement : public ContainerElement {
+// ---------------------------------------------------------------------------
+// PriorityElement
+// ---------------------------------------------------------------------------
+
+/// Draws the first active child element. Automatically updates on each frame.
+class PriorityElement : public SelectElement {
  public:
-  PriorityElement(ElementComponent *component, Element *parent)
-      : ContainerElement(component, parent, ActiveMode::ANY) {}
+  PriorityElement(ElementComponent *component, Element *parent) : SelectElement(component, parent, ActiveMode::ANY) {}
 
   const char *get_type_name() const override { return "priority"; }
 
   void draw(display::Display &display) override;
-  bool has_visible_child(const Element *child) const override;
 
-  void on_show() override;
-  void on_hide() override;
+  /// Called each frame to re-evaluate which child has priority.
+  void update_state() override;
 
  protected:
-  int index_ = -1;
-  int find_active_index_();
+  int find_active_index_() const;
 };
+
+// ---------------------------------------------------------------------------
+// HorizontalElement / VerticalElement
+// ---------------------------------------------------------------------------
 
 /// Draws multiple elements evenly horizontally spaced next to each other.
 class HorizontalElement : public ContainerElement {
@@ -94,25 +137,24 @@ class VerticalElement : public ContainerElement {
   void draw(display::Display &display) override;
 };
 
-/// Draws multiple elements in random sequence.
-class RandomElement : public ContainerElement {
+// ---------------------------------------------------------------------------
+// RandomElement
+// ---------------------------------------------------------------------------
+
+/// Displays one child at a time, chosen randomly. Advances via next() / prev().
+class RandomElement : public SelectElement {
  public:
-  RandomElement(ElementComponent *component, Element *parent) : ContainerElement(component, parent, ActiveMode::ANY) {}
+  RandomElement(ElementComponent *component, Element *parent) : SelectElement(component, parent, ActiveMode::ANY) {}
 
   const char *get_type_name() const override { return "random"; }
 
   void draw(display::Display &display) override;
-  bool has_visible_child(const Element *child) const override;
-  void go_to(int index);
+  void update_state() override;
 
   void prev();
   void next();
 
-  void on_show() override;
-  void on_hide() override;
-
  protected:
-  int index_ = -1;
   std::deque<int> history_;
 
   void update_history_();
@@ -136,26 +178,22 @@ template<typename... Ts> class RandomPrevAction : public Action<Ts...> {
   RandomElement *element_;
 };
 
-/// Draws multiple elements in sequence.
-class SequenceElement : public ContainerElement {
+// ---------------------------------------------------------------------------
+// SequenceElement
+// ---------------------------------------------------------------------------
+
+/// Displays one child at a time in sequence. Advances via next() / prev().
+class SequenceElement : public SelectElement {
  public:
-  SequenceElement(ElementComponent *component, Element *parent)
-      : ContainerElement(component, parent, ActiveMode::ANY) {}
+  SequenceElement(ElementComponent *component, Element *parent) : SelectElement(component, parent, ActiveMode::ANY) {}
 
   const char *get_type_name() const override { return "sequence"; }
 
   void draw(display::Display &display) override;
-  bool has_visible_child(const Element *child) const override;
-  void go_to(int index);
+  void update_state() override;
 
   void prev();
   void next();
-
-  void on_show() override;
-  void on_hide() override;
-
- protected:
-  int index_ = -1;
 };
 
 template<typename... Ts> class SequenceNextAction : public Action<Ts...> {

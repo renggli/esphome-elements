@@ -18,9 +18,12 @@ void TextElement::draw(display::Display &display) {
     request_measurement_ = true;
   }
 
-  // Skip, if no text.
+  // If there is no text, signal completion once and skip drawing.
   if (text_.empty()) {
-    this->on_complete();
+    if (!complete_) {
+      complete_ = true;
+      on_complete();
+    }
     return;
   }
 
@@ -56,12 +59,14 @@ void TextElement::draw(display::Display &display) {
     request_measurement_ = false;
   }
 
-  // Reset the scrolling, if necessary.
+  // When scrolling, reset and signal completion each time the text exits the display.
   if (scroll_mode_ != ScrollMode::NONE) {
     if (bounds_x_ + bounds_w_ < 0 || display.get_width() < bounds_x_ || bounds_y_ + bounds_h_ < 0 ||
         display.get_height() < bounds_y_) {
       scroll_offset_ = 0.0f;
+      complete_ = false;
       on_complete();
+      return;
     }
   }
 
@@ -91,11 +96,18 @@ void TextElement::on_show() {
       break;
   }
   scroll_offset_ = 0.0f;
+  complete_ = false;
   Element::on_show();
 }
 
+void TextElement::on_hide() {
+  scroll_offset_ = 0.0f;
+  complete_ = false;
+  Element::on_hide();
+}
+
 void TextElement::on_complete() {
-  ESP_LOGI(TEXT_ELEMENT_TAG, "Triggering `on_complete` callbacks");
+  ESP_LOGI(TEXT_ELEMENT_TAG, "Triggering `on_complete` for %s", get_type_name());
   on_complete_callbacks_.call(this);
 }
 

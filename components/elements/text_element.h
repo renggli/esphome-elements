@@ -21,6 +21,8 @@ enum class ScrollMode : std::uint8_t {
 class TextElement : public Element {
  public:
   using Element::Element;
+
+  /// Returns the text to display. Subclasses provide the content.
   virtual std::string get_text() const = 0;
 
   void set_font(display::BaseFont *font) { font_ = font; }
@@ -32,14 +34,30 @@ class TextElement : public Element {
   void set_scroll_mode(ScrollMode scroll_mode) { scroll_mode_ = scroll_mode; }
   void set_scroll_speed(float scroll_speed) { scroll_speed_ = scroll_speed; }
 
-  void draw(display::Display &display) override;
+  /// Property indicating whether this element has text to display.
   bool is_active() const override;
-  void on_show() override;
-  void on_complete();
 
+  void draw(display::Display &display) override;
+
+  /// Called when the element becomes visible; resets scroll position.
+  void on_show() override;
+
+  /// Called when the element is hidden; resets scroll and completion state.
+  void on_hide() override;
+
+  // ---------------------------------------------------------------------------
+  // on_complete event
+  // ---------------------------------------------------------------------------
+
+  /// Register a callback for when the text has finished displaying.
+  /// For scrolling text, this fires once per completed scroll pass.
+  /// For static/empty text, this fires once per visibility cycle.
   void add_on_complete_callback(std::function<void(TextElement *)> &&callback) {
     on_complete_callbacks_.add(std::move(callback));
   }
+
+  /// Called when the text has finished displaying.
+  void on_complete();
 
  protected:
   display::BaseFont *font_ = nullptr;
@@ -55,6 +73,9 @@ class TextElement : public Element {
   std::string text_;
   bool request_measurement_ = true;
   int bounds_x_, bounds_y_, bounds_w_, bounds_h_;
+
+  /// True after on_complete has fired; reset by on_show/on_hide.
+  bool complete_ = false;
 
   LazyCallbackManager<void(TextElement *)> on_complete_callbacks_;
 };

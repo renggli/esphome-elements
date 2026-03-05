@@ -6,6 +6,7 @@ from . import (
     custom_element,
     delegate_element,
     image_element,
+    select_element,
     text_element,
 )
 

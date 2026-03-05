@@ -14,6 +14,7 @@ class DelegateElement : public Element {
   void dump_config(int level) override;
   void draw(display::Display &display) override;
 
+  /// Property indicating whether this element is active (deferred to child).
   bool is_active() const override;
 
   /// The child is visible whenever this element is visible.
@@ -25,7 +26,7 @@ class DelegateElement : public Element {
   Element *element_ = nullptr;
 };
 
-/// An element that fires on_complete after a specified time the element is visible.
+/// Element that fires on_complete after a configurable duration of being visible.
 class TimeoutElement : public DelegateElement {
  public:
   using DelegateElement::DelegateElement;
@@ -36,13 +37,24 @@ class TimeoutElement : public DelegateElement {
 
   void draw(display::Display &display) override;
 
+  /// Called when the element becomes visible; starts the countdown.
   void on_show() override;
-  void on_hide() override;
-  void on_complete();
 
+  /// Called when the element is hidden; cancels the countdown.
+  void on_hide() override;
+
+  // ---------------------------------------------------------------------------
+  // on_complete event
+  // ---------------------------------------------------------------------------
+
+  /// Register a callback for when the timeout elapses.
+  /// Fires once per duration_ms while the element remains visible.
   void add_on_complete_callback(std::function<void(TimeoutElement *)> &&callback) {
     on_complete_callbacks_.add(std::move(callback));
   }
+
+  /// Called when the timeout elapses.
+  void on_complete();
 
  protected:
   uint32_t duration_ms_ = 0;

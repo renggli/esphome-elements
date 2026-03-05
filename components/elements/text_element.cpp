@@ -107,7 +107,7 @@ void TextElement::on_hide() {
 }
 
 void TextElement::on_complete() {
-  ESP_LOGI(TEXT_ELEMENT_TAG, "Triggering `on_complete` for %s", get_type_name());
+  ESP_LOGI(TEXT_ELEMENT_TAG, "Triggering `on_complete` for %s (%p)", get_type_name(), this);
   on_complete_callbacks_.call(this);
 }
 

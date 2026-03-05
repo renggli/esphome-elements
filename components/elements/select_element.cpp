@@ -4,6 +4,8 @@
 
 namespace esphome::elements {
 
+static const char *const SELECT_ELEMENT_TAG = "elements.select";
+
 // ---------------------------------------------------------------------------
 // SelectElement
 // ---------------------------------------------------------------------------
@@ -14,7 +16,19 @@ void SelectElement::visit_children(const std::function<void(Element *, bool)> &f
   }
 }
 
-void SelectElement::go_to(int index) { index_ = index; }
+void SelectElement::go_to(int index) {
+  if (index != index_) {
+    int from = index_;
+    index_ = index;
+    on_change(from, index);
+  }
+}
+
+void SelectElement::on_change(int from_index, int to_index) {
+  ESP_LOGI(SELECT_ELEMENT_TAG, "Triggering `on_change` for %s (%p): %i → %i", get_type_name(), this, from_index,
+           to_index);
+  on_change_callbacks_.call(this, from_index, to_index);
+}
 
 // ---------------------------------------------------------------------------
 // PriorityElement
@@ -32,13 +46,8 @@ int PriorityElement::find_active_index_() const {
 }
 
 void PriorityElement::update_state() {
-  // Update children first, then re-evaluate which one has priority.
   ContainerElement::update_state();
-  int new_index = find_active_index_();
-  if (new_index != index_) {
-    ESP_LOGI(PRIORITY_ELEMENT_TAG, "Switching from %i to %i", index_, new_index);
-    go_to(new_index);
-  }
+  go_to(find_active_index_());
 }
 
 void PriorityElement::draw(display::Display &display) {
@@ -54,7 +63,6 @@ void PriorityElement::draw(display::Display &display) {
 static const char *const RANDOM_ELEMENT_TAG = "elements.random";
 
 void RandomElement::update_state() {
-  // Update children first, then initialise if we have no selection yet.
   ContainerElement::update_state();
   if (index_ == -1) {
     next();
@@ -121,7 +129,6 @@ void RandomElement::next() {
 static const char *const SEQUENCE_ELEMENT_TAG = "elements.sequence";
 
 void SequenceElement::update_state() {
-  // Update children first, then initialise if we have no selection yet.
   ContainerElement::update_state();
   if (index_ == -1) {
     next();
@@ -139,7 +146,6 @@ void SequenceElement::prev() {
   for (int offset = 1; offset < count; offset++) {
     int new_index = (index_ - offset + count) % count;
     if (elements_[new_index]->is_active()) {
-      ESP_LOGI(SEQUENCE_ELEMENT_TAG, "Switching from %i to %i", index_, new_index);
       go_to(new_index);
       return;
     }
@@ -151,7 +157,6 @@ void SequenceElement::next() {
   for (int offset = 1; offset < count; offset++) {
     int new_index = (index_ + offset) % count;
     if (elements_[new_index]->is_active()) {
-      ESP_LOGI(SEQUENCE_ELEMENT_TAG, "Switching from %i to %i", index_, new_index);
       go_to(new_index);
       return;
     }

@@ -74,13 +74,13 @@ button:
     icon: mdi:chevron-left
     on_press:
       - then:
-        - elements.random.prev: primary_elements
+        - elements.prev: primary_elements
   - platform: template
     name: "Next Screen"
     icon: mdi:chevron-right
     on_press:
       - then:
-        - elements.random.next: primary_elements
+        - elements.next: primary_elements
 
 switch:
   - platform: template
@@ -412,7 +412,7 @@ elements:
         color: purple_500
         on_complete:
           - then:
-            - elements.random.next: primary_elements
+            - elements.next: primary_elements
       # Quote
       - type: static_text
         id: quote_text_element
@@ -422,13 +422,13 @@ elements:
         color: green_500
         on_complete:
           - then:
-            - elements.random.next: primary_elements
+            - elements.next: primary_elements
       # Time and Date
       - type: timeout
         duration: 10s
         on_complete:
           - then:
-            - elements.random.next: primary_elements
+            - elements.next: primary_elements
         element:
           type: vertical
           elements:
@@ -452,7 +452,7 @@ elements:
         duration: 10s
         on_complete:
           - then:
-            - elements.random.next: primary_elements
+            - elements.next: primary_elements
         element:
           type: image
           id: weather_image_element
@@ -461,7 +461,7 @@ elements:
         duration: 10s
         on_complete:
           - then:
-            - elements.random.next: primary_elements
+            - elements.next: primary_elements
         element:
           type: vertical
           active_mode: any
@@ -481,7 +481,7 @@ elements:
         duration: 10s
         on_complete:
           - then:
-            - elements.random.next: primary_elements
+            - elements.next: primary_elements
         element:
           type: vertical
           active_mode: any
@@ -501,7 +501,7 @@ elements:
         duration: 10s
         on_complete:
           - then:
-            - elements.random.next: primary_elements
+            - elements.next: primary_elements
         element:
           type: dynamic_text
           font: font_matrix_chunky_6
@@ -522,7 +522,7 @@ elements:
         duration: 10s
         on_complete:
           - then:
-            - elements.random.next: primary_elements
+            - elements.next: primary_elements
         element:
           type: vertical
           elements:
@@ -537,7 +537,7 @@ elements:
         duration: 10s
         on_complete:
           - then:
-            - elements.random.next: primary_elements
+            - elements.next: primary_elements
         element:
           type: vertical
           elements:
@@ -552,7 +552,7 @@ elements:
         duration: 10s
         on_complete:
           - then:
-            - elements.random.next: primary_elements
+            - elements.next: primary_elements
         element:
           type: custom
           is_active: |-
@@ -615,7 +615,7 @@ elements:
         duration: 10s
         on_complete:
           - then:
-            - elements.random.next: primary_elements
+            - elements.next: primary_elements
         element:
           type: clock
           time: current_time
@@ -636,8 +636,8 @@ elements:
         duration: 10s
         on_complete:
           - then:
-            - elements.random.next: primary_elements
-            - elements.random.next: animation_sequence
+            - elements.next: primary_elements
+            - elements.next: animation_sequence
         element:
           type: random
           id: animation_sequence

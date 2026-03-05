@@ -35,7 +35,7 @@ display:
     ...
 ```
 
-Finally, define the `elements` configuration block. This is where you'll bring your display to life. Here's an example showing a default animation of the [custom element](#custom):
+Finally, define the `elements` configuration block. This is where you'll bring your display to life. Here's an example showing a default animation of the [custom element](#custom-element):
 
 ```yaml
 elements:
@@ -82,9 +82,9 @@ All text elements support the following configuration variables:
 - **anchor** (Optional, Anchor): Specifies the reference point of the text box with an absolute `offset` and/or a relative `fraction`. This is used in conjunction with align to position the text.
 - **align** (Optional, enum): Specifies how the text is aligned at the point defined by the anchor. Possible values are
   `TOP`, `CENTER_VERTICAL`, `BASELINE`, `BOTTOM`, `LEFT`, `CENTER_HORIZONTAL`, `RIGHT`, `TOP_LEFT`, `TOP_CENTER`, `TOP_RIGHT`, `CENTER_LEFT`, `CENTER` (default), `CENTER_RIGHT`, `BASELINE_LEFT`, `BASELINE_CENTER`, `BASELINE_RIGHT`, `BOTTOM_LEFT`, `BOTTOM_CENTER`, and `BOTTOM_RIGHT`.
-- **scroll_mode** (Optional, enum): Specifies the scrolling behavior of the text, if any. Useful for long texts that exceed the display area. Possible values are `NONE` (default), `LEFT_TO_RIGHT`, `RIGHT_TO_LEFT`, `BOTTOM_TO_TOP`, and `TOP_TO_BOTTOM`. If scrolling is enabled, an `on_complete` trigger is fired on completion of the animation.
+- **scroll_mode** (Optional, enum): Specifies the scrolling behavior of the text, if any. Useful for long texts that exceed the display area. Possible values are `NONE` (default), `LEFT_TO_RIGHT`, `RIGHT_TO_LEFT`, `BOTTOM_TO_TOP`, and `TOP_TO_BOTTOM`. If scrolling is enabled, an `on_complete` trigger is fired each time the animation completes a full pass.
 - **scroll_speed** (Optional, float): Specifies the speed of the scrolling animation in pixels per second.
-- **on_complete** (Optional, Action): An automation to perform when the text scrolling has completed.
+- **on_complete** (Optional, Action): An automation to perform when the text has finished displaying. For scrolling text, this fires once per completed scroll pass. For static or empty text, this fires once per visibility cycle.
 
 The following example scrolls the string "Hello World" over the display:
 
@@ -264,22 +264,22 @@ elements:
     format: "%H:%M:%S"
 ```
 
-### Sequence Elements
+### Selection Elements
 
-This category of elements governs how child elements are displayed over time, allowing for dynamic and interactive displays.
+This category of elements displays exactly one child at a time, with different strategies for choosing which one.
 
-- `priority`: Displays the first active child element in its list, determined by each child's individual `is_active` state.
-- `sequence`: Presents its children in a defined order. You can use the `elements.sequence.next` and `elements.sequence.prev` actions to manually navigate to the next or previous active child in the sequence.
-- `random`: Shows its active children in a random order. You can use the `elements.random.next` and `elements.random.prev` actions to manually navigate to another random active child.
+- `priority`: Displays the first active child element in its list, re-evaluated each frame based on each child's `is_active` state.
+- `sequence`: Presents its children in a defined order. Use the `elements.sequence.next` and `elements.sequence.prev` actions to advance to the next or previous active child.
+- `random`: Shows its active children in a random order, avoiding recently shown items. Use the `elements.random.next` and `elements.random.prev` actions to advance to another child.
 
 **Navigation Actions:**
 
-To control `sequence` and `random` elements from automations, you can use their respective actions:
+To control `sequence` and `random` elements from automations, use their respective actions:
 
 - `elements.sequence.next` / `elements.sequence.prev`
 - `elements.random.next` / `elements.random.prev`
 
-Both require the `id` of the target container element to be provided.
+Both require the `id` of the target element.
 
 The same configuration variables as [Composition Elements](#composition-elements) are supported.
 
@@ -287,9 +287,9 @@ The same configuration variables as [Composition Elements](#composition-elements
 
 Changes the default behavior of elements by wrapping them.
 
-- `timeout`: This element generates an `on_complete` trigger after a specified timeout. Resets the timer when being shown.
-  - **duration** (Optional, time): The time after which the `on_complete` trigger should be fired.
-  - **on_complete** (Optional, Action): An automation to perform when the timeout expires.
+- `timeout`: Wraps a single child element and fires an `on_complete` trigger after a configurable duration of being visible. The timer resets each time the element becomes visible.
+  - **duration** (Optional, time): The time after which the `on_complete` trigger fires.
+  - **on_complete** (Optional, Action): An automation to perform when the timeout elapses.
 
 The following configuration variable is supported:
 

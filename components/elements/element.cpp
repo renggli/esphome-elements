@@ -5,7 +5,7 @@ namespace esphome::elements {
 
 static const char *const ELEMENT_TAG = "elements.element";
 
-void Element::dump_config(int level) { dump_config(level, "- type: %s", get_type_name()); }
+void Element::dump_config(int level) { dump_config(level, "- type: %s (%p)", get_type_name(), this); }
 
 void Element::dump_config(int level, const char *format, ...) {
   va_list arg;
@@ -19,12 +19,12 @@ void Element::dump_config(int level, const char *format, ...) {
 }
 
 void Element::on_show() {
-  ESP_LOGI(ELEMENT_TAG, "Triggering `on_show` for %s", get_type_name());
+  ESP_LOGI(ELEMENT_TAG, "Triggering `on_show` for %s (%p)", get_type_name(), this);
   on_show_callbacks_.call(this);
 }
 
 void Element::on_hide() {
-  ESP_LOGI(ELEMENT_TAG, "Triggering `on_hide` for %s", get_type_name());
+  ESP_LOGI(ELEMENT_TAG, "Triggering `on_hide` for %s (%p)", get_type_name(), this);
   on_hide_callbacks_.call(this);
 }
 

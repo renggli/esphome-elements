@@ -56,7 +56,7 @@ void TimeoutElement::on_hide() {
 }
 
 void TimeoutElement::on_complete() {
-  ESP_LOGI(TIMEOUT_ELEMENT_TAG, "Triggering `on_complete` callbacks after %u ms", duration_ms_);
+  ESP_LOGI(TIMEOUT_ELEMENT_TAG, "Triggering `on_complete` for %s (%p): %u ms", get_type_name(), this, duration_ms_);
   on_complete_callbacks_.call(this);
 }
 

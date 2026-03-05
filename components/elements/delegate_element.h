@@ -37,15 +37,8 @@ class TimeoutElement : public DelegateElement {
 
   void draw(display::Display &display) override;
 
-  /// Called when the element becomes visible; starts the countdown.
   void on_show() override;
-
-  /// Called when the element is hidden; cancels the countdown.
   void on_hide() override;
-
-  // ---------------------------------------------------------------------------
-  // on_complete event
-  // ---------------------------------------------------------------------------
 
   /// Register a callback for when the timeout elapses.
   /// Fires once per duration_ms while the element remains visible.

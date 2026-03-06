@@ -267,14 +267,6 @@ text_sensor:
     on_value:
       then:
         - lambda: id(dishwasher_notification_text_element).set_text(x);
-  - platform: homeassistant
-    id: quote
-    entity_id: sensor.quote
-    on_value:
-      then:
-        - lambda: |-
-            id(quote_text_element).set_text(x);
-            id(quote_text_element).set_color(ESPHSVColor(random_uint32() & 0xff, 0xf0, 0xff).to_rgb());
 
 # Timer
 timer:
@@ -410,16 +402,6 @@ elements:
         scroll_mode: LEFT_TO_RIGHT
         scroll_speed: 24  # pixel per second
         color: purple_500
-        on_complete:
-          - then:
-            - elements.next: primary_elements
-      # Quote
-      - type: static_text
-        id: quote_text_element
-        font: font_spleen_5x8
-        scroll_mode: LEFT_TO_RIGHT
-        scroll_speed: 24  # pixel per second
-        color: green_500
         on_complete:
           - then:
             - elements.next: primary_elements

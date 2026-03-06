@@ -208,4 +208,25 @@ class GameOfLifeAnimationElement : public AnimationElement {
   uint32_t near_dead_count_{0};  // steps with ≤2 live cells; triggers reseed
 };
 
+enum class PlatonicSolid : uint8_t {
+  TETRAHEDRON,
+  CUBE,
+  OCTAHEDRON,
+  ICOSAHEDRON,
+  DODECAHEDRON,
+};
+
+class PlatonicSolidAnimationElement : public AnimationElement {
+ public:
+  using AnimationElement::AnimationElement;
+  const char *get_type_name() const override { return "platonic_solid_animation"; }
+
+  void set_solid(PlatonicSolid solid) { solid_ = solid; }
+
+  void draw(display::Display &display, int width, int height, uint32_t time) override;
+
+ protected:
+  PlatonicSolid solid_{PlatonicSolid::ICOSAHEDRON};
+};
+
 }  // namespace esphome::elements

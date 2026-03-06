@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <array>
 
 #include "esphome/core/color.h"
 #include "color.h"
@@ -475,6 +476,174 @@ void GameOfLifeAnimationElement::draw(display::Display &display, int width, int 
       }
       display.draw_pixel_at(x, y, get_gradient_color_(val));
     }
+  }
+}
+
+// ----------------------------------------------------------------------------
+// PlatonicSolidAnimationElement
+// ----------------------------------------------------------------------------
+
+namespace {
+
+struct Vec3 {
+  float x, y, z;
+};
+
+struct Edge {
+  uint8_t a, b;
+};
+
+struct SolidDesc {
+  const Vec3 *verts;
+  uint8_t verts_count;
+  const Edge *edges;
+  uint8_t edges_count;
+};
+
+static SolidDesc get_solid(PlatonicSolid solid) {
+  switch (solid) {
+    case PlatonicSolid::TETRAHEDRON: {
+      static constexpr std::array<Vec3, 4> verts = {{
+          {0.000000f, 1.000000f, 0.000000f},
+          {0.942809f, -0.333333f, 0.000000f},
+          {-0.471405f, -0.333333f, 0.816497f},
+          {-0.471405f, -0.333333f, -0.816497f},
+      }};
+      static constexpr std::array<Edge, 6> edges = {{
+          {0, 1},
+          {0, 2},
+          {0, 3},
+          {1, 2},
+          {1, 3},
+          {2, 3},
+      }};
+      return {.verts = verts.data(), .verts_count = verts.size(), .edges = edges.data(), .edges_count = edges.size()};
+    }
+    case PlatonicSolid::CUBE: {
+      static constexpr std::array<Vec3, 8> verts = {{
+          {-0.577350f, -0.577350f, -0.577350f},
+          {0.577350f, -0.577350f, -0.577350f},
+          {0.577350f, 0.577350f, -0.577350f},
+          {-0.577350f, 0.577350f, -0.577350f},
+          {-0.577350f, -0.577350f, 0.577350f},
+          {0.577350f, -0.577350f, 0.577350f},
+          {0.577350f, 0.577350f, 0.577350f},
+          {-0.577350f, 0.577350f, 0.577350f},
+      }};
+      static constexpr std::array<Edge, 12> edges = {{
+          {0, 1},
+          {1, 2},
+          {2, 3},
+          {3, 0},
+          {4, 5},
+          {5, 6},
+          {6, 7},
+          {7, 4},
+          {0, 4},
+          {1, 5},
+          {2, 6},
+          {3, 7},
+      }};
+      return {.verts = verts.data(), .verts_count = verts.size(), .edges = edges.data(), .edges_count = edges.size()};
+    }
+    case PlatonicSolid::OCTAHEDRON: {
+      static constexpr std::array<Vec3, 6> verts = {{
+          {1.f, 0.f, 0.f},
+          {-1.f, 0.f, 0.f},
+          {0.f, 1.f, 0.f},
+          {0.f, -1.f, 0.f},
+          {0.f, 0.f, 1.f},
+          {0.f, 0.f, -1.f},
+      }};
+      static constexpr std::array<Edge, 12> edges = {{
+          {0, 2},
+          {0, 3},
+          {0, 4},
+          {0, 5},
+          {1, 2},
+          {1, 3},
+          {1, 4},
+          {1, 5},
+          {2, 4},
+          {2, 5},
+          {3, 4},
+          {3, 5},
+      }};
+      return {.verts = verts.data(), .verts_count = verts.size(), .edges = edges.data(), .edges_count = edges.size()};
+    }
+    case PlatonicSolid::ICOSAHEDRON: {
+      static constexpr std::array<Vec3, 12> verts = {{
+          {0.000000f, 0.525731f, 0.850651f},
+          {0.000000f, -0.525731f, 0.850651f},
+          {0.000000f, 0.525731f, -0.850651f},
+          {0.000000f, -0.525731f, -0.850651f},
+          {0.525731f, 0.850651f, 0.000000f},
+          {-0.525731f, 0.850651f, 0.000000f},
+          {0.525731f, -0.850651f, 0.000000f},
+          {-0.525731f, -0.850651f, 0.000000f},
+          {0.850651f, 0.000000f, 0.525731f},
+          {-0.850651f, 0.000000f, 0.525731f},
+          {0.850651f, 0.000000f, -0.525731f},
+          {-0.850651f, 0.000000f, -0.525731f},
+      }};
+      static constexpr std::array<Edge, 30> edges = {{
+          {0, 1},  {0, 4}, {0, 5},  {0, 8},  {0, 9}, {1, 6},  {1, 7},  {1, 8},  {1, 9},  {2, 3},
+          {2, 4},  {2, 5}, {2, 10}, {2, 11}, {3, 6}, {3, 7},  {3, 10}, {3, 11}, {4, 5},  {4, 8},
+          {4, 10}, {5, 9}, {5, 11}, {6, 7},  {6, 8}, {6, 10}, {7, 9},  {7, 11}, {8, 10}, {9, 11},
+      }};
+      return {.verts = verts.data(), .verts_count = verts.size(), .edges = edges.data(), .edges_count = edges.size()};
+    }
+    case PlatonicSolid::DODECAHEDRON: {
+      static constexpr std::array<Vec3, 20> verts = {{
+          {0.577350f, 0.577350f, 0.577350f},   {0.577350f, 0.577350f, -0.577350f},
+          {0.577350f, -0.577350f, 0.577350f},  {0.577350f, -0.577350f, -0.577350f},
+          {-0.577350f, 0.577350f, 0.577350f},  {-0.577350f, 0.577350f, -0.577350f},
+          {-0.577350f, -0.577350f, 0.577350f}, {-0.577350f, -0.577350f, -0.577350f},
+          {0.f, 0.356822f, 0.934172f},         {0.f, 0.356822f, -0.934172f},
+          {0.f, -0.356822f, 0.934172f},        {0.f, -0.356822f, -0.934172f},
+          {0.356822f, 0.934172f, 0.f},         {-0.356822f, 0.934172f, 0.f},
+          {0.356822f, -0.934172f, 0.f},        {-0.356822f, -0.934172f, 0.f},
+          {0.934172f, 0.f, 0.356822f},         {0.934172f, 0.f, -0.356822f},
+          {-0.934172f, 0.f, 0.356822f},        {-0.934172f, 0.f, -0.356822f},
+      }};
+      static constexpr std::array<Edge, 30> edges = {{
+          {0, 8},  {0, 12}, {0, 16}, {1, 9},  {1, 12}, {1, 17}, {2, 10},  {2, 14},  {2, 16},  {3, 11},
+          {3, 14}, {3, 17}, {4, 8},  {4, 13}, {4, 18}, {5, 9},  {5, 13},  {5, 19},  {6, 10},  {6, 15},
+          {6, 18}, {7, 11}, {7, 15}, {7, 19}, {8, 10}, {9, 11}, {16, 17}, {18, 19}, {12, 13}, {14, 15},
+      }};
+      return {.verts = verts.data(), .verts_count = verts.size(), .edges = edges.data(), .edges_count = edges.size()};
+    }
+  }
+  return {nullptr, 0, nullptr, 0};
+}
+
+}  // anonymous namespace
+
+void PlatonicSolidAnimationElement::draw(display::Display &display, int width, int height, uint32_t time) {
+  SolidDesc solid = get_solid(solid_);
+  float t = time / 8000.0f;
+  float ax = t * TWO_PI_F * 0.397f;
+  float ay = t * TWO_PI_F;
+  float cx_r = std::cos(ax), sx_r = std::sin(ax);
+  float cy_r = std::cos(ay), sy_r = std::sin(ay);
+  float scale = std::min(width, height) * 0.42f;
+  float ox = width * 0.5f, oy = height * 0.5f;
+  float rz[20];
+  int px[20], py[20];
+  for (int i = 0; i < solid.verts_count; i++) {
+    const Vec3 &vert = solid.verts[i];
+    float y1 = vert.y * cx_r - vert.z * sx_r;
+    float z1 = vert.y * sx_r + vert.z * cx_r;
+    float x2 = vert.x * cy_r + z1 * sy_r;
+    rz[i] = -vert.x * sy_r + z1 * cy_r;
+    px[i] = (int) (ox + x2 * scale);
+    py[i] = (int) (oy - y1 * scale);
+  }
+  display.clear();
+  for (int i = 0; i < solid.edges_count; i++) {
+    const Edge &edge = solid.edges[i];
+    float depth = ((rz[edge.a] + rz[edge.b]) * 0.5f + 1.0f) * 0.5f;
+    display.line(px[edge.a], py[edge.a], px[edge.b], py[edge.b], get_gradient_color_(depth));
   }
 }
 

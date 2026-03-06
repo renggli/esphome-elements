@@ -612,7 +612,7 @@ elements:
           minute_hand:
             color: gray_300
           hour_hand:
-            color: gray_300
+            color: gray_300      
       # Animations
       - type: timeout
         duration: 10s
@@ -758,3 +758,28 @@ elements:
                   - type: static
                     fraction: 0.01
                     color: "#cffcff"
+            - type: platonic_solid_animation
+              solid: tetrahedron
+              color_scheme:
+                type: monochromatic
+                color: "#00ffff" # cyan
+            - type: platonic_solid_animation
+              solid: cube 
+              color_scheme:
+                type: monochromatic
+                color: "#ffff00" # yellow
+            - type: platonic_solid_animation
+              solid: octahedron
+              color_scheme:
+                type: monochromatic
+                color: "#ff00ff" # pink
+            - type: platonic_solid_animation
+              solid: icosahedron 
+              color_scheme:
+                type: monochromatic
+                color: "#ff0000" # red
+            - type: platonic_solid_animation
+              solid: dodecahedron
+              color_scheme:
+                type: monochromatic
+                color: "#00ff00" # green

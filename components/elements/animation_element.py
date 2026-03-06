@@ -455,3 +455,43 @@ element_registry.register_element(
     GAME_OF_LIFE_ANIMATION_ELEMENT_SCHEMA,
     game_of_life_animation_to_code,
 )
+
+# Platonic Solid Animation
+
+PlatonicSolidAnimationElement = shared.elements_ns.class_(
+    "PlatonicSolidAnimationElement", AnimationElement
+)
+
+PlatonicSolid = shared.elements_ns.enum("PlatonicSolid", is_class=True)
+
+PLATONIC_SOLID_OPTIONS = {
+    "tetrahedron": PlatonicSolid.TETRAHEDRON,
+    "cube": PlatonicSolid.CUBE,
+    "octahedron": PlatonicSolid.OCTAHEDRON,
+    "icosahedron": PlatonicSolid.ICOSAHEDRON,
+    "dodecahedron": PlatonicSolid.DODECAHEDRON,
+}
+
+CONF_SOLID = "solid"
+
+PLATONIC_SOLID_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
+    {
+        cv.GenerateID(CONF_ID): cv.declare_id(PlatonicSolidAnimationElement),
+        cv.Optional(CONF_SOLID, default="icosahedron"): cv.enum(
+            PLATONIC_SOLID_OPTIONS, lower=True
+        ),
+    }
+)
+
+
+async def platonic_solid_animation_to_code(config, component, parent):
+    var = await animation_element_to_code(config, component, parent)
+    cg.add(var.set_solid(config[CONF_SOLID]))
+    return var
+
+
+element_registry.register_element(
+    "platonic_solid_animation",
+    PLATONIC_SOLID_ANIMATION_ELEMENT_SCHEMA,
+    platonic_solid_animation_to_code,
+)

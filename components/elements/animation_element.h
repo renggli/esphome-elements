@@ -1,5 +1,8 @@
 #pragma once
 
+#include <array>
+#include <cmath>
+#include <algorithm>
 #include <cstdint>
 #include <vector>
 
@@ -182,52 +185,70 @@ class StarsAnimationElement : public AnimationElement {
   float density_{0.05f};
 };
 
-class GameOfLifeAnimationElement : public AnimationElement {
- public:
-  using AnimationElement::AnimationElement;
-  const char *get_type_name() const override { return "game_of_life_animation"; }
-
-  void set_density(float density) { density_ = density; }
-  void set_fade_steps(int fade_steps) { fade_steps_ = fade_steps; }
-
-  void on_hide() override;
-  void draw(display::Display &display, int width, int height, uint32_t time) override;
-
- protected:
-  void seed_grid_(int size, uint32_t time);
-
-  float density_{0.25f};
-  int fade_steps_{8};
-
-  // 1 byte per pixel:
-  // - high nibble (0x10): alive flag
-  // - low nibble  (0x0F): fade counter (fade_steps_..0, decremented each step while dying)
-  std::vector<uint8_t> grid_;
-  uint32_t last_step_time_{0};
-  uint32_t step_interval_{300};  // ms between generations
-  uint32_t near_dead_count_{0};  // steps with ≤2 live cells; triggers reseed
+struct Vec3 {
+  float x, y, z;
 };
 
-enum class Shape : uint8_t {
-  TETRAHEDRON,
-  CUBE,
-  OCTAHEDRON,
-  ICOSAHEDRON,
-  DODECAHEDRON,
-  SPHERE,
+struct Edge {
+  uint8_t a, b;
 };
 
-class SolidAnimationElement : public AnimationElement {
+template<size_t NumPoints, size_t NumEdges> class SolidAnimationElement : public AnimationElement {
  public:
   using AnimationElement::AnimationElement;
   const char *get_type_name() const override { return "solid_animation"; }
 
-  void set_shape(Shape shape) { shape_ = shape; }
+  void set_points(const std::array<Vec3, NumPoints> &points) { points_ = points; }
+  void set_edges(const std::array<Edge, NumEdges> &edges) { edges_ = edges; }
 
-  void draw(display::Display &display, int width, int height, uint32_t time) override;
+  void draw(display::Display &display, int width, int height, uint32_t time) override {
+    float t = time / 8000.0f;
+    float ax = t * 2.0f * (float) M_PI * 0.397f;
+    float ay = t * 2.0f * (float) M_PI;
+    float cx_r = std::cos(ax), sx_r = std::sin(ax);
+    float cy_r = std::cos(ay), sy_r = std::sin(ay);
+    float scale = std::min(width, height) * 0.42f;
+    float ox = width * 0.5f, oy = height * 0.5f;
+    // Transform and project points.
+    std::array<float, NumPoints> rz;
+    std::array<int, NumPoints> px;
+    std::array<int, NumPoints> py;
+    for (size_t i = 0; i < NumPoints; i++) {
+      const Vec3 &vert = points_[i];
+      float y1 = vert.y * cx_r - vert.z * sx_r;
+      float z1 = vert.y * sx_r + vert.z * cx_r;
+      float x2 = vert.x * cy_r + z1 * sy_r;
+      rz[i] = -vert.x * sy_r + z1 * cy_r;
+      px[i] = (int) (ox + x2 * scale);
+      py[i] = (int) (oy - y1 * scale);
+    }
+    // Clear display.
+    display.clear();
+    // Draw background lines first
+    for (size_t i = 0; i < NumEdges; i++) {
+      const Edge &edge = edges_[i];
+      if (edge.a >= NumPoints || edge.b >= NumPoints)
+        continue;
+      float depth = ((rz[edge.a] + rz[edge.b]) * 0.5f + 1.0f) * 0.5f;
+      if (depth < 0.5f) {
+        display.line(px[edge.a], py[edge.a], px[edge.b], py[edge.b], get_gradient_color_(depth));
+      }
+    }
+    // Draw foreground lines on top
+    for (size_t i = 0; i < NumEdges; i++) {
+      const Edge &edge = edges_[i];
+      if (edge.a >= NumPoints || edge.b >= NumPoints)
+        continue;
+      float depth = ((rz[edge.a] + rz[edge.b]) * 0.5f + 1.0f) * 0.5f;
+      if (depth >= 0.5f) {
+        display.line(px[edge.a], py[edge.a], px[edge.b], py[edge.b], get_gradient_color_(depth));
+      }
+    }
+  }
 
  protected:
-  Shape shape_{Shape::ICOSAHEDRON};
+  std::array<Vec3, NumPoints> points_{};
+  std::array<Edge, NumEdges> edges_{};
 };
 
 }  // namespace esphome::elements

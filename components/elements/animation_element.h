@@ -21,8 +21,11 @@ class AnimationElement : public Element {
   void draw(display::Display &display) override;
   virtual void draw(display::Display &display, int width, int height, uint32_t time) = 0;
 
+  void on_show() override;
+
  protected:
   ColorScheme *color_scheme_{nullptr};
+  uint32_t start_time_{0};
   float speed_{1.0f};
 
   Color get_gradient_color_(float p);

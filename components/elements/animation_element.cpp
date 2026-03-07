@@ -42,6 +42,11 @@ void AnimationElement::draw(display::Display &display) {
   draw(display, display.get_width(), display.get_height(), get_component()->get_current_ms() * speed_);
 }
 
+void AnimationElement::on_show() {
+  start_time_ = get_component()->get_current_ms();
+  Element::on_show();
+}
+
 Color AnimationElement::get_gradient_color_(float p) { return color_scheme_->get_color(std::clamp(p, 0.0f, 1.0f)); }
 
 void MetaballsAnimationElement::draw(display::Display &display, int width, int height, uint32_t time) {
@@ -51,8 +56,8 @@ void MetaballsAnimationElement::draw(display::Display &display, int width, int h
       float val = 0;
       for (int i = 0; i < count_; i++) {
         // Each ball has a unique base position, not all orbiting the same point
-        float bx = 0.25f + 0.5f * noise(i, 5, 99);
-        float by = 0.25f + 0.5f * noise(i, 6, 99);
+        float bx = 0.25f + 0.5f * noise(i, 5, start_time_);
+        float by = 0.25f + 0.5f * noise(i, 6, start_time_);
         float cx = width * bx + std::sin(t * TWO_PI_F + i * 2.1f) * (width / 3.5f);
         float cy = height * by + std::cos(t * TWO_PI_F + i * 3.3f) * (height / 3.5f);
         float dx = x - cx;
@@ -133,8 +138,8 @@ void RipplesAnimationElement::draw(display::Display &display, int width, int hei
       float val = 0.0f;
       for (int i = 0; i < count_; i++) {
         float burst_t = fract(t * 0.2f + i * (1.0f / count_));
-        float cx = (0.1f + 0.8f * noise(i, 0, 123)) * width;
-        float cy = (0.1f + 0.8f * noise(i, 1, 123)) * height;
+        float cx = (0.1f + 0.8f * noise(i, 0, start_time_)) * width;
+        float cy = (0.1f + 0.8f * noise(i, 1, start_time_)) * height;
         float radius = burst_t * max_radius;
         float fade = 1.0f - burst_t;
         float dx = x - cx;
@@ -176,10 +181,10 @@ void VoronoiAnimationElement::draw(display::Display &display, int width, int hei
       float min_dist = 1000.0f;
       for (int i = 0; i < count_; i++) {
         // Each seed has a unique, well-spread base position and independent orbit
-        float base_x = noise(i, 0, 42);
-        float base_y = noise(i, 1, 42);
-        float orbit_r_x = width / 4.0f * (0.5f + noise(i, 2, 42));
-        float orbit_r_y = height / 4.0f * (0.5f + noise(i, 3, 42));
+        float base_x = noise(i, 0, start_time_);
+        float base_y = noise(i, 1, start_time_);
+        float orbit_r_x = width / 4.0f * (0.5f + noise(i, 2, start_time_));
+        float orbit_r_y = height / 4.0f * (0.5f + noise(i, 3, start_time_));
         float phase = i * 1.0472f;  // 60° apart in phase (TWO_PI / 6)
         float px = width * base_x + std::sin(t * TWO_PI_F + phase) * orbit_r_x;
         float py = height * base_y + std::cos(t * TWO_PI_F + phase * 1.618f) * orbit_r_y;
@@ -248,7 +253,7 @@ void MatrixAnimationElement::draw(display::Display &display, int width, int heig
   for (int x = 0; x < width; ++x) {
     // Use density to decide if this column has a drop
     if (noise(x, 0, 123) > (1.0f - density_)) {
-      uint32_t column_seed = hash(x + 42);
+      uint32_t column_seed = hash(x + start_time_);
       float speed_mult = 0.5f + 1.0f * (noise(x, 1, column_seed));
       float drop_y =
           std::fmod(t * height * 2.0f * speed_mult + noise(x, 2, column_seed) * height, (float) height * 2.0f);
@@ -295,7 +300,7 @@ void FireAnimationElement::draw(display::Display &display, int width, int height
   float t = time / 200.0f;
   for (int x = 0; x < width; x++) {
     // Seed with full [0, 1] range, but keep it hot overall
-    next_heat[(height - 1) * width + x] = std::pow(noise(x, (int) t, 123), 0.5f);
+    next_heat[(height - 1) * width + x] = std::pow(noise(x, (int) t, start_time_), 0.5f);
   }
   // Propagate heat upwards with diffusion and cooling
   for (int y = 0; y < height - 1; y++) {
@@ -361,7 +366,7 @@ void StarsAnimationElement::draw(display::Display &display, int width, int heigh
   float t = time / 5000.0f;
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
-      uint32_t seed = y * width + x;
+      uint32_t seed = start_time_ + y * width + x;
       float base_brightness = noise(x, y, seed);
       // Each star has its own twinkle frequency and phase
       float freq = 0.5f + noise(x, y, seed + 1) * 2.0f;
@@ -398,8 +403,8 @@ void ParallaxAnimationElement::draw(display::Display &display, int width, int he
         float sample_x = nx * freq;
         int i = std::floor(sample_x);
         float f = sample_x - i;
-        float v1 = noise(i, 42 + l, 123);
-        float v2 = noise(i + 1, 42 + l, 123);
+        float v1 = noise(i, 42 + l, start_time_);
+        float v2 = noise(i + 1, 42 + l, start_time_);
         float v = v1 + f * f * (3.0f - 2.0f * f) * (v2 - v1);
         noise_val += v * amp;
         freq *= 2.0f;

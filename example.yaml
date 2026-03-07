@@ -758,28 +758,33 @@ elements:
                   - type: static
                     fraction: 0.01
                     color: "#cffcff"
-            - type: platonic_solid_animation
-              solid: tetrahedron
+            - type: solid_animation
+              shape: tetrahedron
               color_scheme:
                 type: monochromatic
                 color: "#00ffff" # cyan
-            - type: platonic_solid_animation
-              solid: cube 
+            - type: solid_animation
+              shape: cube 
               color_scheme:
                 type: monochromatic
                 color: "#ffff00" # yellow
-            - type: platonic_solid_animation
-              solid: octahedron
+            - type: solid_animation
+              shape: octahedron
               color_scheme:
                 type: monochromatic
                 color: "#ff00ff" # pink
-            - type: platonic_solid_animation
-              solid: icosahedron 
+            - type: solid_animation
+              shape: icosahedron 
               color_scheme:
                 type: monochromatic
                 color: "#ff0000" # red
-            - type: platonic_solid_animation
-              solid: dodecahedron
+            - type: solid_animation
+              shape: dodecahedron
               color_scheme:
                 type: monochromatic
                 color: "#00ff00" # green
+      - type: solid_animation
+        shape: sphere
+        color_scheme:
+          type: monochromatic
+          color: "#0000ff" # blue

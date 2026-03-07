@@ -13,6 +13,7 @@ CONF_COUNT = "count"
 CONF_DENSITY = "density"
 CONF_FADE_STEPS = "fade_steps"
 CONF_LENGTH = "length"
+CONF_SHAPE = "shape"
 CONF_SPEED = "speed"
 CONF_STRENGTH = "strength"
 
@@ -456,42 +457,39 @@ element_registry.register_element(
     game_of_life_animation_to_code,
 )
 
-# Platonic Solid Animation
+# Solid Animation
 
-PlatonicSolidAnimationElement = shared.elements_ns.class_(
-    "PlatonicSolidAnimationElement", AnimationElement
+SolidAnimationElement = shared.elements_ns.class_(
+    "SolidAnimationElement", AnimationElement
 )
 
-PlatonicSolid = shared.elements_ns.enum("PlatonicSolid", is_class=True)
+Shape = shared.elements_ns.enum("Shape", is_class=True)
 
-PLATONIC_SOLID_OPTIONS = {
-    "tetrahedron": PlatonicSolid.TETRAHEDRON,
-    "cube": PlatonicSolid.CUBE,
-    "octahedron": PlatonicSolid.OCTAHEDRON,
-    "icosahedron": PlatonicSolid.ICOSAHEDRON,
-    "dodecahedron": PlatonicSolid.DODECAHEDRON,
+SHAPE = {
+    "tetrahedron": Shape.TETRAHEDRON,
+    "cube": Shape.CUBE,
+    "octahedron": Shape.OCTAHEDRON,
+    "icosahedron": Shape.ICOSAHEDRON,
+    "dodecahedron": Shape.DODECAHEDRON,
+    "sphere": Shape.SPHERE,
 }
 
-CONF_SOLID = "solid"
-
-PLATONIC_SOLID_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
+SOLID_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
     {
-        cv.GenerateID(CONF_ID): cv.declare_id(PlatonicSolidAnimationElement),
-        cv.Optional(CONF_SOLID, default="icosahedron"): cv.enum(
-            PLATONIC_SOLID_OPTIONS, lower=True
-        ),
+        cv.GenerateID(CONF_ID): cv.declare_id(SolidAnimationElement),
+        cv.Optional(CONF_SHAPE, default="icosahedron"): cv.enum(SHAPE, lower=True),
     }
 )
 
 
-async def platonic_solid_animation_to_code(config, component, parent):
+async def solid_animation_to_code(config, component, parent):
     var = await animation_element_to_code(config, component, parent)
-    cg.add(var.set_solid(config[CONF_SOLID]))
+    cg.add(var.set_shape(config[CONF_SHAPE]))
     return var
 
 
 element_registry.register_element(
-    "platonic_solid_animation",
-    PLATONIC_SOLID_ANIMATION_ELEMENT_SCHEMA,
-    platonic_solid_animation_to_code,
+    "solid_animation",
+    SOLID_ANIMATION_ELEMENT_SCHEMA,
+    solid_animation_to_code,
 )

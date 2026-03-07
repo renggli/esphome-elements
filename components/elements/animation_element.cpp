@@ -375,4 +375,47 @@ void StarsAnimationElement::draw(display::Display &display, int width, int heigh
   }
 }
 
+void ParallaxAnimationElement::draw(display::Display &display, int width, int height, uint32_t time) {
+  float t = time / 1000.0f;
+  float seg = 1.0f / (num_layers_ + 1);
+  // Draw background sky using the first segment of the color scheme.
+  for (int y = 0; y < height; y++) {
+    float y_p = (float) y / (height - 1);
+    Color sky_color = get_gradient_color_(y_p * seg * 0.999f);
+    display.horizontal_line(0, y, width, sky_color);
+  }
+  // Draw each layer from the back to the front.
+  for (int l = 0; l < num_layers_; l++) {
+    float layer_p = (num_layers_ > 1) ? (float) l / (num_layers_ - 1) : 1.0f;
+    float parallax = 0.05f + 0.95f * layer_p;
+    float offset = t * speed_ * parallax * 15.0f;
+    for (int x = 0; x < width; x++) {
+      float nx = (x + offset) * (0.04f + 0.06f * (1.0f - layer_p));
+      float noise_val = 0;
+      float freq = 1.0f;
+      float amp = 1.0f;
+      for (int oct = 0; oct < 3; oct++) {
+        float sample_x = nx * freq;
+        int i = std::floor(sample_x);
+        float f = sample_x - i;
+        float v1 = noise(i, 42 + l, 123);
+        float v2 = noise(i + 1, 42 + l, 123);
+        float v = v1 + f * f * (3.0f - 2.0f * f) * (v2 - v1);
+        noise_val += v * amp;
+        freq *= 2.0f;
+        amp *= 0.5f;
+      }
+      noise_val /= 1.75f;
+      float base_height = 0.2f + 0.5f * (1.0f - layer_p);
+      int terrain_h = (int) ((base_height + 0.7f * (noise_val - 0.5f)) * height);
+      terrain_h = std::clamp(terrain_h, 0, height);
+      for (int y = height - terrain_h; y < height; y++) {
+        float y_p = (float) y / (height - 1);
+        Color pixel_color = get_gradient_color_(seg * (l + 1.001f) + y_p * seg * 0.998f);
+        display.draw_pixel_at(x, y, pixel_color);
+      }
+    }
+  }
+}
+
 }  // namespace esphome::elements

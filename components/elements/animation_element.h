@@ -227,8 +227,6 @@ template<size_t NumPoints, size_t NumEdges> class SolidAnimationElement : public
     // Draw background lines first
     for (size_t i = 0; i < NumEdges; i++) {
       const Edge &edge = edges_[i];
-      if (edge.a >= NumPoints || edge.b >= NumPoints)
-        continue;
       float depth = ((rz[edge.a] + rz[edge.b]) * 0.5f + 1.0f) * 0.5f;
       if (depth < 0.5f) {
         display.line(px[edge.a], py[edge.a], px[edge.b], py[edge.b], get_gradient_color_(depth));
@@ -237,8 +235,6 @@ template<size_t NumPoints, size_t NumEdges> class SolidAnimationElement : public
     // Draw foreground lines on top
     for (size_t i = 0; i < NumEdges; i++) {
       const Edge &edge = edges_[i];
-      if (edge.a >= NumPoints || edge.b >= NumPoints)
-        continue;
       float depth = ((rz[edge.a] + rz[edge.b]) * 0.5f + 1.0f) * 0.5f;
       if (depth >= 0.5f) {
         display.line(px[edge.a], py[edge.a], px[edge.b], py[edge.b], get_gradient_color_(depth));
@@ -249,6 +245,19 @@ template<size_t NumPoints, size_t NumEdges> class SolidAnimationElement : public
  protected:
   std::array<Vec3, NumPoints> points_{};
   std::array<Edge, NumEdges> edges_{};
+};
+
+class ParallaxAnimationElement : public AnimationElement {
+ public:
+  using AnimationElement::AnimationElement;
+  const char *get_type_name() const override { return "parallax_animation"; }
+
+  void set_num_layers(int num_layers) { num_layers_ = num_layers; }
+
+  void draw(display::Display &display, int width, int height, uint32_t time) override;
+
+ protected:
+  int num_layers_{3};
 };
 
 }  // namespace esphome::elements

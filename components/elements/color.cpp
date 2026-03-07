@@ -182,7 +182,7 @@ void SequenceColorScheme::get_hsv(float p, float &h, float &s, float &v) {
   }
   p = std::clamp(p, 0.0f, 1.0f) * total_fraction_;
   for (const auto &item : schemes_) {
-    if (p <= item.cumulative_fraction) {
+    if (p < item.cumulative_fraction) {
       float start_p = item.cumulative_fraction - item.fraction;
       float local_p = std::clamp((p - start_p) / item.fraction, 0.0f, 1.0f);
       item.scheme->get_hsv(local_p, h, s, v);

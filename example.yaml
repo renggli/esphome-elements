@@ -774,3 +774,23 @@ elements:
               color_scheme:
                 type: monochromatic
                 color: "#0000ff" # blue
+      - type: parallax_animation
+        layers: 4
+        color_scheme:
+          type: sequence
+          schemes:
+            - type: gradient
+              from: "#000000"
+              to: "#102030"
+            - type: gradient
+              from: "#C0D0E0"
+              to: "#8090A0"
+            - type: gradient
+              from: "#808090"
+              to: "#505060"
+            - type: gradient
+              from: "#60A060"
+              to: "#305030"
+            - type: gradient
+              from: "#80FF80"
+              to: "#408040"

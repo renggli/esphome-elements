@@ -12,6 +12,7 @@ CONF_COOLING = "cooling"
 CONF_COUNT = "count"
 CONF_DENSITY = "density"
 CONF_FADE_STEPS = "fade_steps"
+CONF_LAYERS = "layers"
 CONF_LENGTH = "length"
 CONF_SHAPE = "shape"
 CONF_SPEED = "speed"
@@ -767,4 +768,31 @@ element_registry.register_element(
     "solid_animation",
     SOLID_ANIMATION_ELEMENT_SCHEMA,
     solid_animation_to_code,
+)
+
+
+# Parallax Animation
+
+ParallaxAnimationElement = shared.elements_ns.class_(
+    "ParallaxAnimationElement", AnimationElement
+)
+
+PARALLAX_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
+    {
+        cv.GenerateID(CONF_ID): cv.declare_id(ParallaxAnimationElement),
+        cv.Optional(CONF_LAYERS, default=3): cv.int_range(min=1, max=10),
+    }
+)
+
+
+async def parallax_animation_to_code(config, component, parent):
+    var = await animation_element_to_code(config, component, parent)
+    cg.add(var.set_num_layers(config[CONF_LAYERS]))
+    return var
+
+
+element_registry.register_element(
+    "parallax_animation",
+    PARALLAX_ANIMATION_ELEMENT_SCHEMA,
+    parallax_animation_to_code,
 )

@@ -36,13 +36,15 @@ void DelegateElement::update_state() {
 
 static const char *const TIMEOUT_ELEMENT_TAG = "elements.timeout";
 
-void TimeoutElement::draw(display::Display &display) {
-  uint32_t current_ms = get_component()->get_current_ms();
-  if (next_ms_ != 0 && next_ms_ <= current_ms) {
-    next_ms_ = current_ms + duration_ms_;
-    on_complete();
+void TimeoutElement::update_state() {
+  DelegateElement::update_state();
+  if (this->visible_) {
+    uint32_t current_ms = get_component()->get_current_ms();
+    if (next_ms_ != 0 && next_ms_ <= current_ms) {
+      next_ms_ = current_ms + duration_ms_;
+      on_complete();
+    }
   }
-  DelegateElement::draw(display);
 }
 
 void TimeoutElement::on_show() {

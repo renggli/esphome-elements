@@ -35,7 +35,7 @@ class TimeoutElement : public DelegateElement {
 
   void set_duration(uint32_t duration_ms) { duration_ms_ = duration_ms; }
 
-  void draw(display::Display &display) override;
+  void update_state() override;
 
   void on_show() override;
   void on_hide() override;

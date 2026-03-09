@@ -29,7 +29,6 @@ void Element::on_hide() {
 }
 
 void Element::update_visibility_(bool now_visible) {
-  // Fire transition events.
   if (!visible_ && now_visible) {
     visible_ = true;
     on_show();
@@ -37,8 +36,6 @@ void Element::update_visibility_(bool now_visible) {
     visible_ = false;
     on_hide();
   }
-
-  // Recurse into children with their own visibility.
   visit_children([](Element *child, bool child_visible) { child->update_visibility_(child_visible); });
 }
 

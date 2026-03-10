@@ -200,14 +200,14 @@ hour_hand:
 
 Provides complex procedural animations to serve as backgrounds or standalone visualizations. The following animations are available:
 
-`aurora_animation`, `fire_animation`, `game_of_life_animation`, `gradient_animation`, `interference_animation`, `julia_animation`, `kaleidoscope_animation`, `matrix_animation`, `meatballs_animation`, `plasma_animation`, `ripples_animation`, `spiral_animation`, `stars_animation`, `tunnel_animation`, `voronoi_animation`, and `wave_animation`.
+`aurora_animation`, `fire_animation`, `game_of_life_animation`, `gradient_animation`, `interference_animation`, `julia_animation`, `kaleidoscope_animation`, `matrix_animation`, `meatballs_animation`, `parallax_animation`, `plasma_animation`, `ripples_animation`, `solid_animation`, `spiral_animation`, `stars_animation`, `tunnel_animation`, `voronoi_animation`, and `wave_animation`.
 
 All animations support the following configuration variables:
 
 - **color_scheme** (Optional, ColorScheme): Configures the color palette and gradients of the animation. Depending on the `type`, it can be `static`, `gradient`, `sequence`, `mirror`, `inverse`, `monochromatic`, `analogous`, `complementary`, `split_complementary`, `triadic`, or `square`.
 - **speed** (Optional, float): A multiplier to speed up or slow down the animation. Defaults to `1.0`.
 
-Depending on the animation type, extra options like `strength`, `cooling`, `length`, `density`, `fade_steps`, or `count` might also be available.
+Depending on the animation type, extra options like `strength`, `cooling`, `length`, `density`, `fade_steps`, `count`, `shape`, or `layers` might also be available.
 
 ### Custom Element
 
@@ -245,7 +245,7 @@ The following configuration variables are supported:
 
 - **active_mode** (Optional, enum): Specifies how the activity state of the children should propagate to the container. Possible values are:
   - `ALWAYS`: the container is always active;
-  - `ANY`: the container is active, if any of its children are (default for `overlay`, `priority`, and `sequence`);
+  - `ANY`: the container is active, if any of its children are (default for `overlay`);
   - `ALL`: the container is active, if all of its children are (default for `horizontal` and `vertical`); and
   - `NEVER`: the container is never active.
 - **elements** (Required, Array&lt;Element&gt;): A list of child elements in the desired drawing order.
@@ -269,19 +269,21 @@ elements:
 This category of elements displays exactly one child at a time, with different strategies for choosing which one.
 
 - `priority`: Displays the first active child element in its list, re-evaluated each frame based on each child's `is_active` state.
-- `sequence`: Presents its children in a defined order. Use the `elements.sequence.next` and `elements.sequence.prev` actions to advance to the next or previous active child.
-- `random`: Shows its active children in a random order, avoiding recently shown items. Use the `elements.random.next` and `elements.random.prev` actions to advance to another child.
+- `sequence`: Presents its children in a defined order. Use the `elements.next` and `elements.prev` actions to advance to the next or previous active child.
+- `random`: Shows its active children in a random order, avoiding recently shown items. Use the `elements.next` and `elements.prev` actions to advance to another child.
 
 **Navigation Actions:**
 
 To control `sequence` and `random` elements from automations, use their respective actions:
 
-- `elements.sequence.next` / `elements.sequence.prev`
-- `elements.random.next` / `elements.random.prev`
+- `elements.next` / `elements.prev`
 
 Both require the `id` of the target element.
 
-The same configuration variables as [Composition Elements](#composition-elements) are supported.
+The following configuration variables are supported:
+
+- **elements** (Required, Array&lt;Element&gt;): A list of child elements.
+- **on_change** (Optional, Action): An automation to perform when the active child changes. The variables `from_index` and `to_index` provide the indices of the transition.
 
 ### Delegate Elements
 

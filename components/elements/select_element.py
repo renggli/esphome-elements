@@ -4,25 +4,26 @@ import esphome.automation as automation
 from esphome.const import CONF_ID, CONF_TRIGGER_ID
 
 from . import shared
+from . import element
 from . import element_registry
-from .container_element import (
-    ContainerElement,
-    CONTAINER_ELEMENT_SCHEMA,
-    container_element_to_code,
-)
 
 CONF_ON_CHANGE = "on_change"
+CONF_ELEMENTS = "elements"
 
 # Abstract Select Element
 
-SelectElement = shared.elements_ns.class_("SelectElement", ContainerElement)
+SelectElement = shared.elements_ns.class_("SelectElement", element.Element)
 SelectElementRef = SelectElement.operator("ref")
 SelectElementChangeTrigger = shared.elements_ns.class_(
     "SelectElementChangeTrigger", automation.Trigger.template(cg.int_, cg.int_)
 )
 
-SELECT_ELEMENT_SCHEMA = CONTAINER_ELEMENT_SCHEMA.extend(
+SELECT_ELEMENT_SCHEMA = element.ELEMENT_SCHEMA.extend(
     {
+        cv.Required(CONF_ELEMENTS): cv.All(
+            cv.ensure_list(element_registry.TYPED_ELEMENT_SCHEMA),
+            cv.Length(min=1),
+        ),
         cv.Optional(CONF_ON_CHANGE): automation.validate_automation(
             {
                 cv.GenerateID(CONF_TRIGGER_ID): cv.declare_id(
@@ -35,7 +36,14 @@ SELECT_ELEMENT_SCHEMA = CONTAINER_ELEMENT_SCHEMA.extend(
 
 
 async def select_element_to_code(config, component, parent):
-    var = await container_element_to_code(config, component, parent)
+    var = await element.element_to_code(config, component, parent)
+    if elements_configs := config.get(CONF_ELEMENTS):
+        for conf in elements_configs:
+            element_var = await element_registry.typed_element_to_code(
+                conf, component, var
+            )
+            cg.add(var.add_element(element_var))
+
     for conf in config.get(CONF_ON_CHANGE, []):
         trigger = cg.new_Pvariable(conf[CONF_TRIGGER_ID], var)
         await automation.build_automation(

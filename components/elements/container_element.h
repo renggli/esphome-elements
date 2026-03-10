@@ -18,12 +18,8 @@ enum class ActiveMode : std::uint8_t {
   NEVER,
 };
 
-// ---------------------------------------------------------------------------
-// ContainerElement
-// ---------------------------------------------------------------------------
-
 /// Element that holds a list of child elements. Subclasses decide how many
-/// are drawn and, via visit_children(), which ones are considered visible.
+/// are drawn and which ones are considered visible.
 class ContainerElement : public Element {
  public:
   ContainerElement(ElementComponent *component, Element *parent, ActiveMode active_mode)
@@ -38,20 +34,13 @@ class ContainerElement : public Element {
 
   bool is_active() const override;
 
-  /// All children are visible — correct for Overlay, Horizontal, Vertical.
   void update_visibility(bool now_visible) override;
-
-  /// Propagates update_state() to all children before the container's own update.
   void update_state() override;
 
  protected:
   std::vector<Element *> elements_;
   ActiveMode active_mode_;
 };
-
-// ---------------------------------------------------------------------------
-// OverlayElement
-// ---------------------------------------------------------------------------
 
 /// Draws multiple elements on top of each other (all visible simultaneously).
 class OverlayElement : public ContainerElement {
@@ -62,10 +51,6 @@ class OverlayElement : public ContainerElement {
 
   void draw(display::Display &display) override;
 };
-
-// ---------------------------------------------------------------------------
-// HorizontalElement / VerticalElement
-// ---------------------------------------------------------------------------
 
 /// Draws multiple elements evenly horizontally spaced next to each other.
 class HorizontalElement : public ContainerElement {

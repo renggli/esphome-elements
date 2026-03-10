@@ -36,7 +36,7 @@ async def custom_element_to_code(config, component, parent):
     if conf := config.get(CONF_IS_ACTIVE):
         value = await cg.process_lambda(
             conf,
-            [(shared.ElementRef, CONF_ELEMENT)],
+            [(shared.ElementConstRef, CONF_ELEMENT)],
             return_type=cg.bool_,
         )
         cg.add(var.set_is_active(value))

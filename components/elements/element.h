@@ -38,10 +38,6 @@ class Element {
   /// Property indicating if this element is currently visible (drawn by its parent).
   bool is_visible() const { return visible_; }
 
-  // ---------------------------------------------------------------------------
-  // Lifecycle
-  // ---------------------------------------------------------------------------
-
   /// Called before drawing each frame to let elements update their internal
   /// state (e.g. which child to display). Must not fire any events.
   virtual void update_state() {}
@@ -49,10 +45,6 @@ class Element {
   /// Recursively updates visible_ and fires on_show/on_hide as needed.
   /// Called by ElementComponent before draw, after update_state.
   virtual void update_visibility(bool now_visible);
-
-  // ---------------------------------------------------------------------------
-  // Events
-  // ---------------------------------------------------------------------------
 
   /// Register a callback that is called when the element is about to be shown.
   void add_on_show_callback(std::function<void(Element *)> &&callback) { on_show_callbacks_.add(std::move(callback)); }

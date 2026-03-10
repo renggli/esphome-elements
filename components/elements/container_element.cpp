@@ -39,16 +39,16 @@ bool ContainerElement::is_active() const {
   return false;
 }
 
+void ContainerElement::update_state() {
+  for (Element *element : elements_) {
+    element->update_state();
+  }
+}
+
 void ContainerElement::update_visibility(bool now_visible) {
   Element::update_visibility(now_visible);
   for (Element *element : elements_) {
     element->update_visibility(this->visible_);
-  }
-}
-
-void ContainerElement::update_state() {
-  for (Element *element : elements_) {
-    element->update_state();
   }
 }
 

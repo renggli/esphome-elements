@@ -45,13 +45,7 @@ class TextElement : public Element {
   /// Called when the element is hidden; resets scroll and completion state.
   void on_hide() override;
 
-  // ---------------------------------------------------------------------------
-  // on_complete event
-  // ---------------------------------------------------------------------------
-
   /// Register a callback for when the text has finished displaying.
-  /// For scrolling text, this fires once per completed scroll pass.
-  /// For static/empty text, this fires once per visibility cycle.
   void add_on_complete_callback(std::function<void(TextElement *)> &&callback) {
     on_complete_callbacks_.add(std::move(callback));
   }

@@ -14,8 +14,7 @@ class CustomElement : public Element {
   const char *get_type_name() const override { return "custom"; }
 
   using DrawFunction = std::function<void(CustomElement &, display::Display &)>;
-  using EventFunction = std::function<void(CustomElement &)>;
-  using PredicateFunction = std::function<bool(CustomElement &)>;
+  using PredicateFunction = std::function<bool(const CustomElement &)>;
 
   void set_draw(DrawFunction draw) { draw_ = std::move(draw); }
   void set_is_active(PredicateFunction is_active) { is_active_ = std::move(is_active); }

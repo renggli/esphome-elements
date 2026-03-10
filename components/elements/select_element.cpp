@@ -10,9 +10,10 @@ static const char *const SELECT_ELEMENT_TAG = "elements.select";
 // SelectElement
 // ---------------------------------------------------------------------------
 
-void SelectElement::visit_children(const std::function<void(Element *, bool)> &fn) {
+void SelectElement::update_visibility(bool now_visible) {
+  Element::update_visibility(now_visible);
   for (int i = 0; i < (int) elements_.size(); i++) {
-    fn(elements_[i], i == index_);
+    elements_[i]->update_visibility(this->visible_ && (i == index_));
   }
 }
 

@@ -39,7 +39,7 @@ class ContainerElement : public Element {
   bool is_active() const override;
 
   /// All children are visible — correct for Overlay, Horizontal, Vertical.
-  void visit_children(const std::function<void(Element *, bool)> &fn) override;
+  void update_visibility(bool now_visible) override;
 
   /// Propagates update_state() to all children before the container's own update.
   void update_state() override;

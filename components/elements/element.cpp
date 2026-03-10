@@ -28,7 +28,7 @@ void Element::on_hide() {
   on_hide_callbacks_.call(this);
 }
 
-void Element::update_visibility_(bool now_visible) {
+void Element::update_visibility(bool now_visible) {
   if (!visible_ && now_visible) {
     visible_ = true;
     on_show();
@@ -36,7 +36,6 @@ void Element::update_visibility_(bool now_visible) {
     visible_ = false;
     on_hide();
   }
-  visit_children([](Element *child, bool child_visible) { child->update_visibility_(child_visible); });
 }
 
 }  // namespace esphome::elements

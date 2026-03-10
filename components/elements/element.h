@@ -46,10 +46,9 @@ class Element {
   /// state (e.g. which child to display). Must not fire any events.
   virtual void update_state() {}
 
-  /// Visits each child element with a flag indicating whether that child will
-  /// be visible this frame. Leaf elements have no children (default no-op).
-  /// This drives the centralised visibility + event system in ElementComponent.
-  virtual void visit_children(const std::function<void(Element *, bool)> &fn) {}
+  /// Recursively updates visible_ and fires on_show/on_hide as needed.
+  /// Called by ElementComponent before draw, after update_state.
+  virtual void update_visibility(bool now_visible);
 
   // ---------------------------------------------------------------------------
   // Events
@@ -76,13 +75,6 @@ class Element {
 
   LazyCallbackManager<void(Element *)> on_show_callbacks_;
   LazyCallbackManager<void(Element *)> on_hide_callbacks_;
-
-  // Allow ElementComponent to call update_visibility_.
-  friend class ElementComponent;
-
-  /// Recursively updates visible_ and fires on_show/on_hide as needed.
-  /// Called by ElementComponent before draw, after update_state.
-  void update_visibility_(bool now_visible);
 };
 
 class ElementShowTrigger : public Trigger<Element &> {

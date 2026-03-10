@@ -58,7 +58,7 @@ void ElementComponent::draw(display::Display &display) {
   // Phase 3: Update visibility flags and fire on_show / on_hide events.
   // Each element that transitions hidden→visible fires on_show exactly once;
   // visible→hidden fires on_hide exactly once. Events are fired before drawing.
-  root_->update_visibility_(true);
+  root_->update_visibility(true);
 
   // Phase 4: Draw.
   root_->draw(display);

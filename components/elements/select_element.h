@@ -23,7 +23,7 @@ class SelectElement : public ContainerElement {
   bool has_visible_child(const Element *child) const { return index_ != -1 && elements_[index_] == child; }
 
   /// Only the selected child is visible.
-  void visit_children(const std::function<void(Element *, bool)> &fn) override;
+  void update_visibility(bool now_visible) override;
 
   /// Go to an element with a specific index.
   void go_to(int index);

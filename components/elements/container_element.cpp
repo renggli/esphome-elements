@@ -39,9 +39,10 @@ bool ContainerElement::is_active() const {
   return false;
 }
 
-void ContainerElement::visit_children(const std::function<void(Element *, bool)> &fn) {
+void ContainerElement::update_visibility(bool now_visible) {
+  Element::update_visibility(now_visible);
   for (Element *element : elements_) {
-    fn(element, true);
+    element->update_visibility(this->visible_);
   }
 }
 

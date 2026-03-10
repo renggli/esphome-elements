@@ -18,7 +18,7 @@ class DelegateElement : public Element {
   bool is_active() const override;
 
   /// The child is visible whenever this element is visible.
-  void visit_children(const std::function<void(Element *, bool)> &fn) override;
+  void update_visibility(bool now_visible) override;
 
   void update_state() override;
 
@@ -51,7 +51,7 @@ class TimeoutElement : public DelegateElement {
 
  protected:
   uint32_t duration_ms_ = 0;
-  uint32_t next_ms_ = 0;
+  uint32_t start_time_ = 0;
 
   LazyCallbackManager<void(TimeoutElement *)> on_complete_callbacks_;
 };

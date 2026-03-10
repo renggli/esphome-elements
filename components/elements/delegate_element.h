@@ -12,15 +12,11 @@ class DelegateElement : public Element {
   void set_element(Element *element) { element_ = element; };
 
   void dump_config(int level) override;
-  void draw(display::Display &display) override;
 
-  /// Property indicating whether this element is active (deferred to child).
   bool is_active() const override;
-
-  /// The child is visible whenever this element is visible.
   void update_visibility(bool now_visible) override;
-
   void update_state() override;
+  void draw(display::Display &display) override;
 
  protected:
   Element *element_ = nullptr;

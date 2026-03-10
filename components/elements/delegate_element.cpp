@@ -10,12 +10,6 @@ void DelegateElement::dump_config(int level) {
   }
 }
 
-void DelegateElement::draw(display::Display &display) {
-  if (element_ != nullptr) {
-    element_->draw(display);
-  }
-}
-
 bool DelegateElement::is_active() const { return element_ != nullptr && element_->is_active(); }
 
 void DelegateElement::update_visibility(bool now_visible) {
@@ -28,6 +22,12 @@ void DelegateElement::update_visibility(bool now_visible) {
 void DelegateElement::update_state() {
   if (element_ != nullptr) {
     element_->update_state();
+  }
+}
+
+void DelegateElement::draw(display::Display &display) {
+  if (element_ != nullptr) {
+    element_->draw(display);
   }
 }
 
@@ -52,12 +52,12 @@ void TimeoutElement::on_show() {
   start_time_ = get_component()->get_current_ms();
   if (start_time_ == 0)
     start_time_ = 1;
-  Element::on_show();
+  DelegateElement::on_show();
 }
 
 void TimeoutElement::on_hide() {
   start_time_ = 0;
-  Element::on_hide();
+  DelegateElement::on_hide();
 }
 
 void TimeoutElement::on_complete() {

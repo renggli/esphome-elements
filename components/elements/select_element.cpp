@@ -123,7 +123,7 @@ void RandomElement::next() {
   std::vector<int> candidates;
   int min = std::numeric_limits<int>::max();
   for (int index = 0; index < (int) elements_.size(); index++) {
-    if (!elements_[index]->is_active())
+    if (!elements_[index]->is_active() || index == index_)
       continue;
     int count = 0;
     for (int hist_index : history_) {
@@ -140,7 +140,7 @@ void RandomElement::next() {
     }
   }
   if (!candidates.empty()) {
-    int index = candidates[get_component()->get_current_ms() % candidates.size()];
+    int index = candidates[random_uint32() % candidates.size()];
     update_history_();
     go_to(index);
   }

@@ -1,10 +1,10 @@
-#include <numbers>
-
 #include "custom_element.h"
+
+#include <numbers>
 
 namespace esphome::elements {
 
-void CustomElement::draw(display::Display &display) {
+void CustomElement::draw(display::Display& display) {
   if (draw_) {
     draw_(*this, display);
   } else {
@@ -19,10 +19,11 @@ bool CustomElement::is_active() const {
   return Element::is_active();
 }
 
-void CustomElement::test_draw_(display::Display &display) {
+void CustomElement::test_draw_(display::Display& display) {
   int center_x = display.get_width() / 2;
   int center_y = display.get_height() / 2;
-  float delta = fmod(get_component()->get_current_ms() / 2000.0f, 2.0f * std::numbers::pi);
+  float delta = fmod(get_component()->get_current_ms() / 2000.0f,
+                     2.0f * std::numbers::pi);
   int x1 = center_x;
   int y1 = (center_y * sin(delta)) + center_y;
   for (int i = 1; i <= 0xff; i++) {

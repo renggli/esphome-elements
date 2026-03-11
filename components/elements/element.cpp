@@ -1,30 +1,36 @@
 #include "element.h"
+
 #include "esphome/core/log.h"
 
 namespace esphome::elements {
 
-static const char *const ELEMENT_TAG = "elements.element";
+static const char* const ELEMENT_TAG = "elements.element";
 
-void Element::dump_config(int level) { dump_config(level, "- type: %s (%p)", get_type_name(), this); }
+void Element::dump_config(int level) {
+  dump_config(level, "- type: %s (%p)", get_type_name(), this);
+}
 
-void Element::dump_config(int level, const char *format, ...) {
+void Element::dump_config(int level, const char* format, ...) {
   va_list arg;
   va_start(arg, format);
   char buffer[256];
   int ret = vsnprintf(buffer, sizeof(buffer), format, arg);
   if (ret > 0) {
-    ESP_LOGCONFIG(ELEMENT_TAG, "%s%s", std::string(2 * level, ' ').c_str(), buffer);
+    ESP_LOGCONFIG(ELEMENT_TAG, "%s%s", std::string(2 * level, ' ').c_str(),
+                  buffer);
   }
   va_end(arg);
 }
 
 void Element::on_show() {
-  ESP_LOGI(ELEMENT_TAG, "Triggering `on_show` for %s (%p)", get_type_name(), this);
+  ESP_LOGI(ELEMENT_TAG, "Triggering `on_show` for %s (%p)", get_type_name(),
+           this);
   on_show_callbacks_.call(this);
 }
 
 void Element::on_hide() {
-  ESP_LOGI(ELEMENT_TAG, "Triggering `on_hide` for %s (%p)", get_type_name(), this);
+  ESP_LOGI(ELEMENT_TAG, "Triggering `on_hide` for %s (%p)", get_type_name(),
+           this);
   on_hide_callbacks_.call(this);
 }
 

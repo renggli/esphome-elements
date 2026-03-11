@@ -18,11 +18,11 @@ class ElementComponent : public Component {
   void setup() override;
   void dump_config() override;
 
-  void set_display(display::Display *display) { display_ = display; }
-  void set_root(Element *root);
+  void set_display(display::Display* display) { display_ = display; }
+  void set_root(Element* root);
 
   /// Return the root element of this component.
-  Element *get_root() const { return root_; }
+  Element* get_root() const { return root_; }
 
   /// Return the current time in milliseconds at the start of the last update.
   uint32_t get_current_ms() const { return current_ms_; }
@@ -31,11 +31,11 @@ class ElementComponent : public Component {
   uint32_t get_delta_ms() const { return delta_ms_; }
 
   /// Draws the element onto the provided display.
-  void draw(display::Display &display);
+  void draw(display::Display& display);
 
  protected:
-  Element *root_ = nullptr;
-  display::Display *display_ = nullptr;
+  Element* root_ = nullptr;
+  display::Display* display_ = nullptr;
 
   uint32_t current_ms_ = millis();
   uint32_t delta_ms_ = 0;
@@ -48,13 +48,14 @@ class ElementComponent : public Component {
 #ifdef USE_WEBSERVER
 class ElementComponentHandler : public AsyncWebHandler {
  public:
-  ElementComponentHandler(ElementComponent *component) : component_(component) {}
+  ElementComponentHandler(ElementComponent* component)
+      : component_(component) {}
 
-  bool canHandle(AsyncWebServerRequest *request) const override;
-  void handleRequest(AsyncWebServerRequest *request) override;
+  bool canHandle(AsyncWebServerRequest* request) const override;
+  void handleRequest(AsyncWebServerRequest* request) override;
 
  protected:
-  ElementComponent *component_;
+  ElementComponent* component_;
 };
 #endif
 

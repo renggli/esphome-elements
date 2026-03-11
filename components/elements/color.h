@@ -11,7 +11,7 @@ namespace esphome::elements {
 // ----------------------------------------------------------------------------
 
 Color hsv_to_color(float h, float s, float v);
-void color_to_hsv(Color c, float &h, float &s, float &v);
+void color_to_hsv(Color c, float& h, float& s, float& v);
 float lerp_hue(float from_h, float to_h, float t);
 
 class ColorScheme {
@@ -19,7 +19,7 @@ class ColorScheme {
   virtual ~ColorScheme() = default;
 
   // Primary interface: p in [0, 1] → HSV output
-  virtual void get_hsv(float p, float &h, float &s, float &v) = 0;
+  virtual void get_hsv(float p, float& h, float& s, float& v) = 0;
 
   // Convenience wrapper: calls get_hsv and converts to RGB Color.
   Color get_color(float p);
@@ -31,7 +31,7 @@ class StaticColorScheme : public ColorScheme {
   void set_color(Color c);
   void set_hsv(float h, float s, float v);
 
-  void get_hsv(float p, float &h, float &s, float &v) override;
+  void get_hsv(float p, float& h, float& s, float& v) override;
 
  private:
   float h_ = 0.0f, s_ = 1.0f, v_ = 1.0f;
@@ -46,7 +46,7 @@ class GradientColorScheme : public ColorScheme {
   void set_to(Color c);
   void set_to_hsv(float h, float s, float v);
 
-  void get_hsv(float p, float &h, float &s, float &v) override;
+  void get_hsv(float p, float& h, float& s, float& v) override;
 
  private:
   float from_h_ = 0.0f, from_s_ = 1.0f, from_v_ = 1.0f;
@@ -57,32 +57,32 @@ class GradientColorScheme : public ColorScheme {
 // This makes the scheme go from start to end and back seamlessly.
 class MirrorColorScheme : public ColorScheme {
  public:
-  void set_scheme(ColorScheme *scheme);
-  void get_hsv(float p, float &h, float &s, float &v) override;
+  void set_scheme(ColorScheme* scheme);
+  void get_hsv(float p, float& h, float& s, float& v) override;
 
  private:
-  ColorScheme *scheme_ = nullptr;
+  ColorScheme* scheme_ = nullptr;
 };
 
 // Wraps another scheme and inverts p: maps [0,1] to [1,0].
 class InverseColorScheme : public ColorScheme {
  public:
-  void set_scheme(ColorScheme *scheme);
-  void get_hsv(float p, float &h, float &s, float &v) override;
+  void set_scheme(ColorScheme* scheme);
+  void get_hsv(float p, float& h, float& s, float& v) override;
 
  private:
-  ColorScheme *scheme_ = nullptr;
+  ColorScheme* scheme_ = nullptr;
 };
 
 // Splits [0,1] into segments and maps each to a child scheme.
 class SequenceColorScheme : public ColorScheme {
  public:
-  void add_scheme(ColorScheme *scheme, float fraction = 1.0f);
-  void get_hsv(float p, float &h, float &s, float &v) override;
+  void add_scheme(ColorScheme* scheme, float fraction = 1.0f);
+  void get_hsv(float p, float& h, float& s, float& v) override;
 
  private:
   struct SequenceItem {
-    ColorScheme *scheme;
+    ColorScheme* scheme;
     float fraction;
     float cumulative_fraction;
   };
@@ -91,11 +91,13 @@ class SequenceColorScheme : public ColorScheme {
 };
 
 // Palette factory functions
-ColorScheme *make_monochromatic(float h, float s, float v, float min_v = 0.2f);
-ColorScheme *make_analogous(float h, float s, float v, float sweep_deg = 45.0f);
-ColorScheme *make_complementary(float h, float s, float v, float sweep_deg = 30.0f);
-ColorScheme *make_split_complementary(float h, float s, float v, float sweep_deg = 20.0f);
-ColorScheme *make_triadic(float h, float s, float v, float sweep_deg = 20.0f);
-ColorScheme *make_square(float h, float s, float v, float sweep_deg = 15.0f);
+ColorScheme* make_monochromatic(float h, float s, float v, float min_v = 0.2f);
+ColorScheme* make_analogous(float h, float s, float v, float sweep_deg = 45.0f);
+ColorScheme* make_complementary(float h, float s, float v,
+                                float sweep_deg = 30.0f);
+ColorScheme* make_split_complementary(float h, float s, float v,
+                                      float sweep_deg = 20.0f);
+ColorScheme* make_triadic(float h, float s, float v, float sweep_deg = 20.0f);
+ColorScheme* make_square(float h, float s, float v, float sweep_deg = 15.0f);
 
 }  // namespace esphome::elements

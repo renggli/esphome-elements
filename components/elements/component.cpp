@@ -6,25 +6,26 @@
 
 namespace esphome::elements {
 
-static const char *const ELEMENT_COMPONENT_TAG = "elements.component";
+static const char* const ELEMENT_COMPONENT_TAG = "elements.component";
 
 void ElementComponent::setup() {
   // If we have a display, setup automatic drawing. Otherwise users need to
   // manually call `Elements::draw(Display&)` with the desired display as
   // argument.
   if (display_ != nullptr) {
-    display::display_writer_t writer = [this](display::Display &it) {
+    display::display_writer_t writer = [this](display::Display& it) {
       display_->clear();
       draw(*display_);
     };
     display_->show_page(new display::DisplayPage(writer));
   } else {
-    ESP_LOGW(ELEMENT_COMPONENT_TAG, "No display setup, drawing needs to be manually called.");
+    ESP_LOGW(ELEMENT_COMPONENT_TAG,
+             "No display setup, drawing needs to be manually called.");
   }
 
 #ifdef USE_WEBSERVER
   // If we have a webserver, register the element display as an image.
-  auto *web_server_base = web_server_base::global_web_server_base;
+  auto* web_server_base = web_server_base::global_web_server_base;
   if (web_server_base != nullptr) {
     web_server_base->add_handler(new ElementComponentHandler(this));
   }
@@ -38,9 +39,9 @@ void ElementComponent::dump_config() {
   }
 }
 
-void ElementComponent::set_root(Element *root) { root_ = root; }
+void ElementComponent::set_root(Element* root) { root_ = root; }
 
-void ElementComponent::draw(display::Display &display) {
+void ElementComponent::draw(display::Display& display) {
   // Check the preconditions.
   if (root_ == nullptr) {
     ESP_LOGE(ELEMENT_COMPONENT_TAG, "draw() called without a root element.");
@@ -65,7 +66,7 @@ void ElementComponent::draw(display::Display &display) {
 }
 
 #ifdef USE_WEBSERVER
-bool ElementComponentHandler::canHandle(AsyncWebServerRequest *request) const {
+bool ElementComponentHandler::canHandle(AsyncWebServerRequest* request) const {
   if (request->method() == HTTP_GET) {
     if (request->url() == "/icon.bmp") {
       return true;
@@ -100,22 +101,26 @@ typedef struct {
 } BMPInfoHeader;
 #pragma pack(pop)
 
-void ElementComponentHandler::handleRequest(AsyncWebServerRequest *request) {
+void ElementComponentHandler::handleRequest(AsyncWebServerRequest* request) {
   // Fetch display dimensions of the component.
   int width = 0;
   int height = 0;
 
-  display::Display *display_component = component_->display_;
+  display::Display* display_component = component_->display_;
   if (display_component != nullptr) {
     width = display_component->get_width();
     height = display_component->get_height();
   }
 
   if (request->hasParam("width")) {
-    width = static_cast<int>(parse_number<uint32_t>(request->getParam("width")->value().c_str()).value_or(0));
+    width = static_cast<int>(
+        parse_number<uint32_t>(request->getParam("width")->value().c_str())
+            .value_or(0));
   }
   if (request->hasParam("height")) {
-    height = static_cast<int>(parse_number<uint32_t>(request->getParam("height")->value().c_str()).value_or(0));
+    height = static_cast<int>(
+        parse_number<uint32_t>(request->getParam("height")->value().c_str())
+            .value_or(0));
   }
 
   if (height <= 0 || width <= 0) {
@@ -163,12 +168,12 @@ void ElementComponentHandler::handleRequest(AsyncWebServerRequest *request) {
 
   // Allocate memory
   RAMAllocator<uint8_t> allocator;
-  uint8_t *data = allocator.allocate(fileHeader.bfSize);
+  uint8_t* data = allocator.allocate(fileHeader.bfSize);
   if (!data) {
     request->send(500, "text/plain", "Unable to allocate response buffer.");
     return;
   }
-  uint8_t *ptr = data;
+  uint8_t* ptr = data;
 
   // Write headers
   memcpy(ptr, &fileHeader, sizeof(BMPFileHeader));
@@ -190,7 +195,8 @@ void ElementComponentHandler::handleRequest(AsyncWebServerRequest *request) {
   }
 
   // Server the data.
-  AsyncWebServerResponse *response = request->beginResponse(200, "image/bmp", data, fileHeader.bfSize);
+  AsyncWebServerResponse* response =
+      request->beginResponse(200, "image/bmp", data, fileHeader.bfSize);
   request->send(response);
 
   // Free the memory.

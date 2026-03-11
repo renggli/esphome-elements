@@ -2,15 +2,17 @@
 
 namespace esphome::elements {
 
-static const char *const TEXT_ELEMENT_TAG = "elements.text";
+static const char* const TEXT_ELEMENT_TAG = "elements.text";
 
 using display::TextAlign;
 
-const int TEXT_ALIGN_X = (int) TextAlign::LEFT | (int) TextAlign::CENTER_HORIZONTAL | (int) TextAlign::RIGHT;
-const int TEXT_ALIGN_Y =
-    (int) TextAlign::TOP | (int) TextAlign::CENTER_VERTICAL | (int) TextAlign::BASELINE | (int) TextAlign::BOTTOM;
+const int TEXT_ALIGN_X = (int)TextAlign::LEFT |
+                         (int)TextAlign::CENTER_HORIZONTAL |
+                         (int)TextAlign::RIGHT;
+const int TEXT_ALIGN_Y = (int)TextAlign::TOP | (int)TextAlign::CENTER_VERTICAL |
+                         (int)TextAlign::BASELINE | (int)TextAlign::BOTTOM;
 
-void TextElement::draw(display::Display &display) {
+void TextElement::draw(display::Display& display) {
   // Update the text, if necessary.
   std::string new_text = get_text();
   if (text_ != new_text) {
@@ -54,15 +56,16 @@ void TextElement::draw(display::Display &display) {
 
   // Measure the text, if necessary.
   if (request_measurement_) {
-    display.get_text_bounds(point.x, point.y, text_.c_str(), font_, align_, &bounds_x_, &bounds_y_, &bounds_w_,
-                            &bounds_h_);
+    display.get_text_bounds(point.x, point.y, text_.c_str(), font_, align_,
+                            &bounds_x_, &bounds_y_, &bounds_w_, &bounds_h_);
     request_measurement_ = false;
   }
 
-  // When scrolling, reset and signal completion each time the text exits the display.
+  // When scrolling, reset and signal completion each time the text exits the
+  // display.
   if (scroll_mode_ != ScrollMode::NONE) {
-    if (bounds_x_ + bounds_w_ < 0 || display.get_width() < bounds_x_ || bounds_y_ + bounds_h_ < 0 ||
-        display.get_height() < bounds_y_) {
+    if (bounds_x_ + bounds_w_ < 0 || display.get_width() < bounds_x_ ||
+        bounds_y_ + bounds_h_ < 0 || display.get_height() < bounds_y_) {
       scroll_offset_ = 0.0f;
       complete_ = false;
       on_complete();
@@ -71,7 +74,8 @@ void TextElement::draw(display::Display &display) {
   }
 
   // Draw the text.
-  display.print(point.x, point.y, font_, color_, align_, text_.c_str(), background_color_);
+  display.print(point.x, point.y, font_, color_, align_, text_.c_str(),
+                background_color_);
 }
 
 void TextElement::on_show() {
@@ -92,7 +96,8 @@ void TextElement::on_show() {
       break;
     case ScrollMode::TOP_TO_BOTTOM:
       anchor_.fraction.y = 0.0f;
-      align_ = TextAlign((int(align_) & ~TEXT_ALIGN_Y) | int(TextAlign::BOTTOM));
+      align_ =
+          TextAlign((int(align_) & ~TEXT_ALIGN_Y) | int(TextAlign::BOTTOM));
       break;
   }
   scroll_offset_ = 0.0f;
@@ -107,7 +112,8 @@ void TextElement::on_hide() {
 }
 
 void TextElement::on_complete() {
-  ESP_LOGI(TEXT_ELEMENT_TAG, "Triggering `on_complete` for %s (%p)", get_type_name(), this);
+  ESP_LOGI(TEXT_ELEMENT_TAG, "Triggering `on_complete` for %s (%p)",
+           get_type_name(), this);
   on_complete_callbacks_.call(this);
 }
 
@@ -115,8 +121,12 @@ bool TextElement::is_active() const { return !get_text().empty(); }
 
 std::string StaticTextElement::get_text() const { return text_; }
 
-std::string DynamicTextElement::get_text() const { return lambda_(const_cast<DynamicTextElement &>(*this)); }
+std::string DynamicTextElement::get_text() const {
+  return lambda_(const_cast<DynamicTextElement&>(*this));
+}
 
-std::string TimeTextElement::get_text() const { return time_->now().strftime(format_); }
+std::string TimeTextElement::get_text() const {
+  return time_->now().strftime(format_);
+}
 
 }  // namespace esphome::elements

@@ -4,7 +4,7 @@
 
 namespace esphome::elements {
 
-void ClockElement::draw(display::Display &display) {
+void ClockElement::draw(display::Display& display) {
   // Center the clock in the middle of the display.
   const int center_x = display.get_width() / 2;
   const int center_y = display.get_height() / 2;
@@ -13,14 +13,17 @@ void ClockElement::draw(display::Display &display) {
   // Draw the markers.
   for (int i = 0; i < 60; i++) {
     if (quarter_markers_.visible && i % 15 == 0) {
-      display.line_at_angle(center_x, center_y, 6 * i, radius * quarter_markers_.start, radius * quarter_markers_.end,
-                            quarter_markers_.color);
+      display.line_at_angle(
+          center_x, center_y, 6 * i, radius * quarter_markers_.start,
+          radius * quarter_markers_.end, quarter_markers_.color);
     } else if (hour_markers_.visible && i % 5 == 0) {
-      display.line_at_angle(center_x, center_y, 6 * i, radius * hour_markers_.start, radius * hour_markers_.end,
-                            hour_markers_.color);
+      display.line_at_angle(center_x, center_y, 6 * i,
+                            radius * hour_markers_.start,
+                            radius * hour_markers_.end, hour_markers_.color);
     } else if (minute_markers_.visible) {
-      display.line_at_angle(center_x, center_y, 6 * i, radius * minute_markers_.start, radius * minute_markers_.end,
-                            minute_markers_.color);
+      display.line_at_angle(
+          center_x, center_y, 6 * i, radius * minute_markers_.start,
+          radius * minute_markers_.end, minute_markers_.color);
     }
   }
 
@@ -44,15 +47,20 @@ void ClockElement::draw(display::Display &display) {
 
   // Draw the hands.
   if (hour_hand_.visible) {
-    display.line_at_angle(center_x, center_y, (360.0f * hours / 12.0f) - 90.0f, radius * hour_hand_.start,
-                          radius * hour_hand_.end, hour_hand_.color);
+    display.line_at_angle(center_x, center_y, (360.0f * hours / 12.0f) - 90.0f,
+                          radius * hour_hand_.start, radius * hour_hand_.end,
+                          hour_hand_.color);
   }
   if (minute_hand_.visible) {
-    display.line_at_angle(center_x, center_y, (360.0f * minutes / 60.0f) - 90.0f, radius * minute_hand_.start,
+    display.line_at_angle(center_x, center_y,
+                          (360.0f * minutes / 60.0f) - 90.0f,
+                          radius * minute_hand_.start,
                           radius * minute_hand_.end, minute_hand_.color);
   }
   if (second_hand_.visible) {
-    display.line_at_angle(center_x, center_y, (360.0f * seconds / 60.0f) - 90.0f, radius * second_hand_.start,
+    display.line_at_angle(center_x, center_y,
+                          (360.0f * seconds / 60.0f) - 90.0f,
+                          radius * second_hand_.start,
                           radius * second_hand_.end, second_hand_.color);
   }
 }

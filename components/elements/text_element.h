@@ -2,10 +2,9 @@
 
 #include <utility>
 
+#include "element.h"
 #include "esphome/components/time/real_time_clock.h"
 #include "geometry.h"
-
-#include "element.h"
 
 namespace esphome::elements {
 
@@ -25,9 +24,11 @@ class TextElement : public Element {
   /// Returns the text to display. Subclasses provide the content.
   virtual std::string get_text() const = 0;
 
-  void set_font(display::BaseFont *font) { font_ = font; }
+  void set_font(display::BaseFont* font) { font_ = font; }
   void set_color(Color color) { color_ = color; }
-  void set_background_color(Color background_color) { background_color_ = background_color; }
+  void set_background_color(Color background_color) {
+    background_color_ = background_color;
+  }
   void set_anchor(Anchor anchor) { anchor_ = anchor; }
   void set_align(display::TextAlign align) { align_ = align; }
 
@@ -37,7 +38,7 @@ class TextElement : public Element {
   /// Property indicating whether this element has text to display.
   bool is_active() const override;
 
-  void draw(display::Display &display) override;
+  void draw(display::Display& display) override;
 
   /// Called when the element becomes visible; resets scroll position.
   void on_show() override;
@@ -46,7 +47,7 @@ class TextElement : public Element {
   void on_hide() override;
 
   /// Register a callback for when the text has finished displaying.
-  void add_on_complete_callback(std::function<void(TextElement *)> &&callback) {
+  void add_on_complete_callback(std::function<void(TextElement*)>&& callback) {
     on_complete_callbacks_.add(std::move(callback));
   }
 
@@ -54,7 +55,7 @@ class TextElement : public Element {
   void on_complete();
 
  protected:
-  display::BaseFont *font_ = nullptr;
+  display::BaseFont* font_ = nullptr;
   Color color_ = Color::WHITE;
   Color background_color_ = Color::BLACK;
   Anchor anchor_ = {};
@@ -71,13 +72,14 @@ class TextElement : public Element {
   /// True after on_complete has fired; reset by on_show/on_hide.
   bool complete_ = false;
 
-  LazyCallbackManager<void(TextElement *)> on_complete_callbacks_;
+  LazyCallbackManager<void(TextElement*)> on_complete_callbacks_;
 };
 
-class TextElementCompleteTrigger : public Trigger<TextElement &> {
+class TextElementCompleteTrigger : public Trigger<TextElement&> {
  public:
-  explicit TextElementCompleteTrigger(TextElement *parent) {
-    parent->add_on_complete_callback([this](TextElement *element) { trigger(*element); });
+  explicit TextElementCompleteTrigger(TextElement* parent) {
+    parent->add_on_complete_callback(
+        [this](TextElement* element) { trigger(*element); });
   }
 };
 
@@ -86,7 +88,7 @@ class StaticTextElement : public TextElement {
  public:
   using TextElement::TextElement;
 
-  const char *get_type_name() const override { return "static_text"; }
+  const char* get_type_name() const override { return "static_text"; }
 
   void set_text(std::string text) { text_ = std::move(text); }
   std::string get_text() const override;
@@ -100,14 +102,16 @@ class DynamicTextElement : public TextElement {
  public:
   using TextElement::TextElement;
 
-  const char *get_type_name() const override { return "dynamic_text"; }
+  const char* get_type_name() const override { return "dynamic_text"; }
 
   std::string get_text() const override;
 
-  void set_lambda(std::function<std::string(DynamicTextElement &)> lambda) { lambda_ = std::move(lambda); }
+  void set_lambda(std::function<std::string(DynamicTextElement&)> lambda) {
+    lambda_ = std::move(lambda);
+  }
 
  protected:
-  std::function<std::string(DynamicTextElement &)> lambda_;
+  std::function<std::string(DynamicTextElement&)> lambda_;
 };
 
 /// Text element that displays the current time using a format string.
@@ -115,15 +119,15 @@ class TimeTextElement : public TextElement {
  public:
   using TextElement::TextElement;
 
-  const char *get_type_name() const override { return "time_text"; }
+  const char* get_type_name() const override { return "time_text"; }
 
   std::string get_text() const override;
 
-  void set_time(time::RealTimeClock *time) { time_ = time; }
+  void set_time(time::RealTimeClock* time) { time_ = time; }
   void set_format(std::string format) { format_ = std::move(format); }
 
  protected:
-  time::RealTimeClock *time_;
+  time::RealTimeClock* time_;
   std::string format_;
 };
 

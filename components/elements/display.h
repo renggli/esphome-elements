@@ -11,7 +11,9 @@ class ImageDisplay : public display::BaseImage, public display::Display {
   ImageDisplay(int width, int height);
   ~ImageDisplay();
 
-  display::DisplayType get_display_type() override { return display::DisplayType::DISPLAY_TYPE_COLOR; }
+  display::DisplayType get_display_type() override {
+    return display::DisplayType::DISPLAY_TYPE_COLOR;
+  }
   int get_width() const override { return width_; };
   int get_height() const override { return height_; }
   bool is_valid() const { return buffer_ != nullptr; }
@@ -19,12 +21,13 @@ class ImageDisplay : public display::BaseImage, public display::Display {
   Color HOT get_pixel(int x, int y) const;
   void HOT draw_pixel_at(int x, int y, Color color) override;
 
-  void draw(int x, int y, Display *display, Color color_on, Color color_off) override;
+  void draw(int x, int y, Display* display, Color color_on,
+            Color color_off) override;
 
  protected:
   int width_, height_;
   RAMAllocator<Color> allocator_;
-  Color *buffer_ = nullptr;
+  Color* buffer_ = nullptr;
 
   void update() override {}
 
@@ -35,14 +38,16 @@ class ImageDisplay : public display::BaseImage, public display::Display {
 /// A sub-display of an existing display.
 class SubDisplay : public display::Display {
  public:
-  SubDisplay(display::Display &display, int x, int y, int w, int h)
+  SubDisplay(display::Display& display, int x, int y, int w, int h)
       : display_(display),
         x_(clamp(x, 0, display.get_width())),
         y_(clamp(y, 0, display.get_height())),
         w_(clamp(w, 0, display.get_width() - x)),
         h_(clamp(h, 0, display.get_height() - y)) {}
 
-  display::DisplayType get_display_type() override { return display_.get_display_type(); }
+  display::DisplayType get_display_type() override {
+    return display_.get_display_type();
+  }
 
   void HOT draw_pixel_at(int x, int y, Color color) override {
     if (0 <= x && x < w_ && 0 <= y && y < h_) {
@@ -51,7 +56,7 @@ class SubDisplay : public display::Display {
   }
 
  protected:
-  display::Display &display_;
+  display::Display& display_;
   int x_, y_, w_, h_;
 
   void update() override {}

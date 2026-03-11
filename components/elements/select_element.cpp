@@ -4,38 +4,39 @@
 
 namespace esphome::elements {
 
-static const char *const SELECT_ELEMENT_TAG = "elements.select";
+static const char* const SELECT_ELEMENT_TAG = "elements.select";
 
 // ---------------------------------------------------------------------------
 // SelectElement
 // ---------------------------------------------------------------------------
 
-void SelectElement::add_element(Element *element) { elements_.push_back(element); }
+void SelectElement::add_element(Element* element) {
+  elements_.push_back(element);
+}
 
 void SelectElement::dump_config(int level) {
   Element::dump_config(level);
-  for (Element *element : elements_) {
+  for (Element* element : elements_) {
     element->dump_config(level + 1);
   }
 }
 
 bool SelectElement::is_active() const {
-  for (Element *element : elements_) {
-    if (element->is_active())
-      return true;
+  for (Element* element : elements_) {
+    if (element->is_active()) return true;
   }
   return false;
 }
 
 void SelectElement::update_state() {
-  for (Element *element : elements_) {
+  for (Element* element : elements_) {
     element->update_state();
   }
 }
 
 void SelectElement::update_visibility(bool now_visible) {
   Element::update_visibility(now_visible);
-  for (int i = 0; i < (int) elements_.size(); i++) {
+  for (int i = 0; i < (int)elements_.size(); i++) {
     elements_[i]->update_visibility(this->visible_ && (i == index_));
   }
 }
@@ -49,8 +50,8 @@ void SelectElement::go_to(int index) {
 }
 
 void SelectElement::on_change(int from_index, int to_index) {
-  ESP_LOGI(SELECT_ELEMENT_TAG, "Triggering `on_change` for %s (%p): %i → %i", get_type_name(), this, from_index,
-           to_index);
+  ESP_LOGI(SELECT_ELEMENT_TAG, "Triggering `on_change` for %s (%p): %i → %i",
+           get_type_name(), this, from_index, to_index);
   on_change_callbacks_.call(this, from_index, to_index);
 }
 
@@ -58,10 +59,10 @@ void SelectElement::on_change(int from_index, int to_index) {
 // PriorityElement
 // ---------------------------------------------------------------------------
 
-static const char *const PRIORITY_ELEMENT_TAG = "elements.priority";
+static const char* const PRIORITY_ELEMENT_TAG = "elements.priority";
 
 int PriorityElement::find_active_index_() const {
-  for (int i = 0; i < (int) elements_.size(); i++) {
+  for (int i = 0; i < (int)elements_.size(); i++) {
     if (elements_[i]->is_active()) {
       return i;
     }
@@ -74,7 +75,7 @@ void PriorityElement::update_state() {
   go_to(find_active_index_());
 }
 
-void PriorityElement::draw(display::Display &display) {
+void PriorityElement::draw(display::Display& display) {
   if (index_ != -1) {
     elements_[index_]->draw(display);
   }
@@ -84,7 +85,7 @@ void PriorityElement::draw(display::Display &display) {
 // RandomElement
 // ---------------------------------------------------------------------------
 
-static const char *const RANDOM_ELEMENT_TAG = "elements.random";
+static const char* const RANDOM_ELEMENT_TAG = "elements.random";
 
 void RandomElement::update_state() {
   SelectElement::update_state();
@@ -93,7 +94,7 @@ void RandomElement::update_state() {
   }
 }
 
-void RandomElement::draw(display::Display &display) {
+void RandomElement::draw(display::Display& display) {
   if (index_ != -1) {
     elements_[index_]->draw(display);
   }
@@ -122,9 +123,8 @@ void RandomElement::prev() {
 void RandomElement::next() {
   std::vector<int> candidates;
   int min = std::numeric_limits<int>::max();
-  for (int index = 0; index < (int) elements_.size(); index++) {
-    if (!elements_[index]->is_active() || index == index_)
-      continue;
+  for (int index = 0; index < (int)elements_.size(); index++) {
+    if (!elements_[index]->is_active() || index == index_) continue;
     int count = 0;
     for (int hist_index : history_) {
       if (hist_index == index) {
@@ -150,7 +150,7 @@ void RandomElement::next() {
 // SequenceElement
 // ---------------------------------------------------------------------------
 
-static const char *const SEQUENCE_ELEMENT_TAG = "elements.sequence";
+static const char* const SEQUENCE_ELEMENT_TAG = "elements.sequence";
 
 void SequenceElement::update_state() {
   SelectElement::update_state();
@@ -159,7 +159,7 @@ void SequenceElement::update_state() {
   }
 }
 
-void SequenceElement::draw(display::Display &display) {
+void SequenceElement::draw(display::Display& display) {
   if (index_ != -1) {
     elements_[index_]->draw(display);
   }

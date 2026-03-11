@@ -1,4 +1,5 @@
 #include "delegate_element.h"
+
 #include <cstdint>
 
 namespace esphome::elements {
@@ -10,7 +11,9 @@ void DelegateElement::dump_config(int level) {
   }
 }
 
-bool DelegateElement::is_active() const { return element_ != nullptr && element_->is_active(); }
+bool DelegateElement::is_active() const {
+  return element_ != nullptr && element_->is_active();
+}
 
 void DelegateElement::update_visibility(bool now_visible) {
   Element::update_visibility(now_visible);
@@ -25,7 +28,7 @@ void DelegateElement::update_state() {
   }
 }
 
-void DelegateElement::draw(display::Display &display) {
+void DelegateElement::draw(display::Display& display) {
   if (element_ != nullptr) {
     element_->draw(display);
   }
@@ -35,7 +38,7 @@ void DelegateElement::draw(display::Display &display) {
 // TimeoutElement
 // ---------------------------------------------------------------------------
 
-static const char *const TIMEOUT_ELEMENT_TAG = "elements.timeout";
+static const char* const TIMEOUT_ELEMENT_TAG = "elements.timeout";
 
 void TimeoutElement::update_state() {
   DelegateElement::update_state();
@@ -50,8 +53,7 @@ void TimeoutElement::update_state() {
 
 void TimeoutElement::on_show() {
   start_time_ = get_component()->get_current_ms();
-  if (start_time_ == 0)
-    start_time_ = 1;
+  if (start_time_ == 0) start_time_ = 1;
   DelegateElement::on_show();
 }
 
@@ -61,7 +63,8 @@ void TimeoutElement::on_hide() {
 }
 
 void TimeoutElement::on_complete() {
-  ESP_LOGI(TIMEOUT_ELEMENT_TAG, "Triggering `on_complete` for %s (%p): %u ms", get_type_name(), this, duration_ms_);
+  ESP_LOGI(TIMEOUT_ELEMENT_TAG, "Triggering `on_complete` for %s (%p): %u ms",
+           get_type_name(), this, duration_ms_);
   on_complete_callbacks_.call(this);
 }
 

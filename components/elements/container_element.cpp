@@ -8,11 +8,13 @@ namespace esphome::elements {
 // ContainerElement
 // ---------------------------------------------------------------------------
 
-void ContainerElement::add_element(Element *element) { elements_.push_back(element); }
+void ContainerElement::add_element(Element* element) {
+  elements_.push_back(element);
+}
 
 void ContainerElement::dump_config(int level) {
   Element::dump_config(level);
-  for (Element *element : elements_) {
+  for (Element* element : elements_) {
     element->dump_config(level + 1);
   }
 }
@@ -22,15 +24,13 @@ bool ContainerElement::is_active() const {
     case ActiveMode::ALWAYS:
       return true;
     case ActiveMode::ANY:
-      for (Element *element : elements_) {
-        if (element->is_active())
-          return true;
+      for (Element* element : elements_) {
+        if (element->is_active()) return true;
       }
       return false;
     case ActiveMode::ALL:
-      for (Element *element : elements_) {
-        if (!element->is_active())
-          return false;
+      for (Element* element : elements_) {
+        if (!element->is_active()) return false;
       }
       return true;
     case ActiveMode::NEVER:
@@ -40,14 +40,14 @@ bool ContainerElement::is_active() const {
 }
 
 void ContainerElement::update_state() {
-  for (Element *element : elements_) {
+  for (Element* element : elements_) {
     element->update_state();
   }
 }
 
 void ContainerElement::update_visibility(bool now_visible) {
   Element::update_visibility(now_visible);
-  for (Element *element : elements_) {
+  for (Element* element : elements_) {
     element->update_visibility(this->visible_);
   }
 }
@@ -56,8 +56,8 @@ void ContainerElement::update_visibility(bool now_visible) {
 // OverlayElement
 // ---------------------------------------------------------------------------
 
-void OverlayElement::draw(display::Display &display) {
-  for (Element *element : elements_) {
+void OverlayElement::draw(display::Display& display) {
+  for (Element* element : elements_) {
     element->draw(display);
   }
 }
@@ -66,11 +66,12 @@ void OverlayElement::draw(display::Display &display) {
 // HorizontalElement
 // ---------------------------------------------------------------------------
 
-void HorizontalElement::draw(display::Display &display) {
+void HorizontalElement::draw(display::Display& display) {
   if (!elements_.empty()) {
     int width = display.get_width() / elements_.size();
-    for (int i = 0; i < (int) elements_.size(); i++) {
-      auto sub_display = SubDisplay(display, i * width, 0, width, display.get_height());
+    for (int i = 0; i < (int)elements_.size(); i++) {
+      auto sub_display =
+          SubDisplay(display, i * width, 0, width, display.get_height());
       elements_[i]->draw(sub_display);
     }
   }
@@ -80,11 +81,12 @@ void HorizontalElement::draw(display::Display &display) {
 // VerticalElement
 // ---------------------------------------------------------------------------
 
-void VerticalElement::draw(display::Display &display) {
+void VerticalElement::draw(display::Display& display) {
   if (!elements_.empty()) {
     int height = display.get_height() / elements_.size();
-    for (int i = 0; i < (int) elements_.size(); i++) {
-      auto sub_display = SubDisplay(display, 0, i * height, display.get_width(), height);
+    for (int i = 0; i < (int)elements_.size(); i++) {
+      auto sub_display =
+          SubDisplay(display, 0, i * height, display.get_width(), height);
       elements_[i]->draw(sub_display);
     }
   }

@@ -10,11 +10,12 @@ namespace esphome::elements {
 /// Base class for containers that display exactly one child at a time.
 class SelectElement : public Element {
  public:
-  SelectElement(ElementComponent *component, Element *parent) : Element(component, parent) {}
+  SelectElement(ElementComponent* component, Element* parent)
+      : Element(component, parent) {}
 
   void dump_config(int level) override;
 
-  void add_element(Element *element);
+  void add_element(Element* element);
 
   bool is_active() const override;
   void update_state() override;
@@ -32,7 +33,8 @@ class SelectElement : public Element {
   /// Register a callback for when the selection changes.
   /// Receives (from_index, from_element, to_index, to_element).
   /// Not fired during initial setup (when there is no previous selection).
-  void add_on_change_callback(std::function<void(SelectElement *, int, int)> &&callback) {
+  void add_on_change_callback(
+      std::function<void(SelectElement*, int, int)>&& callback) {
     on_change_callbacks_.add(std::move(callback));
   }
 
@@ -40,35 +42,39 @@ class SelectElement : public Element {
   void on_change(int from_index, int to_index);
 
  protected:
-  std::vector<Element *> elements_;
+  std::vector<Element*> elements_;
   int index_ = -1;
-  LazyCallbackManager<void(SelectElement *, int, int)> on_change_callbacks_;
+  LazyCallbackManager<void(SelectElement*, int, int)> on_change_callbacks_;
 };
 
-class SelectElementChangeTrigger : public Trigger<SelectElement &, int, int> {
+class SelectElementChangeTrigger : public Trigger<SelectElement&, int, int> {
  public:
-  explicit SelectElementChangeTrigger(SelectElement *parent) {
+  explicit SelectElementChangeTrigger(SelectElement* parent) {
     parent->add_on_change_callback(
-        [this](SelectElement *element, int from_index, int to_index) { trigger(*element, from_index, to_index); });
+        [this](SelectElement* element, int from_index, int to_index) {
+          trigger(*element, from_index, to_index);
+        });
   }
 };
 
-template<typename... Ts> class SelectNextAction : public Action<Ts...> {
+template <typename... Ts>
+class SelectNextAction : public Action<Ts...> {
  public:
-  SelectNextAction(SelectElement *element) : element_(element) {}
-  void play(const Ts &...x) override { element_->next(); }
+  SelectNextAction(SelectElement* element) : element_(element) {}
+  void play(const Ts&... x) override { element_->next(); }
 
  protected:
-  SelectElement *element_;
+  SelectElement* element_;
 };
 
-template<typename... Ts> class SelectPrevAction : public Action<Ts...> {
+template <typename... Ts>
+class SelectPrevAction : public Action<Ts...> {
  public:
-  SelectPrevAction(SelectElement *element) : element_(element) {}
-  void play(const Ts &...x) override { element_->prev(); }
+  SelectPrevAction(SelectElement* element) : element_(element) {}
+  void play(const Ts&... x) override { element_->prev(); }
 
  protected:
-  SelectElement *element_;
+  SelectElement* element_;
 };
 
 // ---------------------------------------------------------------------------
@@ -78,11 +84,12 @@ template<typename... Ts> class SelectPrevAction : public Action<Ts...> {
 /// Draws the first active child element. Automatically updates on each frame.
 class PriorityElement : public SelectElement {
  public:
-  PriorityElement(ElementComponent *component, Element *parent) : SelectElement(component, parent) {}
+  PriorityElement(ElementComponent* component, Element* parent)
+      : SelectElement(component, parent) {}
 
-  const char *get_type_name() const override { return "priority"; }
+  const char* get_type_name() const override { return "priority"; }
 
-  void draw(display::Display &display) override;
+  void draw(display::Display& display) override;
   void update_state() override;
 
   void prev() override {}
@@ -99,11 +106,12 @@ class PriorityElement : public SelectElement {
 /// Displays one child at a time, chosen randomly. Advances via next() / prev().
 class RandomElement : public SelectElement {
  public:
-  RandomElement(ElementComponent *component, Element *parent) : SelectElement(component, parent) {}
+  RandomElement(ElementComponent* component, Element* parent)
+      : SelectElement(component, parent) {}
 
-  const char *get_type_name() const override { return "random"; }
+  const char* get_type_name() const override { return "random"; }
 
-  void draw(display::Display &display) override;
+  void draw(display::Display& display) override;
   void update_state() override;
 
   void prev() override;
@@ -122,11 +130,12 @@ class RandomElement : public SelectElement {
 /// Displays one child at a time in sequence. Advances via next() / prev().
 class SequenceElement : public SelectElement {
  public:
-  SequenceElement(ElementComponent *component, Element *parent) : SelectElement(component, parent) {}
+  SequenceElement(ElementComponent* component, Element* parent)
+      : SelectElement(component, parent) {}
 
-  const char *get_type_name() const override { return "sequence"; }
+  const char* get_type_name() const override { return "sequence"; }
 
-  void draw(display::Display &display) override;
+  void draw(display::Display& display) override;
   void update_state() override;
 
   void prev() override;

@@ -12,7 +12,7 @@ namespace {
 const float PI_F = (float)M_PI;
 const float TWO_PI_F = 2.0f * PI_F;
 
-static GradientColorScheme* default_color_scheme = []() {
+GradientColorScheme* const DEFAULT_COLOR_SCHEME = []() {
   auto* scheme = new GradientColorScheme();
   scheme->set_from(Color(0, 0, 0));
   scheme->set_to(Color(255, 255, 255));
@@ -38,7 +38,7 @@ float fract(float v) { return v - std::floor(v); }
 
 void AnimationElement::draw(display::Display& display) {
   if (color_scheme_ == nullptr) {
-    color_scheme_ = default_color_scheme;
+    color_scheme_ = DEFAULT_COLOR_SCHEME;
   }
   draw(display, display.get_width(), display.get_height(),
        get_component()->get_current_ms() * speed_);
@@ -435,7 +435,7 @@ void ParallaxAnimationElement::draw(display::Display& display, int width,
   float seg = 1.0f / (num_layers_ + 1);
   // Draw background sky using the first segment of the color scheme.
   for (int y = 0; y < height; y++) {
-    float y_p = (float)y / (height - 1);
+    float y_p = (float)y / std::max(1, height - 1);
     Color sky_color = get_gradient_color_(y_p * seg * 0.999f);
     display.horizontal_line(0, y, width, sky_color);
   }
@@ -465,7 +465,7 @@ void ParallaxAnimationElement::draw(display::Display& display, int width,
       int terrain_h = (int)((base_height + 0.7f * (noise_val - 0.5f)) * height);
       terrain_h = std::clamp(terrain_h, 0, height);
       for (int y = height - terrain_h; y < height; y++) {
-        float y_p = (float)y / (height - 1);
+        float y_p = (float)y / std::max(1, height - 1);
         Color pixel_color =
             get_gradient_color_(seg * (l + 1.001f) + y_p * seg * 0.998f);
         display.draw_pixel_at(x, y, pixel_color);

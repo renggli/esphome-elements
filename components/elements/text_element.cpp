@@ -32,6 +32,13 @@ void TextElement::draw(display::Display& display) {
   // Compute the placement of the text.
   Point<int> point = anchor_.get(Point<int>::from_extent(display));
 
+  // Measure the text, if necessary, using the un-scrolled base point.
+  if (request_measurement_) {
+    display.get_text_bounds(point.x, point.y, text_.c_str(), font_, align_,
+                            &bounds_x_, &bounds_y_, &bounds_w_, &bounds_h_);
+    request_measurement_ = false;
+  }
+
   // Update the placement, if we scroll.
   if (scroll_mode_ != ScrollMode::NONE) {
     scroll_offset_ += get_component()->get_delta_ms() * scroll_speed_ / 1000.0f;
@@ -51,21 +58,33 @@ void TextElement::draw(display::Display& display) {
         point.y += scroll_offset_;
         break;
     }
-    request_measurement_ = true;
-  }
-
-  // Measure the text, if necessary.
-  if (request_measurement_) {
-    display.get_text_bounds(point.x, point.y, text_.c_str(), font_, align_,
-                            &bounds_x_, &bounds_y_, &bounds_w_, &bounds_h_);
-    request_measurement_ = false;
   }
 
   // When scrolling, reset and signal completion each time the text exits the
   // display.
   if (scroll_mode_ != ScrollMode::NONE) {
-    if (bounds_x_ + bounds_w_ < 0 || display.get_width() < bounds_x_ ||
-        bounds_y_ + bounds_h_ < 0 || display.get_height() < bounds_y_) {
+    int current_bounds_x = bounds_x_;
+    int current_bounds_y = bounds_y_;
+    switch (scroll_mode_) {
+      case ScrollMode::LEFT_TO_RIGHT:
+        current_bounds_x -= scroll_offset_;
+        break;
+      case ScrollMode::RIGHT_TO_LEFT:
+        current_bounds_x += scroll_offset_;
+        break;
+      case ScrollMode::BOTTOM_TO_TOP:
+        current_bounds_y -= scroll_offset_;
+        break;
+      case ScrollMode::TOP_TO_BOTTOM:
+        current_bounds_y += scroll_offset_;
+        break;
+      default:
+        break;
+    }
+    if (current_bounds_x + bounds_w_ < 0 ||
+        display.get_width() < current_bounds_x ||
+        current_bounds_y + bounds_h_ < 0 ||
+        display.get_height() < current_bounds_y) {
       scroll_offset_ = 0.0f;
       complete_ = false;
       on_complete();

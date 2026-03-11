@@ -2,6 +2,7 @@
 
 #include <cstdint>
 
+#include "display.h"
 #include "element.h"
 
 namespace esphome::elements {
@@ -76,17 +77,16 @@ bool ElementComponentHandler::canHandle(AsyncWebServerRequest* request) const {
 }
 
 // BMP File Header (14 bytes)
-#pragma pack(push, 1)
-typedef struct {
+using BMPFileHeader = struct __attribute__((packed)) {
   uint8_t bfType[2];     // "BM"
   uint32_t bfSize;       // File size in bytes
   uint16_t bfReserved1;  // Reserved, should be 0
   uint16_t bfReserved2;  // Reserved, should be 0
   uint32_t bfOffBits;    // Offset to pixel data
-} BMPFileHeader;
+};
 
 // BMP Info Header (40 bytes for BITMAPINFOHEADER)
-typedef struct {
+using BMPInfoHeader = struct __attribute__((packed)) {
   uint32_t biSize;          // Size of this header (40 bytes)
   int32_t biWidth;          // Image width in pixels
   int32_t biHeight;         // Image height in pixels
@@ -98,20 +98,16 @@ typedef struct {
   int32_t biYPelsPerMeter;  // Vertical resolution (pixels/meter)
   uint32_t biClrUsed;       // Number of colors in palette (0 for 24-bit)
   uint32_t biClrImportant;  // Number of important colors (0 for all)
-} BMPInfoHeader;
-#pragma pack(pop)
+};
 
 void ElementComponentHandler::handleRequest(AsyncWebServerRequest* request) {
   // Fetch display dimensions of the component.
-  int width = 0;
-  int height = 0;
-
+  int width = 0, height = 0;
   display::Display* display_component = component_->display_;
   if (display_component != nullptr) {
     width = display_component->get_width();
     height = display_component->get_height();
   }
-
   if (request->hasParam("width")) {
     width = static_cast<int>(
         parse_number<uint32_t>(request->getParam("width")->value().c_str())
@@ -122,20 +118,18 @@ void ElementComponentHandler::handleRequest(AsyncWebServerRequest* request) {
         parse_number<uint32_t>(request->getParam("height")->value().c_str())
             .value_or(0));
   }
-
   if (height <= 0 || width <= 0) {
     request->send(500, "text/plain", "Invalid display dimensions.");
     return;
   }
 
-  // Create a display buffer to draw the current state on.
+  // Allocate the image buffer and draw the component.
   ImageDisplay display_buffer(width, height);
-  component_->draw(display_buffer);
-
   if (!display_buffer.is_valid()) {
     request->send(500, "text/plain", "Unable to allocate display buffer.");
     return;
   }
+  component_->draw(display_buffer);
 
   // Calculate BMP properties
   int bytes_per_pixel = 3;  // RGB (24-bit)
@@ -145,14 +139,15 @@ void ElementComponentHandler::handleRequest(AsyncWebServerRequest* request) {
   int image_data_size = row_stride_bytes * height;
 
   // Populate headers
-  BMPFileHeader fileHeader = {
+  BMPFileHeader file_header = {
       .bfType = {'B', 'M'},
-      .bfSize = sizeof(BMPFileHeader) + sizeof(BMPInfoHeader) + image_data_size,
+      .bfSize = static_cast<uint32_t>(sizeof(BMPFileHeader) +
+                                      sizeof(BMPInfoHeader) + image_data_size),
       .bfReserved1 = 0,
       .bfReserved2 = 0,
       .bfOffBits = sizeof(BMPFileHeader) + sizeof(BMPInfoHeader),
   };
-  BMPInfoHeader infoHeader = {
+  BMPInfoHeader info_header = {
       .biSize = sizeof(BMPInfoHeader),
       .biWidth = width,
       .biHeight = height,
@@ -166,41 +161,30 @@ void ElementComponentHandler::handleRequest(AsyncWebServerRequest* request) {
       .biClrImportant = 0,
   };
 
-  // Allocate memory
-  RAMAllocator<uint8_t> allocator;
-  uint8_t* data = allocator.allocate(fileHeader.bfSize);
-  if (!data) {
-    request->send(500, "text/plain", "Unable to allocate response buffer.");
-    return;
+  // Send the response.
+  AsyncResponseStream* stream = request->beginResponseStream("image/bmp");
+  const auto* file_header_ptr = reinterpret_cast<const uint8_t*>(&file_header);
+  for (int i = 0; i < sizeof(file_header); i++) {
+    stream->write(file_header_ptr[i]);
   }
-  uint8_t* ptr = data;
-
-  // Write headers
-  memcpy(ptr, &fileHeader, sizeof(BMPFileHeader));
-  ptr += sizeof(BMPFileHeader);
-  memcpy(ptr, &infoHeader, sizeof(BMPInfoHeader));
-  ptr += sizeof(BMPInfoHeader);
-
-  // Write pixel data
+  const auto* info_header_ptr = reinterpret_cast<const uint8_t*>(&info_header);
+  for (int i = 0; i < sizeof(info_header); i++) {
+    stream->write(info_header_ptr[i]);
+  }
   for (int y = height - 1; y >= 0; --y) {
     for (int x = 0; x < width; ++x) {
       Color color = display_buffer.get_pixel(x, y);
-      *ptr++ = color.b;
-      *ptr++ = color.g;
-      *ptr++ = color.r;
+      stream->write(color.b);
+      stream->write(color.g);
+      stream->write(color.r);
     }
     for (int i = 0; i < row_padding_bytes; ++i) {
-      *ptr++ = 0;
+      stream->write(0);
     }
   }
 
   // Server the data.
-  AsyncWebServerResponse* response =
-      request->beginResponse(200, "image/bmp", data, fileHeader.bfSize);
-  request->send(response);
-
-  // Free the memory.
-  allocator.deallocate(data, fileHeader.bfSize);
+  request->send(stream);
 }
 #endif
 

@@ -615,7 +615,7 @@ elements:
             color: gray_300      
       # Animations
       - type: timeout
-        duration: 15s
+        duration: 20s
         on_complete:
           - then:
             - elements.next: primary_elements
@@ -794,3 +794,7 @@ elements:
                   - type: gradient
                     from: "#80FF80"
                     to: "#408040"
+            - type: lorenz_animation
+              color_scheme:
+                type: monochromatic
+                color: "#90CAF9"

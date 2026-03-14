@@ -7,6 +7,7 @@ from . import color
 from . import element
 from . import element_registry
 
+CONF_BETA = "beta"
 CONF_COLOR_SCHEME = "color_scheme"
 CONF_COOLING = "cooling"
 CONF_COUNT = "count"
@@ -14,7 +15,9 @@ CONF_DENSITY = "density"
 CONF_FADE_STEPS = "fade_steps"
 CONF_LAYERS = "layers"
 CONF_LENGTH = "length"
+CONF_RHO = "rho"
 CONF_SHAPE = "shape"
+CONF_SIGMA = "sigma"
 CONF_SPEED = "speed"
 CONF_STRENGTH = "strength"
 
@@ -795,4 +798,40 @@ element_registry.register_element(
     "parallax_animation",
     PARALLAX_ANIMATION_ELEMENT_SCHEMA,
     parallax_animation_to_code,
+)
+
+# Lorenz Animation
+
+LorenzAnimationElement = shared.elements_ns.class_(
+    "LorenzAnimationElement", AnimationElement
+)
+
+LORENZ_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
+    {
+        cv.GenerateID(CONF_ID): cv.declare_id(LorenzAnimationElement),
+        cv.Optional(CONF_LENGTH, default=300): cv.int_range(min=10, max=1000),
+        cv.Optional(CONF_SIGMA, default=10.0): cv.float_range(min=0.1),
+        cv.Optional(CONF_RHO, default=28.0): cv.float_range(min=0.1),
+        cv.Optional(CONF_BETA, default=8.0 / 3.0): cv.float_range(min=0.1),
+    }
+)
+
+
+async def lorenz_animation_to_code(config, component, parent):
+    var = await animation_element_to_code(config, component, parent)
+    if conf := config.get(CONF_LENGTH):
+        cg.add(var.set_length(conf))
+    if conf := config.get(CONF_SIGMA):
+        cg.add(var.set_sigma(conf))
+    if conf := config.get(CONF_RHO):
+        cg.add(var.set_rho(conf))
+    if conf := config.get(CONF_BETA):
+        cg.add(var.set_beta(conf))
+    return var
+
+
+element_registry.register_element(
+    "lorenz_animation",
+    LORENZ_ANIMATION_ELEMENT_SCHEMA,
+    lorenz_animation_to_code,
 )

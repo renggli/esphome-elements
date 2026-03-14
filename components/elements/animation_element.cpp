@@ -474,4 +474,72 @@ void ParallaxAnimationElement::draw(display::Display& display, int width,
   }
 }
 
+void LorenzAnimationElement::step_() {
+  float dt = 0.012f;
+  float dx = sigma_ * (y_ - x_) * dt;
+  float dy = (x_ * (rho_ - z_) - y_) * dt;
+  float dz = (x_ * y_ - beta_ * z_) * dt;
+  x_ += dx;
+  y_ += dy;
+  z_ += dz;
+}
+
+void LorenzAnimationElement::on_show() {
+  AnimationElement::on_show();
+  points_.clear();
+
+  x_ = (noise(1, 0, start_time_) - 0.5f) * 10.0f;
+  y_ = (noise(2, 0, start_time_) - 0.5f) * 10.0f;
+  z_ = noise(3, 0, start_time_) * 20.0f + 10.0f;
+
+  for (int i = 0; i < 150; i++) {
+    this->step_();
+  }
+}
+
+void LorenzAnimationElement::draw(display::Display& display, int width,
+                                  int height, uint32_t time) {
+  for (int i = 0; i < 2; i++) {
+    this->step_();
+    points_.push_back({x_, y_, z_});
+  }
+
+  while (points_.size() > (size_t)length_) {
+    points_.pop_front();
+  }
+
+  display.clear();
+  if (points_.size() < 2) return;
+
+  float t = time / 10000.0f;
+  float ax = t * TWO_PI_F * 0.2f;
+  float ay = t * TWO_PI_F * 0.3f;
+  float cx_r = std::cos(ax), sx_r = std::sin(ax);
+  float cy_r = std::cos(ay), sy_r = std::sin(ay);
+  float scale = std::min(width, height) * 0.015f;
+  float ox = width * 0.5f, oy = height * 0.5f;
+
+  for (size_t i = 1; i < points_.size(); i++) {
+    Vec3 p1 = points_[i - 1];
+    Vec3 p2 = points_[i];
+    p1.z -= 24.0f;
+    p2.z -= 24.0f;
+
+    float y1_1 = p1.y * cx_r - p1.z * sx_r;
+    float z1_1 = p1.y * sx_r + p1.z * cx_r;
+    float x2_1 = p1.x * cy_r + z1_1 * sy_r;
+    int px1 = (int)(ox + x2_1 * scale);
+    int py1 = (int)(oy - y1_1 * scale);
+
+    float y1_2 = p2.y * cx_r - p2.z * sx_r;
+    float z1_2 = p2.y * sx_r + p2.z * cx_r;
+    float x2_2 = p2.x * cy_r + z1_2 * sy_r;
+    int px2 = (int)(ox + x2_2 * scale);
+    int py2 = (int)(oy - y1_2 * scale);
+
+    float p = (float)i / points_.size();
+    display.line(px1, py1, px2, py2, get_gradient_color_(p));
+  }
+}
+
 }  // namespace esphome::elements

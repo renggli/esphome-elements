@@ -4,6 +4,7 @@
 #include <array>
 #include <cmath>
 #include <cstdint>
+#include <deque>
 #include <vector>
 
 #include "color.h"
@@ -290,6 +291,31 @@ class ParallaxAnimationElement : public AnimationElement {
 
  protected:
   int num_layers_{3};
+};
+
+class LorenzAnimationElement : public AnimationElement {
+ public:
+  using AnimationElement::AnimationElement;
+  const char* get_type_name() const override { return "lorenz_animation"; }
+
+  void set_length(int length) { length_ = length; }
+  void set_sigma(float sigma) { sigma_ = sigma; }
+  void set_rho(float rho) { rho_ = rho; }
+  void set_beta(float beta) { beta_ = beta; }
+
+  void on_show() override;
+  void draw(display::Display& display, int width, int height,
+            uint32_t time) override;
+
+ protected:
+  void step_();
+
+  std::deque<Vec3> points_;
+  float x_{0.1f}, y_{0.0f}, z_{0.0f};
+  int length_{300};
+  float sigma_{10.0f};
+  float rho_{28.0f};
+  float beta_{8.0f / 3.0f};
 };
 
 }  // namespace esphome::elements

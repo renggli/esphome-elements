@@ -392,7 +392,7 @@ elements:
   id: elements_display
   display: led_display
   element:
-    type: random
+    type: sequence
     id: primary_elements
     elements:
       # Message
@@ -750,7 +750,7 @@ elements:
                 type: monochromatic
                 color: "#00ffff" # cyan
             - type: solid_animation
-              shape: cube 
+              shape: cube
               color_scheme:
                 type: monochromatic
                 color: "#ffff00" # yellow
@@ -758,9 +758,9 @@ elements:
               shape: octahedron
               color_scheme:
                 type: monochromatic
-                color: "#ff00ff" # pink
+                color: "#ff00ff" # magenta
             - type: solid_animation
-              shape: icosahedron 
+              shape: icosahedron
               color_scheme:
                 type: monochromatic
                 color: "#ff0000" # red
@@ -769,6 +769,71 @@ elements:
               color_scheme:
                 type: monochromatic
                 color: "#00ff00" # green
+            - type: solid_animation
+              shape: truncated_tetrahedron
+              color_scheme:
+                type: monochromatic
+                color: "#ff6347" # tomato
+            - type: solid_animation
+              shape: cuboctahedron
+              color_scheme:
+                type: monochromatic
+                color: "#ffa500" # orange
+            - type: solid_animation
+              shape: truncated_cube
+              color_scheme:
+                type: monochromatic
+                color: "#da70d6" # orchid
+            - type: solid_animation
+              shape: truncated_octahedron
+              color_scheme:
+                type: monochromatic
+                color: "#7fff00" # chartreuse
+            - type: solid_animation
+              shape: rhombicuboctahedron
+              color_scheme:
+                type: monochromatic
+                color: "#40e0d0" # turquoise
+            - type: solid_animation
+              shape: truncated_cuboctahedron
+              color_scheme:
+                type: monochromatic
+                color: "#ee82ee" # violet
+            - type: solid_animation
+              shape: snub_cube
+              color_scheme:
+                type: monochromatic
+                color: "#ffd700" # gold
+            - type: solid_animation
+              shape: icosidodecahedron
+              color_scheme:
+                type: monochromatic
+                color: "#1e90ff" # dodger blue
+            - type: solid_animation
+              shape: truncated_dodecahedron
+              color_scheme:
+                type: monochromatic
+                color: "#ff69b4" # hot pink
+            - type: solid_animation
+              shape: truncated_icosahedron
+              color_scheme:
+                type: monochromatic
+                color: "#00fa9a" # medium spring green
+            - type: solid_animation
+              shape: rhombicosidodecahedron
+              color_scheme:
+                type: monochromatic
+                color: "#ff4500" # orange red
+            - type: solid_animation
+              shape: truncated_icosidodecahedron
+              color_scheme:
+                type: monochromatic
+                color: "#9370db" # medium purple
+            - type: solid_animation
+              shape: snub_dodecahedron
+              color_scheme:
+                type: monochromatic
+                color: "#00ced1" # dark turquoise
             - type: solid_animation
               shape: sphere
               color_scheme:

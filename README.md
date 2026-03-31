@@ -200,7 +200,7 @@ hour_hand:
 
 Provides complex procedural animations to serve as backgrounds or standalone visualizations. The following animations are available:
 
-`aurora_animation`, `fire_animation`, `game_of_life_animation`, `gradient_animation`, `interference_animation`, `julia_animation`, `kaleidoscope_animation`, `matrix_animation`, `meatballs_animation`, `parallax_animation`, `plasma_animation`, `ripples_animation`, `solid_animation`, `spiral_animation`, `stars_animation`, `tunnel_animation`, `voronoi_animation`, and `wave_animation`.
+`aurora_animation`, `fire_animation`, `gradient_animation`, `interference_animation`, `julia_animation`, `kaleidoscope_animation`, `matrix_animation`, `meatballs_animation`, `parallax_animation`, `plasma_animation`, `ripples_animation`, `solid_animation`, `spiral_animation`, `stars_animation`, `tunnel_animation`, `voronoi_animation`, and `wave_animation`.
 
 All animations support the following configuration variables:
 
@@ -208,6 +208,12 @@ All animations support the following configuration variables:
 - **speed** (Optional, float): A multiplier to speed up or slow down the animation. Defaults to `1.0`.
 
 Depending on the animation type, extra options like `strength`, `cooling`, `length`, `density`, `fade_steps`, `count`, `shape`, or `layers` might also be available.
+
+The `solid_animation` supports the following shapes:
+
+- **Platonic solids:** `tetrahedron`, `cube`, `octahedron`, `icosahedron`, `dodecahedron`
+- **Archimedean solids:** `truncated_tetrahedron`, `cuboctahedron`, `truncated_cube`, `truncated_octahedron`, `rhombicuboctahedron`, `truncated_cuboctahedron`, `snub_cube`, `icosidodecahedron`, `truncated_dodecahedron`, `truncated_icosahedron`, `rhombicosidodecahedron`, `truncated_icosidodecahedron`, `snub_dodecahedron`
+- **Others:** `sphere`
 
 ### Custom Element
 

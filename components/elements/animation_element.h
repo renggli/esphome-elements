@@ -16,9 +16,7 @@ class AnimationElement : public Element {
  public:
   using Element::Element;
 
-  void set_color_scheme(ColorScheme* color_scheme) {
-    color_scheme_ = color_scheme;
-  }
+  void set_color_scheme(ColorScheme* color_scheme);
   void set_speed(float speed) { speed_ = speed; }
 
   void draw(display::Display& display) override;
@@ -29,10 +27,13 @@ class AnimationElement : public Element {
 
  protected:
   ColorScheme* color_scheme_{nullptr};
+  Color color_lut_[256];
   uint32_t start_time_{0};
   float speed_{1.0f};
 
-  Color get_gradient_color_(float p);
+  Color get_gradient_color_(float p) {
+    return color_lut_[static_cast<uint8_t>(std::clamp(p, 0.0f, 1.0f) * 255.0f)];
+  }
 };
 
 class MetaballsAnimationElement : public AnimationElement {

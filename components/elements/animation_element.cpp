@@ -38,7 +38,7 @@ float fract(float v) { return v - std::floor(v); }
 
 void AnimationElement::draw(display::Display& display) {
   if (color_scheme_ == nullptr) {
-    color_scheme_ = DEFAULT_COLOR_SCHEME;
+    set_color_scheme(DEFAULT_COLOR_SCHEME);
   }
   draw(display, display.get_width(), display.get_height(),
        get_component()->get_current_ms() * speed_);
@@ -49,8 +49,13 @@ void AnimationElement::on_show() {
   Element::on_show();
 }
 
-Color AnimationElement::get_gradient_color_(float p) {
-  return color_scheme_->get_color(std::clamp(p, 0.0f, 1.0f));
+void AnimationElement::set_color_scheme(ColorScheme* color_scheme) {
+  color_scheme_ = color_scheme;
+  for (int i = 0; i < 256; i++) {
+    color_lut_[i] = color_scheme_ == nullptr
+                        ? Color::WHITE
+                        : color_scheme_->get_color(i / 255.0f);
+  }
 }
 
 void MetaballsAnimationElement::draw(display::Display& display, int width,

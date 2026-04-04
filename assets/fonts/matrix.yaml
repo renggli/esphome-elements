@@ -1,0 +1,10 @@
+# Matrix Fonts
+font:
+  - id: font_matrix_light_6
+    file: assets/fonts/matrix-light-6x.bdf
+  - id: font_matrix_chunky_6
+    file: assets/fonts/matrix-chunky-6x.bdf
+  - id: font_matrix_light_8
+    file: assets/fonts/matrix-light-8x.bdf
+  - id: font_matrix_chunky_8
+    file: assets/fonts/matrix-chunky-8x.bdf

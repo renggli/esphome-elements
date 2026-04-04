@@ -1,6 +1,6 @@
+# Tango color palette
+# https://en.wikipedia.org/wiki/Tango_Desktop_Project#Palette
 color:
-  # Tango Color Palette:
-  # https://en.wikipedia.org/wiki/Tango_Desktop_Project#Palette
   - id: aluminum_bright
     hex: "eeeeec"
   - id: aluminum

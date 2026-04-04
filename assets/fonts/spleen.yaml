@@ -1,0 +1,8 @@
+# Spleen Fonts
+font:
+  - id: font_spleen_5x8
+    file: assets/fonts/spleen-5x8.bdf
+  - id: font_spleen_6x12
+    file: assets/fonts/spleen-6x12.bdf
+  - id: font_spleen_8x16
+    file: assets/fonts/spleen-8x16.bdf

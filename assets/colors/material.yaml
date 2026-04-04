@@ -1,6 +1,6 @@
+# Material design color palette
+# https://m2.material.io/design/color/the-color-system.html#tools-for-picking-colors
 color:
-  # 2014 Material Design color palettes:
-  # https://m2.material.io/design/color/the-color-system.html#tools-for-picking-colors
   - id: red_50
     hex: "ffebee"
   - id: red_100

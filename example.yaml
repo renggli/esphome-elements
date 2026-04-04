@@ -2,8 +2,9 @@ substitutions:
   device_name: "elements"
   friendly_name: "Elements"
 packages:
-  fonts: !include common/fonts.yaml
-  colors: !include common/material-colors.yaml
+  matrix_fonts: !include assets/fonts/matrix.yaml
+  spleen_fonts: !include assets/fonts/spleen.yaml
+  material_colors: !include assets/colors/material.yaml
 external_components:
   - source: github://renggli/esphome-clock
   - source:

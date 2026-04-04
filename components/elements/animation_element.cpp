@@ -463,11 +463,11 @@ void ParallaxAnimationElement::draw(display::Display& display, int width,
       float base_height = 0.2f + 0.5f * (1.0f - layer_p);
       int terrain_h = (int)((base_height + 0.7f * (noise_val - 0.5f)) * height);
       terrain_h = std::clamp(terrain_h, 0, height);
-      for (int y = height - terrain_h; y < height; y++) {
-        float y_p = (float)y / std::max(1, height - 1);
+      if (terrain_h > 0) {
+        float y_p = (float)(height - terrain_h) / std::max(1, height - 1);
         Color pixel_color =
             get_gradient_color_(seg * (l + 1.001f) + y_p * seg * 0.998f);
-        display.draw_pixel_at(x, y, pixel_color);
+        display.vertical_line(x, height - terrain_h, terrain_h, pixel_color);
       }
     }
   }

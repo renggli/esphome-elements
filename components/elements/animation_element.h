@@ -28,7 +28,7 @@ class AnimationElement : public Element {
 
  protected:
   ColorScheme* color_scheme_{nullptr};
-  Color color_lut_[256];
+  std::array<Color, 256> color_lut_{};
   uint32_t start_time_{0};
   float speed_{1.0f};
 
@@ -152,15 +152,6 @@ class MatrixAnimationElement : public AnimationElement {
  protected:
   float length_{10.0f};
   float density_{0.5f};
-};
-
-class GradientAnimationElement : public AnimationElement {
- public:
-  using AnimationElement::AnimationElement;
-  const char* get_type_name() const override { return "gradient_animation"; }
-
-  void draw(display::Display& display, int width, int height,
-            uint32_t time) override;
 };
 
 class FireAnimationElement : public AnimationElement {

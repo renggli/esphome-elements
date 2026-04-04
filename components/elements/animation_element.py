@@ -303,30 +303,6 @@ element_registry.register_element(
     matrix_animation_to_code,
 )
 
-# Gradient Animation
-
-GradientAnimationElement = shared.elements_ns.class_(
-    "GradientAnimationElement", AnimationElement
-)
-
-GRADIENT_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
-    {
-        cv.GenerateID(CONF_ID): cv.declare_id(GradientAnimationElement),
-    }
-)
-
-
-async def gradient_animation_to_code(config, component, parent):
-    var = await animation_element_to_code(config, component, parent)
-    return var
-
-
-element_registry.register_element(
-    "gradient_animation",
-    GRADIENT_ANIMATION_ELEMENT_SCHEMA,
-    gradient_animation_to_code,
-)
-
 # Fire Animation
 
 FireAnimationElement = shared.elements_ns.class_(

@@ -319,17 +319,6 @@ void MatrixAnimationElement::draw(display::Display& display, int width,
   }
 }
 
-void GradientAnimationElement::draw(display::Display& display, int width,
-                                    int height, uint32_t time) {
-  float t = time / 2000.0f;
-  for (int y = 0; y < height; ++y) {
-    for (int x = 0; x < width; ++x) {
-      float p = std::fmod((float)x / width + t, 1.0f);
-      display.draw_pixel_at(x, y, get_gradient_color_(p));
-    }
-  }
-}
-
 void FireAnimationElement::on_hide() {
   heat_buffer_.clear();
   Element::on_hide();

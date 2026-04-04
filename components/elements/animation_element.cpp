@@ -56,9 +56,10 @@ void AnimationElement::on_show() {
 void AnimationElement::set_color_scheme(ColorScheme* color_scheme) {
   color_scheme_ = color_scheme;
   for (int i = 0; i < 256; i++) {
-    color_lut_[i] = color_scheme_ == nullptr
-                        ? Color::WHITE
-                        : color_scheme_->get_color(i / 255.0f);
+    color_lut_[i] =
+        color_scheme_ == nullptr
+            ? (i == 0 ? Color::BLACK : Color::WHITE)
+            : color_scheme_->get_color(static_cast<float>(i) / 255.0f);
   }
 }
 

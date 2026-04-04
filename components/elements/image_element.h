@@ -20,7 +20,7 @@ class ImageElement : public Element {
   void set_align(display::ImageAlign align) { align_ = align; }
 
   void draw(display::Display& display) override;
-  bool is_active() const override;
+  bool is_active() override;
 
  protected:
   display::BaseImage* image_ = nullptr;

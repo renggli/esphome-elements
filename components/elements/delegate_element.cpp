@@ -11,7 +11,7 @@ void DelegateElement::dump_config(int level) {
   }
 }
 
-bool DelegateElement::is_active() const {
+bool DelegateElement::is_active() {
   return element_ != nullptr && element_->is_active();
 }
 

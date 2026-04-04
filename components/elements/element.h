@@ -34,7 +34,7 @@ class Element {
 
   /// Property of an element indicating if it wants to be shown. Parents
   /// might decide to skip the display of the element if it returns false.
-  virtual bool is_active() const { return true; }
+  virtual bool is_active() { return true; }
 
   /// Property indicating if this element is currently visible (drawn by its
   /// parent).

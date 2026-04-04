@@ -19,7 +19,7 @@ void ContainerElement::dump_config(int level) {
   }
 }
 
-bool ContainerElement::is_active() const {
+bool ContainerElement::is_active() {
   switch (active_mode_) {
     case ActiveMode::ALWAYS:
       return true;

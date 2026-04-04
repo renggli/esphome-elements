@@ -23,7 +23,7 @@ class CustomElement : public Element {
 
   void draw(display::Display& display) override;
 
-  bool is_active() const override;
+  bool is_active() override;
 
  protected:
   DrawFunction draw_;

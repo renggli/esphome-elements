@@ -33,7 +33,7 @@ class ContainerElement : public Element {
 
   void dump_config(int level) override;
 
-  bool is_active() const override;
+  bool is_active() override;
 
   void update_visibility(bool now_visible) override;
   void update_state() override;

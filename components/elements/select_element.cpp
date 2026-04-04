@@ -21,7 +21,7 @@ void SelectElement::dump_config(int level) {
   }
 }
 
-bool SelectElement::is_active() const {
+bool SelectElement::is_active() {
   for (Element* element : elements_) {
     if (element->is_active()) return true;
   }

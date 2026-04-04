@@ -22,7 +22,7 @@ class TextElement : public Element {
   using Element::Element;
 
   /// Returns the text to display. Subclasses provide the content.
-  virtual std::string get_text() const = 0;
+  virtual std::string get_text() = 0;
 
   void set_font(display::BaseFont* font) { font_ = font; }
   void set_color(Color color) { color_ = color; }
@@ -36,7 +36,7 @@ class TextElement : public Element {
   void set_scroll_speed(float scroll_speed) { scroll_speed_ = scroll_speed; }
 
   /// Property indicating whether this element has text to display.
-  bool is_active() const override;
+  bool is_active() override;
 
   void draw(display::Display& display) override;
 
@@ -91,7 +91,7 @@ class StaticTextElement : public TextElement {
   const char* get_type_name() const override { return "static_text"; }
 
   void set_text(std::string text) { text_ = std::move(text); }
-  std::string get_text() const override;
+  std::string get_text() override;
 
  protected:
   std::string text_;
@@ -104,7 +104,7 @@ class DynamicTextElement : public TextElement {
 
   const char* get_type_name() const override { return "dynamic_text"; }
 
-  std::string get_text() const override;
+  std::string get_text() override;
 
   void set_lambda(std::function<std::string(DynamicTextElement&)> lambda) {
     lambda_ = std::move(lambda);
@@ -121,7 +121,7 @@ class TimeTextElement : public TextElement {
 
   const char* get_type_name() const override { return "time_text"; }
 
-  std::string get_text() const override;
+  std::string get_text() override;
 
   void set_time(time::RealTimeClock* time) { time_ = time; }
   void set_format(std::string format) { format_ = std::move(format); }

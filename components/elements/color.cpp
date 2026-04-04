@@ -110,7 +110,8 @@ void StaticColorScheme::set_hsv(float h, float s, float v) {
 
 void StaticColorScheme::set_color(Color c) { color_to_hsv(c, h_, s_, v_); }
 
-void StaticColorScheme::get_hsv(float /*p*/, float& h, float& s, float& v) {
+void StaticColorScheme::get_hsv([[maybe_unused]] float p, float& h, float& s,
+                                float& v) {
   h = h_;
   s = s_;
   v = v_;

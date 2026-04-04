@@ -1,0 +1,240 @@
+# All supported animation types.
+- type: meatballs_animation
+  color_scheme:
+    type: sequence
+    schemes:
+      - type: static
+        color: "#000000"
+      - type: triadic
+        color: "#FF5722"
+- type: aurora_animation
+  color_scheme:
+    type: sequence
+    schemes:
+      - type: static
+        color: "#000000"
+      - type: gradient
+        from: "#000000"
+        to: "#4CAF50"
+      - type: gradient
+        from: "#4CAF50"
+        to: "#00FF41"
+- type: kaleidoscope_animation
+  color_scheme:
+    type: sequence
+    schemes:
+      - type: static
+        fraction: 0.25
+        color: "#000000"
+      - type: complementary
+        color: "#2196F3"
+- type: plasma_animation
+  color_scheme:
+    type: sequence
+    schemes:
+      - type: static
+        fraction: 0.25
+        color: "#000000"
+      - type: complementary
+        color: "#9C27B0"
+        sweep: 60.0
+      - type: static
+        fraction: 0.25
+        color: "#000000"
+- type: ripples_animation
+  color_scheme:
+    type: gradient
+    to: "#40E0D0"
+    from: "#010810"
+- type: spiral_animation
+  color_scheme:
+    type: sequence
+    schemes:
+      - type: static
+        fraction: 0.25
+        color: "#000000"
+      - type: triadic
+        color: "#FFEB3B"
+- type: voronoi_animation
+  color_scheme:
+    type: sequence
+    schemes:
+      - type: static
+        color: "#000000"
+      - type: triadic
+        color: "#E91E63"
+- type: interference_animation
+  color_scheme:
+    type: sequence
+    schemes:
+      - type: static
+        color: "#000000"
+      - type: square
+        color: "#673AB7"
+- type: julia_animation
+  color_scheme:
+    type: sequence
+    schemes:
+      - type: static
+        color: "#000000"
+      - type: complementary
+        color: "#ff0000"
+- type: matrix_animation
+  color_scheme:
+    type: monochromatic
+    color: "#00FF41"
+    min_brightness: 0.0
+- type: fire_animation
+  color_scheme:
+    type: sequence
+    schemes:
+      - type: gradient
+        from: "#000000"
+        to: "#A01010"
+        fraction: 0.1
+      - type: gradient
+        from: "#A01010"
+        to: "#FF6000"
+        fraction: 0.2
+      - type: gradient
+        from: "#FF6000"
+        to: "#FFF000"
+        fraction: 0.7
+- type: tunnel_animation
+  color_scheme:
+    type: triadic
+    color: "#AA00FF"
+- type: wave_animation
+  color_scheme:
+    type: sequence
+    schemes:
+      - type: static
+        color: "#000000"
+      - type: analogous
+        color: "#00E5FF"
+      - type: analogous
+        color: "#00e5ff"
+- type: stars_animation
+  color_scheme:
+    type: gradient
+    from: "#000000"
+    to: "#90CAF9"
+- type: solid_animation
+  shape: tetrahedron
+  color_scheme:
+    type: monochromatic
+    color: "#00ffff" # cyan
+- type: solid_animation
+  shape: cube
+  color_scheme:
+    type: monochromatic
+    color: "#ffff00" # yellow
+- type: solid_animation
+  shape: octahedron
+  color_scheme:
+    type: monochromatic
+    color: "#ff00ff" # magenta
+- type: solid_animation
+  shape: icosahedron
+  color_scheme:
+    type: monochromatic
+    color: "#ff0000" # red
+- type: solid_animation
+  shape: dodecahedron
+  color_scheme:
+    type: monochromatic
+    color: "#00ff00" # green
+- type: solid_animation
+  shape: truncated_tetrahedron
+  color_scheme:
+    type: monochromatic
+    color: "#ff6347" # tomato
+- type: solid_animation
+  shape: cuboctahedron
+  color_scheme:
+    type: monochromatic
+    color: "#ffa500" # orange
+- type: solid_animation
+  shape: truncated_cube
+  color_scheme:
+    type: monochromatic
+    color: "#da70d6" # orchid
+- type: solid_animation
+  shape: truncated_octahedron
+  color_scheme:
+    type: monochromatic
+    color: "#7fff00" # chartreuse
+- type: solid_animation
+  shape: rhombicuboctahedron
+  color_scheme:
+    type: monochromatic
+    color: "#40e0d0" # turquoise
+- type: solid_animation
+  shape: truncated_cuboctahedron
+  color_scheme:
+    type: monochromatic
+    color: "#ee82ee" # violet
+- type: solid_animation
+  shape: snub_cube
+  color_scheme:
+    type: monochromatic
+    color: "#ffd700" # gold
+- type: solid_animation
+  shape: icosidodecahedron
+  color_scheme:
+    type: monochromatic
+    color: "#1e90ff" # dodger blue
+- type: solid_animation
+  shape: truncated_dodecahedron
+  color_scheme:
+    type: monochromatic
+    color: "#ff69b4" # hot pink
+- type: solid_animation
+  shape: truncated_icosahedron
+  color_scheme:
+    type: monochromatic
+    color: "#00fa9a" # medium spring green
+- type: solid_animation
+  shape: rhombicosidodecahedron
+  color_scheme:
+    type: monochromatic
+    color: "#ff4500" # orange red
+- type: solid_animation
+  shape: truncated_icosidodecahedron
+  color_scheme:
+    type: monochromatic
+    color: "#9370db" # medium purple
+- type: solid_animation
+  shape: snub_dodecahedron
+  color_scheme:
+    type: monochromatic
+    color: "#00ced1" # dark turquoise
+- type: solid_animation
+  shape: sphere
+  color_scheme:
+    type: monochromatic
+    color: "#0000ff" # blue
+- type: parallax_animation
+  layers: 4
+  color_scheme:
+    type: sequence
+    schemes:
+      - type: gradient
+        from: "#000000"
+        to: "#102030"
+      - type: gradient
+        from: "#C0D0E0"
+        to: "#8090A0"
+      - type: gradient
+        from: "#808090"
+        to: "#505060"
+      - type: gradient
+        from: "#60A060"
+        to: "#305030"
+      - type: gradient
+        from: "#80FF80"
+        to: "#408040"
+- type: lorenz_animation
+  color_scheme:
+    type: monochromatic
+    color: "#90CAF9"

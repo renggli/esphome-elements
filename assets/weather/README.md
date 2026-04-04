@@ -1,3 +1,3 @@
-## Lovelace Weather Icons
+# Lovelace Weather Icons
 
-- GitHub: https://github.com/scinos/lovelace-weather-icons
+- GitHub: <https://github.com/scinos/lovelace-weather-icons>

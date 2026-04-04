@@ -1,0 +1,32 @@
+image:
+  rgb:
+  - id: clear_night
+    file: assets/weather/clear-night.png
+  - id: cloudy
+    file: assets/weather/cloudy.png
+  - id: fog
+    file: assets/weather/fog.png
+  - id: hail
+    file: assets/weather/hail.png
+  - id: lightning_rainy
+    file: assets/weather/lightning-rainy.png
+  - id: lightning
+    file: assets/weather/lightning.png
+  - id: partlycloudy_night
+    file: assets/weather/partlycloudy-night.png
+  - id: partlycloudy
+    file: assets/weather/partlycloudy.png
+  - id: pouring
+    file: assets/weather/pouring.png
+  - id: rainy
+    file: assets/weather/rainy.png
+  - id: snowy_rainy
+    file: assets/weather/snowy-rainy.png
+  - id: snowy
+    file: assets/weather/snowy.png
+  - id: sunny
+    file: assets/weather/sunny.png
+  - id: windy_variant
+    file: assets/weather/windy-variant.png
+  - id: windy
+    file: assets/weather/windy.png

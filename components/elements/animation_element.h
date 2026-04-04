@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cstdint>
 #include <deque>
+#include <numbers>
 #include <vector>
 
 #include "color.h"
@@ -234,8 +235,8 @@ class SolidAnimationElement : public AnimationElement {
   void draw(display::Display& display, int width, int height,
             uint32_t time) override {
     float t = time / 8000.0f;
-    float ax = t * 2.0f * (float)M_PI * 0.397f;
-    float ay = t * 2.0f * (float)M_PI;
+    float ax = t * 2.0f * std::numbers::pi_v<float> * 0.397f;
+    float ay = t * 2.0f * std::numbers::pi_v<float>;
     float cx_r = std::cos(ax), sx_r = std::sin(ax);
     float cy_r = std::cos(ay), sy_r = std::sin(ay);
     float scale = std::min(width, height) * 0.42f;

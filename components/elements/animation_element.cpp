@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <numbers>
 
 #include "color.h"
 #include "esphome/core/color.h"
@@ -9,7 +10,7 @@
 namespace esphome::elements {
 
 namespace {
-const float PI_F = (float)M_PI;
+const float PI_F = std::numbers::pi_v<float>;
 const float TWO_PI_F = 2.0f * PI_F;
 
 GradientColorScheme* const DEFAULT_COLOR_SCHEME = []() {

@@ -143,6 +143,7 @@
   color_scheme:
     type: monochromatic
     color: "#90CAF9"
+# Platonic solids
 - type: solid_animation
   shape: tetrahedron
   color_scheme:
@@ -168,6 +169,7 @@
   color_scheme:
     type: monochromatic
     color: "#00ff00" # green
+# Archimedean solids
 - type: solid_animation
   shape: truncated_tetrahedron
   color_scheme:
@@ -233,8 +235,45 @@
   color_scheme:
     type: monochromatic
     color: "#00ced1" # dark turquoise
+# Others
+- type: solid_animation
+  shape: triangular_prism
+  color_scheme:
+    type: monochromatic
+    color: "#67e8f9" # sky
+- type: solid_animation
+  shape: pentagonal_prism
+  color_scheme:
+    type: monochromatic
+    color: "#86efac" # green
+- type: solid_animation
+  shape: square_antiprism
+  color_scheme:
+    type: monochromatic
+    color: "#fdba74" # peach
+- type: solid_animation
+  shape: pentagonal_antiprism
+  color_scheme:
+    type: monochromatic
+    color: "#d8b4fe" # lavender
+- type: solid_animation
+  shape: triangular_bipyramid
+  color_scheme:
+    type: monochromatic
+    color: "#fcd34d" # amber
+- type: solid_animation
+  shape: square_bipyramid
+  color_scheme:
+    type: monochromatic
+    color: "#6d28d9" # purple
+- type: solid_animation
+  shape: pentagonal_bipyramid
+  color_scheme:
+    type: monochromatic
+    color: "#10b981" # emerald
 - type: solid_animation
   shape: sphere
   color_scheme:
     type: monochromatic
     color: "#0000ff" # blue
+

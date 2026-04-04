@@ -213,7 +213,7 @@ The `solid_animation` supports the following shapes:
 
 - **Platonic solids:** `tetrahedron`, `cube`, `octahedron`, `icosahedron`, `dodecahedron`
 - **Archimedean solids:** `truncated_tetrahedron`, `cuboctahedron`, `truncated_cube`, `truncated_octahedron`, `rhombicuboctahedron`, `truncated_cuboctahedron`, `snub_cube`, `icosidodecahedron`, `truncated_dodecahedron`, `truncated_icosahedron`, `rhombicosidodecahedron`, `truncated_icosidodecahedron`, `snub_dodecahedron`
-- **Others:** `sphere`
+- **Others:** `triangular_prism`, `pentagonal_prism`, `square_antiprism`, `pentagonal_antiprism`, `triangular_bipyramid`, `square_bipyramid`, `pentagonal_bipyramid`, `sphere`
 
 ### Custom Element
 

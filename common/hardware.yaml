@@ -1,0 +1,61 @@
+# Provides the hardware configuration of my personal elements device.
+
+# Board
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+# ESPHome
+esphome:
+  name: "elements"
+  friendly_name: "Elements"
+  name_add_mac_suffix: false
+  includes:
+    - common/compatibility.h
+
+# WiFi
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  power_save_mode: NONE
+  ap:
+    ssid: !secret captive_portal_ssid
+    password: !secret captive_portal_password
+captive_portal:
+
+# Logging
+logger:
+
+# Updates
+ota:
+  - platform: esphome
+    password: ""
+
+# Homeassistant
+api:
+
+# Busses
+i2c:
+  - sda: GPIO21
+    scl: GPIO22
+one_wire:
+  - platform: gpio
+    pin: GPIO23
+
+button:
+  # Restart the device.
+  - platform: restart
+    name: "Restart"
+
+sensor:
+  # Measure the illuminance.
+  - id: illuminance
+    name: "Illuminance"
+    platform: bh1750
+    address: 0x23
+  # Measure the temperature.
+  - id: temperature
+    name: "Temperature"
+    platform: dallas_temp
+    address: 0xbd00000051c98a28

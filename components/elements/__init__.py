@@ -10,9 +10,9 @@ from . import (
     text_element,
 )
 
-AUTO_LOAD = ["display", "image"]
+AUTO_LOAD = ["display", "image", "time"]
 CODEOWNERS = ["@renggli"]
-DEPENDENCIES = ["display"]
+DEPENDENCIES = []
 MULTI_CONF = True
 
 CONFIG_SCHEMA = component.ELEMENT_COMPONENT_SCHEMA

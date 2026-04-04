@@ -56,6 +56,7 @@ async def select_element_to_code(config, component, parent):
     "elements.next",
     shared.elements_ns.class_("SelectNextAction", automation.Action),
     automation.maybe_simple_id({cv.Required(CONF_ID): cv.use_id(SelectElement)}),
+    synchronous=True,
 )
 async def elements_next_to_code(config, action_id, template_arg, args):
     paren = await cg.get_variable(config[CONF_ID])
@@ -66,6 +67,7 @@ async def elements_next_to_code(config, action_id, template_arg, args):
     "elements.prev",
     shared.elements_ns.class_("SelectPrevAction", automation.Action),
     automation.maybe_simple_id({cv.Required(CONF_ID): cv.use_id(SelectElement)}),
+    synchronous=True,
 )
 async def elements_prev_to_code(config, action_id, template_arg, args):
     paren = await cg.get_variable(config[CONF_ID])

@@ -440,6 +440,7 @@ SolidAnimationElement = shared.elements_ns.class_(
 SHAPE_DATA = {
     # Platonic solids
     "tetrahedron": {
+        "url": "https://en.wikipedia.org/wiki/Tetrahedron",
         "verts": [
             [0.0, 1.0, 0.0],
             [0.942809, -0.333333, 0.0],
@@ -449,6 +450,7 @@ SHAPE_DATA = {
         "edges": [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]],
     },
     "cube": {
+        "url": "https://en.wikipedia.org/wiki/Cube",
         "verts": [
             [-0.57735, -0.57735, -0.57735],
             [0.57735, -0.57735, -0.57735],
@@ -475,6 +477,7 @@ SHAPE_DATA = {
         ],
     },
     "octahedron": {
+        "url": "https://en.wikipedia.org/wiki/Octahedron",
         "verts": [
             [1.0, 0.0, 0.0],
             [-1.0, 0.0, 0.0],
@@ -499,6 +502,7 @@ SHAPE_DATA = {
         ],
     },
     "icosahedron": {
+        "url": "https://en.wikipedia.org/wiki/Icosahedron",
         "verts": [
             [0.0, 0.525731, 0.850651],
             [0.0, -0.525731, 0.850651],
@@ -547,6 +551,7 @@ SHAPE_DATA = {
         ],
     },
     "dodecahedron": {
+        "url": "https://en.wikipedia.org/wiki/Dodecahedron",
         "verts": [
             [0.57735, 0.57735, 0.57735],
             [0.57735, 0.57735, -0.57735],
@@ -604,6 +609,7 @@ SHAPE_DATA = {
     },
     # Archimedean solids
     "truncated_tetrahedron": {
+        "url": "https://en.wikipedia.org/wiki/Truncated_tetrahedron",
         "verts": [
             [0.301511, 0.301511, 0.904534],
             [0.301511, 0.904534, 0.301511],
@@ -640,6 +646,7 @@ SHAPE_DATA = {
         ],
     },
     "cuboctahedron": {
+        "url": "https://en.wikipedia.org/wiki/Cuboctahedron",
         "verts": [
             [0.000000, -0.707107, -0.707107],
             [0.707107, 0.000000, 0.707107],
@@ -682,6 +689,7 @@ SHAPE_DATA = {
         ],
     },
     "truncated_cube": {
+        "url": "https://en.wikipedia.org/wiki/Truncated_cube",
         "verts": [
             [-0.281085, 0.678598, 0.678598],
             [0.678598, -0.281085, 0.678598],
@@ -748,6 +756,7 @@ SHAPE_DATA = {
         ],
     },
     "truncated_octahedron": {
+        "url": "https://en.wikipedia.org/wiki/Truncated_octahedron",
         "verts": [
             [0.000000, -0.447214, -0.894427],
             [0.000000, -0.894427, -0.447214],
@@ -814,6 +823,7 @@ SHAPE_DATA = {
         ],
     },
     "rhombicuboctahedron": {
+        "url": "https://en.wikipedia.org/wiki/Rhombicuboctahedron",
         "verts": [
             [-0.357407, 0.357407, 0.862856],
             [0.357407, -0.357407, 0.862856],
@@ -892,6 +902,7 @@ SHAPE_DATA = {
         ],
     },
     "truncated_cuboctahedron": {
+        "url": "https://en.wikipedia.org/wiki/Truncated_cuboctahedron",
         "verts": [
             [-0.825943, 0.215739, -0.520841],
             [-0.825943, -0.520841, -0.215739],
@@ -1018,6 +1029,7 @@ SHAPE_DATA = {
         ],
     },
     "snub_cube": {
+        "url": "https://en.wikipedia.org/wiki/Snub_cube",
         "verts": [
             [0.462321, 0.850340, 0.251359],
             [0.462321, -0.850340, -0.251359],
@@ -1108,6 +1120,7 @@ SHAPE_DATA = {
         ],
     },
     "icosidodecahedron": {
+        "url": "https://en.wikipedia.org/wiki/Icosidodecahedron",
         "verts": [
             [0.000000, 0.000000, 1.000000],
             [1.000000, 0.000000, 0.000000],
@@ -1204,6 +1217,7 @@ SHAPE_DATA = {
         ],
     },
     "truncated_dodecahedron": {
+        "url": "https://en.wikipedia.org/wiki/Truncated_dodecahedron",
         "verts": [
             [0.985722, 0.000000, -0.168381],
             [0.168381, -0.985722, 0.000000],
@@ -1360,6 +1374,7 @@ SHAPE_DATA = {
         ],
     },
     "truncated_icosahedron": {
+        "url": "https://en.wikipedia.org/wiki/Truncated_icosahedron",
         "verts": [
             [-0.979432, 0.000000, 0.201774],
             [0.000000, -0.201774, -0.979432],
@@ -1516,6 +1531,7 @@ SHAPE_DATA = {
         ],
     },
     "rhombicosidodecahedron": {
+        "url": "https://en.wikipedia.org/wiki/Rhombicosidodecahedron",
         "verts": [
             [0.948536, 0.223919, 0.223919],
             [0.223919, 0.948536, -0.223919],
@@ -1702,6 +1718,7 @@ SHAPE_DATA = {
         ],
     },
     "truncated_icosidodecahedron": {
+        "url": "https://en.wikipedia.org/wiki/Truncated_icosidodecahedron",
         "verts": [
             [-0.131496, 0.982557, -0.131496],
             [0.131496, 0.131496, -0.982557],
@@ -2008,6 +2025,7 @@ SHAPE_DATA = {
         ],
     },
     "snub_dodecahedron": {
+        "url": "https://en.wikipedia.org/wiki/Snub_dodecahedron",
         "verts": [
             [-0.153509, 0.173813, 0.972740],
             [-0.674425, -0.337878, 0.656498],
@@ -2225,6 +2243,7 @@ SHAPE_DATA = {
     },
     # Others
     "sphere": {
+        "url": "https://en.wikipedia.org/wiki/Sphere",
         "verts": [
             [0.0, 0.0, 1.0],
             [0.0, 0.0, -1.0],

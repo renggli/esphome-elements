@@ -13,12 +13,15 @@ namespace {
 const float PI_F = std::numbers::pi_v<float>;
 const float TWO_PI_F = 2.0f * PI_F;
 
-GradientColorScheme* const DEFAULT_COLOR_SCHEME = []() {
-  auto* scheme = new GradientColorScheme();
-  scheme->set_from(Color(0, 0, 0));
-  scheme->set_to(Color(255, 255, 255));
+GradientColorScheme* get_default_color_scheme() {
+  static GradientColorScheme* scheme = []() {
+    auto* s = new GradientColorScheme();
+    s->set_from(Color(0, 0, 0));
+    s->set_to(Color(255, 255, 255));
+    return s;
+  }();
   return scheme;
-}();
+}
 
 uint32_t hash(uint32_t v) {
   v ^= v >> 16;
@@ -39,7 +42,7 @@ float fract(float v) { return v - std::floor(v); }
 
 void AnimationElement::draw(display::Display& display) {
   if (color_scheme_ == nullptr) {
-    set_color_scheme(DEFAULT_COLOR_SCHEME);
+    set_color_scheme(get_default_color_scheme());
   }
   draw(display, display.get_width(), display.get_height(),
        get_component()->get_current_ms() * speed_);

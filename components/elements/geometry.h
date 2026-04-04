@@ -17,8 +17,8 @@ struct Point {
 
 /// An anchor with both absolute relative offsets.
 struct Anchor {
-  Point<int> offset = {};
-  Point<float> fraction = {0.5f, 0.5f};
+  Point<int> offset = {.x = 0, .y = 0};
+  Point<float> fraction = {.x = 0.5f, .y = 0.5f};
 
   Point<int> get(const Point<int>& extent) const {
     return {

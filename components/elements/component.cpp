@@ -2,7 +2,6 @@
 
 #include <cstdint>
 
-#include "display.h"
 #include "element.h"
 
 namespace esphome::elements {

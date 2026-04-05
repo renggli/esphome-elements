@@ -8,7 +8,7 @@ struct Point {
   T x = 0;
   T y = 0;
 
-  // Constructs an extent from the width and height of another object.
+  /// Constructs an extent from the width and height of another object.
   template <typename C>
   static Point<T> from_extent(C& object) {
     return {.x = object.get_width(), .y = object.get_height()};

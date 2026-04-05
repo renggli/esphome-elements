@@ -40,16 +40,17 @@ float noise(int x, int y, uint32_t seed) {
 float fract(float v) { return v - std::floor(v); }
 }  // namespace
 
+// ---------------------------------------------------------------------------
+// AnimationElement
+// ---------------------------------------------------------------------------
+
 void AnimationElement::draw(display::Display& display) {
-  if (color_scheme_ == nullptr) {
-    set_color_scheme(get_default_color_scheme());
-  }
-  draw(display, display.get_width(), display.get_height(),
-       get_component()->get_current_ms() * speed_);
+  if (color_scheme_ == nullptr) set_color_scheme(get_default_color_scheme());
+  draw(display, display.get_width(), display.get_height(), millis() * speed_);
 }
 
 void AnimationElement::on_show() {
-  start_time_ = get_component()->get_current_ms();
+  start_time_ = millis();
   Element::on_show();
 }
 
@@ -63,6 +64,10 @@ void AnimationElement::set_color_scheme(ColorScheme* color_scheme) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// MetaballsAnimationElement
+// ---------------------------------------------------------------------------
+
 void MetaballsAnimationElement::draw(display::Display& display, int width,
                                      int height, uint32_t time) {
   float t = time / 5000.0f;
@@ -70,7 +75,6 @@ void MetaballsAnimationElement::draw(display::Display& display, int width,
     for (int x = 0; x < width; ++x) {
       float val = 0;
       for (int i = 0; i < count_; i++) {
-        // Each ball has a unique base position, not all orbiting the same point
         float bx = 0.25f + 0.5f * noise(i, 5, start_time_);
         float by = 0.25f + 0.5f * noise(i, 6, start_time_);
         float cx =
@@ -82,12 +86,15 @@ void MetaballsAnimationElement::draw(display::Display& display, int width,
         float dist2 = dx * dx + dy * dy;
         val += 80.0f / (dist2 + 1.0f);
       }
-      // Scale to 0..0.85 so the brightness formula never hits its second zero
       val = std::min(val / 5.5f, 0.85f);
       display.draw_pixel_at(x, y, get_gradient_color_(val));
     }
   }
 }
+
+// ---------------------------------------------------------------------------
+// AuroraAnimationElement
+// ---------------------------------------------------------------------------
 
 void AuroraAnimationElement::draw(display::Display& display, int width,
                                   int height, uint32_t time) {
@@ -96,8 +103,6 @@ void AuroraAnimationElement::draw(display::Display& display, int width,
     for (int x = 0; x < width; ++x) {
       float nx = x / (float)width;
       float ny = y / (float)height;
-      // Increased spatial frequencies and band variation for more dynamic
-      // patterns
       float b1 = std::exp(-std::pow(
           (ny - (0.25f + 0.15f * std::sin(nx * 6.0f + t * TWO_PI_F))) / 0.12f,
           2.0f));
@@ -117,6 +122,10 @@ void AuroraAnimationElement::draw(display::Display& display, int width,
   }
 }
 
+// ---------------------------------------------------------------------------
+// KaleidoscopeAnimationElement
+// ---------------------------------------------------------------------------
+
 void KaleidoscopeAnimationElement::draw(display::Display& display, int width,
                                         int height, uint32_t time) {
   float t = time / 8000.0f;
@@ -127,7 +136,6 @@ void KaleidoscopeAnimationElement::draw(display::Display& display, int width,
       float dy = y - height / 2.0f;
       float angle = std::atan2(dy, dx) + t * TWO_PI_F;
       float dist = std::sqrt(dx * dx + dy * dy);
-      // Fold into one mirrored segment
       float seg_angle = std::fmod(std::abs(angle), TWO_PI_F / segments);
       if (seg_angle > TWO_PI_F / (2 * segments)) {
         seg_angle = TWO_PI_F / segments - seg_angle;
@@ -141,6 +149,10 @@ void KaleidoscopeAnimationElement::draw(display::Display& display, int width,
     }
   }
 }
+
+// ---------------------------------------------------------------------------
+// PlasmaAnimationElement
+// ---------------------------------------------------------------------------
 
 void PlasmaAnimationElement::draw(display::Display& display, int width,
                                   int height, uint32_t time) {
@@ -162,6 +174,10 @@ void PlasmaAnimationElement::draw(display::Display& display, int width,
     }
   }
 }
+
+// ---------------------------------------------------------------------------
+// RipplesAnimationElement
+// ---------------------------------------------------------------------------
 
 void RipplesAnimationElement::draw(display::Display& display, int width,
                                    int height, uint32_t time) {
@@ -186,6 +202,10 @@ void RipplesAnimationElement::draw(display::Display& display, int width,
   }
 }
 
+// ---------------------------------------------------------------------------
+// SpiralAnimationElement
+// ---------------------------------------------------------------------------
+
 void SpiralAnimationElement::draw(display::Display& display, int width,
                                   int height, uint32_t time) {
   float t = time / 5000.0f;
@@ -209,6 +229,10 @@ void SpiralAnimationElement::draw(display::Display& display, int width,
   }
 }
 
+// ---------------------------------------------------------------------------
+// VoronoiAnimationElement
+// ---------------------------------------------------------------------------
+
 void VoronoiAnimationElement::draw(display::Display& display, int width,
                                    int height, uint32_t time) {
   float t = time / 5000.0f;
@@ -216,13 +240,11 @@ void VoronoiAnimationElement::draw(display::Display& display, int width,
     for (int x = 0; x < width; ++x) {
       float min_dist = 1000.0f;
       for (int i = 0; i < count_; i++) {
-        // Each seed has a unique, well-spread base position and independent
-        // orbit
         float base_x = noise(i, 0, start_time_);
         float base_y = noise(i, 1, start_time_);
         float orbit_r_x = width / 4.0f * (0.5f + noise(i, 2, start_time_));
         float orbit_r_y = height / 4.0f * (0.5f + noise(i, 3, start_time_));
-        float phase = i * 1.0472f;  // 60° apart in phase (TWO_PI / 6)
+        float phase = i * 1.0472f;
         float px = width * base_x + std::sin(t * TWO_PI_F + phase) * orbit_r_x;
         float py = height * base_y +
                    std::cos(t * TWO_PI_F + phase * 1.618f) * orbit_r_y;
@@ -231,8 +253,6 @@ void VoronoiAnimationElement::draw(display::Display& display, int width,
         float dist = std::sqrt(dx * dx + dy * dy);
         min_dist = std::min(dist, min_dist);
       }
-      // Sharper falloff to differentiate from metaballs: cell interiors are
-      // bright, borders are dark
       float val =
           1.0f - std::min(std::pow(min_dist / (width / 2.5f), 1.5f), 1.0f);
       display.draw_pixel_at(x, y, get_gradient_color_(val));
@@ -240,12 +260,15 @@ void VoronoiAnimationElement::draw(display::Display& display, int width,
   }
 }
 
+// ---------------------------------------------------------------------------
+// InterferenceAnimationElement
+// ---------------------------------------------------------------------------
+
 void InterferenceAnimationElement::draw(display::Display& display, int width,
                                         int height, uint32_t time) {
   float t = time / 5000.0f;
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
-      // Configurable number of wave sources create complex moiré patterns
       float v = 0;
       for (int i = 0; i < count_; i++) {
         float phase = i * TWO_PI_F / (float)count_;
@@ -254,8 +277,6 @@ void InterferenceAnimationElement::draw(display::Display& display, int width,
         float cy =
             height * (0.5f + 0.35f * std::cos(t * TWO_PI_F * 0.3f + phase));
         float d = std::sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy));
-        // Lower spatial frequency (0.4f instead of 1.5f) for less noise on
-        // 32x32
         v += std::sin(d * 0.4f - t * TWO_PI_F);
       }
       float val = (v / (float)count_ + 1.0f) / 2.0f;
@@ -264,13 +285,15 @@ void InterferenceAnimationElement::draw(display::Display& display, int width,
   }
 }
 
+// ---------------------------------------------------------------------------
+// JuliaAnimationElement
+// ---------------------------------------------------------------------------
+
 void JuliaAnimationElement::draw(display::Display& display, int width,
                                  int height, uint32_t time) {
   float t = time / 5000.0f;
-  // Slowly orbit the viewport center to reveal different regions of the set
   float off_x = 0.2f * std::sin(t * TWO_PI_F * 0.11f);
   float off_y = 0.2f * std::cos(t * TWO_PI_F * 0.13f);
-
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       float zoom = 2.0f + 1.5f * std::sin(t * TWO_PI_F * 0.17f);
@@ -285,26 +308,26 @@ void JuliaAnimationElement::draw(display::Display& display, int width,
         zx = tmp;
         i++;
       }
-      // Normalize i to 0..1 to ensure we use the full palette range
       float val = i / 16.0f;
       display.draw_pixel_at(x, y, get_gradient_color_(val));
     }
   }
 }
 
+// ---------------------------------------------------------------------------
+// MatrixAnimationElement
+// ---------------------------------------------------------------------------
+
 void MatrixAnimationElement::draw(display::Display& display, int width,
                                   int height, uint32_t time) {
   float t = time / 2500.0f;
-  display.clear();
   for (int x = 0; x < width; ++x) {
-    // Use density to decide if this column has a drop
     if (noise(x, 0, 123) > (1.0f - density_)) {
       uint32_t column_seed = hash(x + start_time_);
       float speed_mult = 0.5f + 1.0f * (noise(x, 1, column_seed));
       float drop_y = std::fmod(
           t * height * 2.0f * speed_mult + noise(x, 2, column_seed) * height,
           (float)height * 2.0f);
-      // Each column drifts through the gradient at its own speed and phase
       float gradient_offset = std::fmod(
           noise(x, 3, column_seed) + t * 0.05f * noise(x, 4, column_seed),
           1.0f);
@@ -319,6 +342,10 @@ void MatrixAnimationElement::draw(display::Display& display, int width,
     }
   }
 }
+
+// ---------------------------------------------------------------------------
+// FireAnimationElement
+// ---------------------------------------------------------------------------
 
 void FireAnimationElement::on_hide() {
   heat_buffer_.clear();
@@ -372,6 +399,10 @@ void FireAnimationElement::draw(display::Display& display, int width,
   }
 }
 
+// ---------------------------------------------------------------------------
+// TunnelAnimationElement
+// ---------------------------------------------------------------------------
+
 void TunnelAnimationElement::draw(display::Display& display, int width,
                                   int height, uint32_t time) {
   float t = time / 2000.0f;
@@ -380,10 +411,8 @@ void TunnelAnimationElement::draw(display::Display& display, int width,
       float dx = x - width / 2.0f;
       float dy = y - height / 2.0f;
       float dist = std::sqrt(dx * dx + dy * dy) + 0.1f;
-      // Use fract and 0.5 offset to avoid the atan2 jump singularity
       float angle = fract(std::atan2(dy, dx) / TWO_PI_F);
       float depth = 10.0f / dist;
-
       float stripe = fract(depth - t * 2.0f);
       float twist = fract(angle + depth * 0.25f);
       float val = fract(stripe + twist);
@@ -392,6 +421,10 @@ void TunnelAnimationElement::draw(display::Display& display, int width,
   }
 }
 
+// ---------------------------------------------------------------------------
+// WaveAnimationElement
+// ---------------------------------------------------------------------------
+
 void WaveAnimationElement::draw(display::Display& display, int width,
                                 int height, uint32_t time) {
   float t = time / 3000.0f;
@@ -399,7 +432,6 @@ void WaveAnimationElement::draw(display::Display& display, int width,
     for (int x = 0; x < width; ++x) {
       float nx = x / (float)width;
       float ny = y / (float)height;
-      // Direct, structured waves
       float v = std::sin(nx * 15.0f + t * TWO_PI_F);
       v += std::sin(ny * 10.0f - t * TWO_PI_F * 0.5f);
       float val = (v / 2.0f + 1.0f) / 2.0f;
@@ -407,6 +439,10 @@ void WaveAnimationElement::draw(display::Display& display, int width,
     }
   }
 }
+
+// ---------------------------------------------------------------------------
+// StarsAnimationElement
+// ---------------------------------------------------------------------------
 
 void StarsAnimationElement::draw(display::Display& display, int width,
                                  int height, uint32_t time) {
@@ -427,6 +463,10 @@ void StarsAnimationElement::draw(display::Display& display, int width,
     }
   }
 }
+
+// ---------------------------------------------------------------------------
+// ParallaxAnimationElement
+// ---------------------------------------------------------------------------
 
 void ParallaxAnimationElement::draw(display::Display& display, int width,
                                     int height, uint32_t time) {
@@ -473,6 +513,10 @@ void ParallaxAnimationElement::draw(display::Display& display, int width,
   }
 }
 
+// ---------------------------------------------------------------------------
+// LorenzAnimationElement
+// ---------------------------------------------------------------------------
+
 void LorenzAnimationElement::step_() {
   float dt = 0.012f;
   float dx = sigma_ * (y_ - x_) * dt;
@@ -486,11 +530,9 @@ void LorenzAnimationElement::step_() {
 void LorenzAnimationElement::on_show() {
   AnimationElement::on_show();
   points_.clear();
-
   x_ = (noise(1, 0, start_time_) - 0.5f) * 10.0f;
   y_ = (noise(2, 0, start_time_) - 0.5f) * 10.0f;
   z_ = noise(3, 0, start_time_) * 20.0f + 10.0f;
-
   for (int i = 0; i < 150; i++) {
     this->step_();
   }
@@ -502,14 +544,10 @@ void LorenzAnimationElement::draw(display::Display& display, int width,
     this->step_();
     points_.push_back({x_, y_, z_});
   }
-
   while (points_.size() > (size_t)length_) {
     points_.pop_front();
   }
-
-  display.clear();
   if (points_.size() < 2) return;
-
   float t = time / 10000.0f;
   float ax = t * TWO_PI_F * 0.2f;
   float ay = t * TWO_PI_F * 0.3f;
@@ -517,25 +555,21 @@ void LorenzAnimationElement::draw(display::Display& display, int width,
   float cy_r = std::cos(ay), sy_r = std::sin(ay);
   float scale = std::min(width, height) * 0.015f;
   float ox = width * 0.5f, oy = height * 0.5f;
-
   for (size_t i = 1; i < points_.size(); i++) {
     Vec3 p1 = points_[i - 1];
     Vec3 p2 = points_[i];
     p1.z -= 24.0f;
     p2.z -= 24.0f;
-
     float y1_1 = p1.y * cx_r - p1.z * sx_r;
     float z1_1 = p1.y * sx_r + p1.z * cx_r;
     float x2_1 = p1.x * cy_r + z1_1 * sy_r;
     int px1 = (int)(ox + x2_1 * scale);
     int py1 = (int)(oy - y1_1 * scale);
-
     float y1_2 = p2.y * cx_r - p2.z * sx_r;
     float z1_2 = p2.y * sx_r + p2.z * cx_r;
     float x2_2 = p2.x * cy_r + z1_2 * sy_r;
     int px2 = (int)(ox + x2_2 * scale);
     int py2 = (int)(oy - y1_2 * scale);
-
     float p = (float)i / points_.size();
     display.line(px1, py1, px2, py2, get_gradient_color_(p));
   }

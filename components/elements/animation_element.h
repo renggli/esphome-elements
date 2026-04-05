@@ -245,8 +245,6 @@ class SolidAnimationElement : public AnimationElement {
       px[i] = (int)(ox + x2 * scale);
       py[i] = (int)(oy - y1 * scale);
     }
-    // Clear display.
-    display.clear();
     // Draw background lines first
     for (size_t i = 0; i < NumEdges; i++) {
       const Edge& edge = edges_[i];

@@ -19,20 +19,13 @@ class ElementComponent : public Component {
   void loop() override;
   void dump_config() override;
 
-  /// Sets the target display component.
+  /// The target display component.
   void set_display(display::Display* display) { display_ = display; }
+  display::Display* get_display() const { return display_; }
 
-  /// Sets the root element to be displayed.
-  void set_root(Element* root);
-
-  /// Return the root element of this component.
+  /// The root element to be displayed.
+  void set_root(Element* root) { root_ = root; }
   Element* get_root() const { return root_; }
-
-  /// Return the current time in milliseconds at the start of the last update.
-  uint32_t get_current_ms() const { return current_ms_; }
-
-  /// Return the delta time in milliseconds since the last update.
-  uint32_t get_delta_ms() const { return delta_ms_; }
 
   /// Draws the element onto the provided display.
   void draw(display::Display& display);

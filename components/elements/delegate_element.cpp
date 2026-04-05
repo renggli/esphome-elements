@@ -43,7 +43,7 @@ static const char* const TIMEOUT_ELEMENT_TAG = "elements.timeout";
 void TimeoutElement::update_state() {
   DelegateElement::update_state();
   if (this->visible_) {
-    uint32_t current_ms = get_component()->get_current_ms();
+    uint32_t current_ms = millis();
     if (start_time_ != 0 && current_ms - start_time_ >= duration_ms_) {
       start_time_ = current_ms;
       on_complete();
@@ -52,7 +52,7 @@ void TimeoutElement::update_state() {
 }
 
 void TimeoutElement::on_show() {
-  start_time_ = get_component()->get_current_ms();
+  start_time_ = millis();
   if (start_time_ == 0) start_time_ = 1;
   DelegateElement::on_show();
 }

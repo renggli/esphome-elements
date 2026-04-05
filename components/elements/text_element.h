@@ -26,9 +26,7 @@ class TextElement : public Element {
 
   void set_font(display::BaseFont* font) { font_ = font; }
   void set_color(Color color) { color_ = color; }
-  void set_background_color(Color background_color) {
-    background_color_ = background_color;
-  }
+  void set_background_color(Color color) { background_color_ = color; }
   void set_anchor(Anchor anchor) { anchor_ = anchor; }
   void set_align(display::TextAlign align) { align_ = align; }
 
@@ -64,10 +62,12 @@ class TextElement : public Element {
   ScrollMode scroll_mode_ = ScrollMode::NONE;
   float scroll_speed_ = 10.0f;  // pixels per second
   float scroll_offset_ = 0.0f;
+  uint32_t last_scroll_time_ = 0;
 
   std::string text_;
   bool request_measurement_ = true;
-  int bounds_x_, bounds_y_, bounds_w_, bounds_h_;
+  Point<int> measured_position_;
+  Point<int> measured_extent_;
 
   /// True after on_complete has fired; reset by on_show/on_hide.
   bool complete_ = false;

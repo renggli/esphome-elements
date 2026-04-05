@@ -19,7 +19,7 @@ class Element {
   /// Returns the parent element of this element, if any.
   Element* get_parent() const { return parent_; }
 
-  /// Returns the component of this element.
+  /// Returns the component of this element, if any.
   ElementComponent* get_component() const { return component_; }
 
   /// Abstract method that dumps this element's configuration.

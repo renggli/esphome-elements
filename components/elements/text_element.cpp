@@ -35,56 +35,34 @@ void TextElement::draw(display::Display& display) {
   // Measure the text, if necessary, using the un-scrolled base point.
   if (request_measurement_) {
     display.get_text_bounds(point.x, point.y, text_.c_str(), font_, align_,
-                            &bounds_x_, &bounds_y_, &bounds_w_, &bounds_h_);
+                            &measured_position_.x, &measured_position_.y,
+                            &measured_extent_.x, &measured_extent_.y);
     request_measurement_ = false;
   }
 
   // Update the placement, if we scroll.
   if (scroll_mode_ != ScrollMode::NONE) {
-    scroll_offset_ += get_component()->get_delta_ms() * scroll_speed_ / 1000.0f;
-    switch (scroll_mode_) {
-      case ScrollMode::NONE:
-        break;
-      case ScrollMode::LEFT_TO_RIGHT:
-        point.x -= scroll_offset_;
-        break;
-      case ScrollMode::RIGHT_TO_LEFT:
-        point.x += scroll_offset_;
-        break;
-      case ScrollMode::BOTTOM_TO_TOP:
-        point.y -= scroll_offset_;
-        break;
-      case ScrollMode::TOP_TO_BOTTOM:
-        point.y += scroll_offset_;
-        break;
+    uint32_t now = millis();
+    if (last_scroll_time_ > 0) {
+      scroll_offset_ += (now - last_scroll_time_) * scroll_speed_ / 1000.0f;
     }
-  }
-
-  // When scrolling, reset and signal completion each time the text exits the
-  // display.
-  if (scroll_mode_ != ScrollMode::NONE) {
-    int current_bounds_x = bounds_x_;
-    int current_bounds_y = bounds_y_;
-    switch (scroll_mode_) {
-      case ScrollMode::LEFT_TO_RIGHT:
-        current_bounds_x -= scroll_offset_;
-        break;
-      case ScrollMode::RIGHT_TO_LEFT:
-        current_bounds_x += scroll_offset_;
-        break;
-      case ScrollMode::BOTTOM_TO_TOP:
-        current_bounds_y -= scroll_offset_;
-        break;
-      case ScrollMode::TOP_TO_BOTTOM:
-        current_bounds_y += scroll_offset_;
-        break;
-      default:
-        break;
-    }
-    if (current_bounds_x + bounds_w_ < 0 ||
-        display.get_width() < current_bounds_x ||
-        current_bounds_y + bounds_h_ < 0 ||
-        display.get_height() < current_bounds_y) {
+    last_scroll_time_ = now;
+    int dist = static_cast<int>(scroll_offset_);
+    Point<int> delta = {
+        .x = (scroll_mode_ == ScrollMode::RIGHT_TO_LEFT ? 1 : 0) -
+             (scroll_mode_ == ScrollMode::LEFT_TO_RIGHT ? 1 : 0),
+        .y = (scroll_mode_ == ScrollMode::TOP_TO_BOTTOM ? 1 : 0) -
+             (scroll_mode_ == ScrollMode::BOTTOM_TO_TOP ? 1 : 0),
+    };
+    point.x += delta.x * dist;
+    point.y += delta.y * dist;
+    Point<int> current = {
+        .x = measured_position_.x + delta.x * dist,
+        .y = measured_position_.y + delta.y * dist,
+    };
+    if (current.x + measured_extent_.x < 0 || current.x > display.get_width() ||
+        current.y + measured_extent_.y < 0 ||
+        current.y > display.get_height()) {
       scroll_offset_ = 0.0f;
       complete_ = false;
       on_complete();
@@ -120,12 +98,14 @@ void TextElement::on_show() {
       break;
   }
   scroll_offset_ = 0.0f;
+  last_scroll_time_ = millis();
   complete_ = false;
   Element::on_show();
 }
 
 void TextElement::on_hide() {
   scroll_offset_ = 0.0f;
+  last_scroll_time_ = 0;
   complete_ = false;
   Element::on_hide();
 }

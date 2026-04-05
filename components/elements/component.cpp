@@ -34,17 +34,11 @@ void ElementComponent::setup() {
 
 void ElementComponent::dump_config() {
   ESP_LOGCONFIG(ELEMENT_COMPONENT_TAG, "Elements Component");
-  if (root_ != nullptr) {
-    root_->dump_config(0);
-  }
+  if (root_ == nullptr) return;
+  root_->dump_config(0);
 }
 
-void ElementComponent::set_root(Element* root) { root_ = root; }
-
 void ElementComponent::loop() {
-  uint32_t now = millis();
-  delta_ms_ = now - current_ms_;
-  current_ms_ = now;
   if (root_ == nullptr) return;
   root_->update_state();
   root_->update_visibility(true);

@@ -41,27 +41,17 @@ void ElementComponent::dump_config() {
 
 void ElementComponent::set_root(Element* root) { root_ = root; }
 
-void ElementComponent::draw(display::Display& display) {
-  // Check the preconditions.
-  if (root_ == nullptr) {
-    ESP_LOGE(ELEMENT_COMPONENT_TAG, "draw() called without a root element.");
-    return;
-  }
-
-  // Phase 1: Update the time.
+void ElementComponent::loop() {
   uint32_t now = millis();
   delta_ms_ = now - current_ms_;
   current_ms_ = now;
-
-  // Phase 2: Update element state (index selection, etc.) throughout the tree.
+  if (root_ == nullptr) return;
   root_->update_state();
-
-  // Phase 3: Update visibility flags and fire on_show / on_hide events.
-  // Each element that transitions hidden→visible fires on_show exactly once;
-  // visible→hidden fires on_hide exactly once. Events are fired before drawing.
   root_->update_visibility(true);
+}
 
-  // Phase 4: Draw.
+void ElementComponent::draw(display::Display& display) {
+  if (root_ == nullptr) return;
   root_->draw(display);
 }
 

@@ -16,9 +16,13 @@ class Element;
 class ElementComponent : public Component {
  public:
   void setup() override;
+  void loop() override;
   void dump_config() override;
 
+  /// Sets the target display component.
   void set_display(display::Display* display) { display_ = display; }
+
+  /// Sets the root element to be displayed.
   void set_root(Element* root);
 
   /// Return the root element of this component.

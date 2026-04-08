@@ -40,6 +40,7 @@ bool ContainerElement::is_active() {
 }
 
 void ContainerElement::update_state() {
+  Element::update_state();
   for (Element* element : elements_) {
     element->update_state();
   }

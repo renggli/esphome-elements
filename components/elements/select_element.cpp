@@ -29,6 +29,7 @@ bool SelectElement::is_active() {
 }
 
 void SelectElement::update_state() {
+  Element::update_state();
   for (Element* element : elements_) {
     element->update_state();
   }

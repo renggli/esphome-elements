@@ -6,32 +6,29 @@ namespace esphome::elements {
 
 void DelegateElement::dump_config(int level) {
   Element::dump_config(level);
-  if (element_ != nullptr) {
-    element_->dump_config(level + 1);
-  }
+  if (element_ == nullptr) return;
+  element_->dump_config(level + 1);
 }
 
 bool DelegateElement::is_active() {
   return element_ != nullptr && element_->is_active();
 }
 
-void DelegateElement::update_visibility(bool now_visible) {
-  Element::update_visibility(now_visible);
-  if (element_ != nullptr) {
-    element_->update_visibility(this->visible_);
-  }
+void DelegateElement::update_state() {
+  Element::update_state();
+  if (element_ == nullptr) return;
+  element_->update_state();
 }
 
-void DelegateElement::update_state() {
-  if (element_ != nullptr) {
-    element_->update_state();
-  }
+void DelegateElement::update_visibility(bool now_visible) {
+  Element::update_visibility(now_visible);
+  if (element_ == nullptr) return;
+  element_->update_visibility(this->visible_);
 }
 
 void DelegateElement::draw(display::Display& display) {
-  if (element_ != nullptr) {
-    element_->draw(display);
-  }
+  if (element_ == nullptr) return;
+  element_->draw(display);
 }
 
 // ---------------------------------------------------------------------------

@@ -30,9 +30,7 @@ class AnimationElement : public Element {
   uint32_t start_time_{0};
   float speed_{1.0f};
 
-  Color get_gradient_color_(float p) {
-    return color_scheme_->get_color(p);
-  }
+  Color get_gradient_color_(float p) { return color_scheme_->get_color(p); }
 };
 
 class MetaballsAnimationElement : public AnimationElement {

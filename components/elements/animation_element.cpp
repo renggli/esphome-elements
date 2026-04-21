@@ -54,7 +54,8 @@ void AnimationElement::on_show() {
 }
 
 void AnimationElement::set_color_scheme(ColorScheme* color_scheme) {
-  color_scheme_ = (color_scheme != nullptr) ? color_scheme : get_default_color_scheme();
+  color_scheme_ =
+      (color_scheme != nullptr) ? color_scheme : get_default_color_scheme();
 }
 
 // ---------------------------------------------------------------------------

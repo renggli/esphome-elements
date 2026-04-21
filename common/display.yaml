@@ -19,8 +19,7 @@ switch:
   # Enable and disable the display.
   - platform: template
     name: "Switch"
-    restore_mode: RESTORE_DEFAULT_OFF
-    lambda: "return id(led_display).get_enabled();"
+    optimistic: true
     turn_on_action:
       - lambda: "id(led_display).set_enabled(true);"
       - delay: 100ms
@@ -55,7 +54,6 @@ light:
     num_leds: 512
     chipset: WS2812
     max_refresh_rate: 50ms
-    gamma_correct: 3.0
   - platform: esp32_rmt_led_strip
     rgb_order: GRB
     id: led_grid_2
@@ -63,7 +61,6 @@ light:
     num_leds: 512
     chipset: WS2812
     max_refresh_rate: 50ms
-    gamma_correct: 3.0
   # Combined LED grid.
   - platform: partition
     id: led_grid
@@ -74,6 +71,8 @@ light:
       - id: led_grid_2
         from: 0
         to: 511
+    gamma_correct: 3.0
+    color_correct: [50%, 50%, 50%, 50%]
 
 # Display mapping to LEDs.
 display:

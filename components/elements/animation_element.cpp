@@ -13,11 +13,10 @@ namespace {
 const float PI_F = std::numbers::pi_v<float>;
 const float TWO_PI_F = 2.0f * PI_F;
 
-GradientColorScheme* get_default_color_scheme() {
-  static GradientColorScheme* scheme = []() {
-    auto* s = new GradientColorScheme();
-    s->set_from(Color(0, 0, 0));
-    s->set_to(Color(255, 255, 255));
+ColorScheme* get_default_color_scheme() {
+  static ColorScheme* scheme = []() {
+    auto* s = new ColorScheme();
+    s->set_colors({Color::BLACK, Color::WHITE});
     return s;
   }();
   return scheme;
@@ -45,7 +44,7 @@ float fract(float v) { return v - std::floor(v); }
 // ---------------------------------------------------------------------------
 
 void AnimationElement::draw(display::Display& display) {
-  if (color_scheme_ == nullptr) set_color_scheme(get_default_color_scheme());
+  if (color_scheme_ == nullptr) set_color_scheme(nullptr);
   draw(display, display.get_width(), display.get_height(), millis() * speed_);
 }
 
@@ -55,13 +54,7 @@ void AnimationElement::on_show() {
 }
 
 void AnimationElement::set_color_scheme(ColorScheme* color_scheme) {
-  color_scheme_ = color_scheme;
-  for (int i = 0; i < 256; i++) {
-    color_lut_[i] =
-        color_scheme_ == nullptr
-            ? (i == 0 ? Color::BLACK : Color::WHITE)
-            : color_scheme_->get_color(static_cast<float>(i) / 255.0f);
-  }
+  color_scheme_ = (color_scheme != nullptr) ? color_scheme : get_default_color_scheme();
 }
 
 // ---------------------------------------------------------------------------

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <algorithm>
-#include <array>
 #include <cmath>
 #include <cstdint>
 #include <deque>
@@ -28,12 +27,11 @@ class AnimationElement : public Element {
 
  protected:
   ColorScheme* color_scheme_{nullptr};
-  std::array<Color, 256> color_lut_{};
   uint32_t start_time_{0};
   float speed_{1.0f};
 
   Color get_gradient_color_(float p) {
-    return color_lut_[static_cast<uint8_t>(std::clamp(p, 0.0f, 1.0f) * 255.0f)];
+    return color_scheme_->get_color(p);
   }
 };
 

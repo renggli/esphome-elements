@@ -11,6 +11,7 @@ from . import element_registry
 CONF_ALIGN = "align"
 CONF_ANCHOR = "anchor"
 CONF_IMAGE = "image"
+CONF_SCALE = "scale"
 
 # Image Align Enum
 
@@ -46,6 +47,7 @@ IMAGE_ELEMENT_SCHEMA = element.ELEMENT_SCHEMA.extend(
         cv.Optional(CONF_ALIGN, default="CENTER"): cv.enum(
             IMAGE_ALIGN, upper=True, space="_"
         ),
+        cv.Optional(CONF_SCALE, default=1.0): cv.positive_float,
     }
 )
 
@@ -60,6 +62,8 @@ async def image_element_to_code(config, component, parent):
         cg.add(var.set_anchor(anchor))
     if conf := config.get(CONF_ALIGN):
         cg.add(var.set_align(conf))
+    if (scale := config.get(CONF_SCALE, 1.0)) != 1.0:
+        cg.add(var.set_scale(scale))
     return var
 
 

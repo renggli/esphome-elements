@@ -71,7 +71,6 @@ light:
       - id: led_grid_2
         from: 0
         to: 511
-    gamma_correct: 3.0
     color_correct: [50%, 50%, 50%, 50%]
 
 # Display mapping to LEDs.

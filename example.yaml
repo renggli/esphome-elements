@@ -25,7 +25,7 @@ text:
     mode: text
     restore_value: true
     initial_value: ""
-    set_action: 
+    set_action:
       - lambda: id(message_text_element).set_text(x);
 esphome:
   on_boot:
@@ -35,6 +35,8 @@ esphome:
           auto text = id(message)->state;
           id(message)->publish_state(text);
           id(message_text_element).set_text(text);
+  includes:
+    - assets/weather/weather.h
 
 # Sensors
 sensor:
@@ -113,44 +115,71 @@ sensor:
 text_sensor:
   # External Sensors
   - platform: homeassistant
-    id: outside_weather
-    entity_id: weather.forecast_home
+    entity_id: sensor.weather_condition_0h
+    id: weather_condition_0h
     on_value:
       then:
-        - lambda: |-
-            if (x == "clear-night") {
-              id(weather_image_element).set_image(id(clear_night));
-            } else if (x == "cloudy") {
-              id(weather_image_element).set_image(id(cloudy));
-            } else if (x == "fog") {
-              id(weather_image_element).set_image(id(fog));
-            } else if (x == "hail") {
-              id(weather_image_element).set_image(id(hail));
-            } else if (x == "lightning-rainy") {
-              id(weather_image_element).set_image(id(lightning_rainy));
-            } else if (x == "lightning") {
-              id(weather_image_element).set_image(id(lightning));
-            } else if (x == "partlycloudy-night") {
-              id(weather_image_element).set_image(id(partlycloudy_night));
-            } else if (x == "partlycloudy") {
-              id(weather_image_element).set_image(id(partlycloudy));
-            } else if (x == "pouring") {
-              id(weather_image_element).set_image(id(pouring));
-            } else if (x == "rainy") {
-              id(weather_image_element).set_image(id(rainy));
-            } else if (x == "snowy") {
-              id(weather_image_element).set_image(id(snowy));
-            } else if (x == "snowy-rainy") {
-              id(weather_image_element).set_image(id(snowy_rainy));
-            } else if (x == "sunny") {
-              id(weather_image_element).set_image(id(sunny));
-            } else if (x == "windy-variant") {
-              id(weather_image_element).set_image(id(windy_variant));
-            } else if (x == "windy") {
-              id(weather_image_element).set_image(id(windy));
-            } else {
-              id(weather_image_element).clear_image();
-            }
+        lambda: set_weather_image(id(weather_condition_0h_image), x);
+  - platform: homeassistant
+    entity_id: sensor.weather_condition_1h
+    id: weather_condition_1h
+    on_value:
+      then:
+        lambda: set_weather_image(id(weather_condition_1h_image), x);
+  - platform: homeassistant
+    entity_id: sensor.weather_condition_2h
+    id: weather_condition_2h
+    on_value:
+      then:
+        lambda: set_weather_image(id(weather_condition_2h_image), x);
+  - platform: homeassistant
+    entity_id: sensor.weather_condition_3h
+    id: weather_condition_3h
+    on_value:
+      then:
+        lambda: set_weather_image(id(weather_condition_3h_image), x);
+  - platform: homeassistant
+    entity_id: sensor.weather_condition_4h
+    id: weather_condition_4h
+    on_value:
+      then:
+        lambda: set_weather_image(id(weather_condition_4h_image), x);
+  - platform: homeassistant
+    entity_id: sensor.weather_condition_5h
+    id: weather_condition_5h
+    on_value:
+      then:
+        lambda: set_weather_image(id(weather_condition_5h_image), x);
+  - platform: homeassistant
+    entity_id: sensor.weather_condition_6h
+    id: weather_condition_6h
+    on_value:
+      then:
+        lambda: set_weather_image(id(weather_condition_6h_image), x);
+  - platform: homeassistant
+    entity_id: sensor.weather_condition_1d
+    id: weather_condition_1d
+    on_value:
+      then:
+        lambda: set_weather_image(id(weather_condition_1d_image), x);
+  - platform: homeassistant
+    entity_id: sensor.weather_condition_2d
+    id: weather_condition_2d
+    on_value:
+      then:
+        lambda: set_weather_image(id(weather_condition_2d_image), x);
+  - platform: homeassistant
+    entity_id: sensor.weather_condition_3d
+    id: weather_condition_3d
+    on_value:
+      then:
+        lambda: set_weather_image(id(weather_condition_3d_image), x);
+  - platform: homeassistant
+    entity_id: sensor.weather_condition_4d
+    id: weather_condition_4d
+    on_value:
+      then:
+        lambda: set_weather_image(id(weather_condition_4d_image), x);
   - platform: homeassistant
     id: calendar_current_event
     entity_id: sensor.current_event
@@ -240,9 +269,55 @@ elements:
         on_complete:
           - then:
             - elements.next: primary_elements
+            - elements.next: weather_sequence
         element:
-          type: image
-          id: weather_image_element
+          type: sequence
+          id: weather_sequence
+          elements:
+            - type: image
+              id: weather_condition_0h_image
+            - type: vertical
+              elements:
+                - type: horizontal
+                  elements:
+                  - type: image
+                    id: weather_condition_1h_image
+                    scale: 0.3
+                  - type: image
+                    id: weather_condition_2h_image
+                    scale: 0.3
+                  - type: image
+                    id: weather_condition_3h_image
+                    scale: 0.3
+                - type: horizontal
+                  elements:
+                  - type: image
+                    id: weather_condition_4h_image
+                    scale: 0.3
+                  - type: image
+                    id: weather_condition_5h_image
+                    scale: 0.3
+                  - type: image
+                    id: weather_condition_6h_image
+                    scale: 0.3
+            - type: vertical
+              elements:
+                - type: horizontal
+                  elements:
+                  - type: image
+                    id: weather_condition_1d_image
+                    scale: 0.5
+                  - type: image
+                    id: weather_condition_2d_image
+                    scale: 0.5
+                - type: horizontal
+                  elements:
+                  - type: image
+                    id: weather_condition_3d_image
+                    scale: 0.5
+                  - type: image
+                    id: weather_condition_4d_image
+                    scale: 0.5
       # Calendar
       - type: timeout
         duration: 10s
@@ -417,7 +492,7 @@ elements:
           minute_hand:
             color: gray_300
           hour_hand:
-            color: gray_300      
+            color: gray_300
       # Animations
       - type: timeout
         duration: 20s

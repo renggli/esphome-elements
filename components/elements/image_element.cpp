@@ -1,6 +1,6 @@
 #include "image_element.h"
 
-#include "esphome/core/log.h"
+#include <cmath>
 
 namespace esphome::elements {
 
@@ -13,44 +13,23 @@ void ImageElement::draw(display::Display& display) {
     return;
   }
   Point<int> point = anchor_.get(Point<int>::from_extent(display));
-
-  // Fast path: no scaling — delegate entirely to ESPHome (handles all image
-  // types, transparency, etc. and has zero overhead).
   if (scale_ == 1.0f) {
     display.image(point.x, point.y, image_, align_);
     return;
   }
-
   const int src_w = image_->get_width();
   const int src_h = image_->get_height();
-  const int dst_w = static_cast<int>(src_w * scale_ + 0.5f);
-  const int dst_h = static_cast<int>(src_h * scale_ + 0.5f);
+  const int dst_w = std::lround(src_w * scale_);
+  const int dst_h = std::lround(src_h * scale_);
+  if (dst_w <= 0 || dst_h <= 0) return;
+  Point<int> aligned = calculate_alignment_(point.x, point.y, dst_w, dst_h);
+  draw_scaled_(display, aligned.x, aligned.y, src_w, src_h, dst_w, dst_h);
+}
 
-  if (dst_w <= 0 || dst_h <= 0) {
-    return;
-  }
-
-  // Render the source image into an off-screen buffer so we can sample
-  // individual pixels regardless of the concrete BaseImage subtype. This
-  // avoids depending on RTTI (dynamic_cast) which is disabled for ESP32
-  // builds (-fno-rtti).
-  ImageDisplay src_buf(src_w, src_h);
-  if (!src_buf.is_valid()) {
-    ESP_LOGE(TAG, "Failed to allocate source buffer for scaling.");
-    return;
-  }
-  image_->draw(0, 0, &src_buf, display::COLOR_ON, display::COLOR_OFF);
-
-  // Resolve alignment against the scaled image dimensions, mirroring the
-  // logic in Display::image().
-  auto x_align = display::ImageAlign(
+Point<int> ImageElement::calculate_alignment_(int x, int y, int dst_w,
+                                              int dst_h) const {
+  const auto x_align = display::ImageAlign(
       int(align_) & int(display::ImageAlign::HORIZONTAL_ALIGNMENT));
-  auto y_align = display::ImageAlign(
-      int(align_) & int(display::ImageAlign::VERTICAL_ALIGNMENT));
-
-  int x = point.x;
-  int y = point.y;
-
   switch (x_align) {
     case display::ImageAlign::RIGHT:
       x -= dst_w;
@@ -61,6 +40,8 @@ void ImageElement::draw(display::Display& display) {
     default:
       break;
   }
+  const auto y_align = display::ImageAlign(
+      int(align_) & int(display::ImageAlign::VERTICAL_ALIGNMENT));
   switch (y_align) {
     case display::ImageAlign::BOTTOM:
       y -= dst_h;
@@ -71,20 +52,58 @@ void ImageElement::draw(display::Display& display) {
     default:
       break;
   }
+  return Point<int>(x, y);
+}
 
-  // Nearest-neighbor scaling: for each destination pixel map back to the
-  // nearest source pixel and draw it.
+void ImageElement::draw_scaled_(display::Display& display, int x, int y,
+                                int src_w, int src_h, int dst_w,
+                                int dst_h) const {
   for (int dst_y = 0; dst_y < dst_h; dst_y++) {
-    const int src_y = dst_y * src_h / dst_h;
+    int src_y_start = dst_y * src_h / dst_h;
+    int src_y_end = (dst_y + 1) * src_h / dst_h;
+    if (src_y_end == src_y_start) {
+      src_y_end++;
+    }
     for (int dst_x = 0; dst_x < dst_w; dst_x++) {
-      const int src_x = dst_x * src_w / dst_w;
-      const Color color = src_buf.get_pixel(src_x, src_y);
+      int src_x_start = dst_x * src_w / dst_w;
+      int src_x_end = (dst_x + 1) * src_w / dst_w;
+      if (src_x_end == src_x_start) {
+        src_x_end++;
+      }
+      Color color = sample_box_(src_x_start, src_x_end, src_y_start, src_y_end);
+      if (color.w != 0 || color.r != 0 || color.g != 0 || color.b != 0) {
+        display.draw_pixel_at(x + dst_x, y + dst_y, color);
+      }
+    }
+  }
+}
+
+Color ImageElement::sample_box_(int x_start, int x_end, int y_start,
+                                int y_end) const {
+  int count = 0;
+  uint32_t r = 0, g = 0, b = 0, w = 0;
+  for (int sy = y_start; sy < y_end; sy++) {
+    for (int sx = x_start; sx < x_end; sx++) {
+      const Color color = image_->get_pixel(sx, sy);
       if (color.w == 0 && color.r == 0 && color.g == 0 && color.b == 0) {
         continue;
       }
-      display.draw_pixel_at(x + dst_x, y + dst_y, color);
+      r += color.r;
+      g += color.g;
+      b += color.b;
+      w += color.w;
+      count++;
     }
   }
+  if (count > 0) {
+    return {
+        static_cast<uint8_t>(r / count),
+        static_cast<uint8_t>(g / count),
+        static_cast<uint8_t>(b / count),
+        static_cast<uint8_t>(w / count),
+    };
+  }
+  return Color::BLACK;
 }
 
 }  // namespace esphome::elements

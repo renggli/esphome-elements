@@ -437,7 +437,12 @@ async def solid_animation_to_code(config, component, parent):
         var.set_points(
             cg.RawExpression(
                 f"std::array<esphome::elements::Vec3, {num_verts}>{{ {{"
-                + ", ".join([f"{{{float(v[0])}f, {float(v[1])}f, {float(v[2])}f}}" for v in shape["verts"]])
+                + ", ".join(
+                    [
+                        f"{{{float(v[0])}f, {float(v[1])}f, {float(v[2])}f}}"
+                        for v in shape["verts"]
+                    ]
+                )
                 + "} }"
             )
         )

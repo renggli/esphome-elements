@@ -13,14 +13,9 @@ namespace {
 const float PI_F = std::numbers::pi_v<float>;
 const float TWO_PI_F = 2.0f * PI_F;
 
-ColorScheme* get_default_color_scheme() {
-  static ColorScheme* scheme = []() {
-    auto* s = new ColorScheme();
-    s->set_colors({Color::BLACK, Color::WHITE});
-    return s;
-  }();
-  return scheme;
-}
+constexpr Color DEFAULT_COLORS[] PROGMEM = {{0x00, 0x00, 0x00, 0x00},
+                                            {0xff, 0xff, 0xff, 0x00}};
+const ColorScheme DEFAULT_SCHEME = ColorScheme(DEFAULT_COLORS, 2);
 
 uint32_t hash(uint32_t v) {
   v ^= v >> 16;
@@ -44,18 +39,13 @@ float fract(float v) { return v - std::floor(v); }
 // ---------------------------------------------------------------------------
 
 void AnimationElement::draw(display::Display& display) {
-  if (color_scheme_ == nullptr) set_color_scheme(nullptr);
+  if (color_scheme_ == nullptr) set_color_scheme(&DEFAULT_SCHEME);
   draw(display, display.get_width(), display.get_height(), millis() * speed_);
 }
 
 void AnimationElement::on_show() {
   start_time_ = millis();
   Element::on_show();
-}
-
-void AnimationElement::set_color_scheme(ColorScheme* color_scheme) {
-  color_scheme_ =
-      (color_scheme != nullptr) ? color_scheme : get_default_color_scheme();
 }
 
 // ---------------------------------------------------------------------------

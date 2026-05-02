@@ -1,27 +1,26 @@
 #pragma once
 
-#include <initializer_list>
-#include <vector>
+#include <algorithm>
+#include <cmath>
 
 #include "esphome/core/color.h"
 
 namespace esphome::elements {
 
-// Precomputed lookup table of ESPHome Colors.
+// Precomputed color lookup table.
 class ColorScheme {
  public:
-  void set_colors(std::initializer_list<Color> colors) { lut_ = colors; }
+  ColorScheme(const Color* colors, const size_t size)
+      : colors_(colors), size_(size) {}
 
   Color get_color(float p) const {
-    const auto n = static_cast<uint32_t>(lut_.size());
-    if (n == 0) return Color::BLACK;
-    const auto idx =
-        static_cast<uint32_t>(p * static_cast<float>(n - 1) + 0.5f);
-    return lut_[idx < n ? idx : n - 1];
+    const size_t index = std::lround(p * (size_ - 1));
+    return colors_[std::clamp<size_t>(index, 0, size_ - 1)];
   }
 
  private:
-  std::vector<Color> lut_;
+  const Color* colors_;
+  const size_t size_;
 };
 
 }  // namespace esphome::elements

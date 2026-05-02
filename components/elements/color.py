@@ -1,11 +1,3 @@
-"""Color scheme support for the elements component.
-
-All color schemes are fully resolved in Python at code-generation time and
-emitted as a precomputed ``Color[]`` lookup table (``ColorScheme``).  No HSV
-maths or virtual dispatch is needed in the generated C++; the runtime just
-reads from the table with optional linear interpolation.
-"""
-
 import colorsys
 
 import esphome.codegen as cg
@@ -434,29 +426,43 @@ COLOR_SCHEME_SCHEMA = cv.typed_schema(
 _color_scheme_counter = 0
 
 
+def _compute_sampled_data(sampler, steps):
+    """Compute color data for a given sampler."""
+    data = []
+    points = [0.0] if steps == 1 else [i / (steps - 1) for i in range(steps)]
+    for p in points:
+        h, s, v = sampler(p)
+        r, g, b = _hsv_to_rgb8(h, s, v)
+        data.append(
+            [
+                core.HexInt(r),
+                core.HexInt(g),
+                core.HexInt(b),
+                core.HexInt(0),
+            ]
+        )
+    return data
+
+
 async def color_scheme_to_code(config):
     """Emit a ColorScheme* with a precomputed LUT from the Python sampler."""
     global _color_scheme_counter
     _color_scheme_counter += 1
-    scheme_id = core.ID(
+
+    sampler = _scheme_config_to_sampler(config)
+    steps = config.get(CONF_CS_STEPS, 32)
+
+    scheme_data = _compute_sampled_data(sampler, steps)
+    scheme_data_id = core.ID(
+        f"color_scheme_data_{_color_scheme_counter}",
+        is_declaration=True,
+        type=color.ColorStruct,
+    )
+    scheme_array = cg.progmem_array(scheme_data_id, scheme_data)
+    scheme_object_id = core.ID(
         f"color_scheme_{_color_scheme_counter}",
         is_declaration=True,
         type=ColorScheme,
     )
 
-    steps = config.get(CONF_CS_STEPS, 32)
-    sampler = _scheme_config_to_sampler(config)
-
-    var = cg.new_Pvariable(scheme_id)
-
-    points = [0.0] if steps == 1 else [i / (steps - 1) for i in range(steps)]
-    entries = []
-    for p in points:
-        h, s, v = sampler(p)
-        r, g, b = _hsv_to_rgb8(h, s, v)
-        entries.append(f"Color({r}, {g}, {b})")
-
-    colors_init = "{" + ", ".join(entries) + "}"
-    cg.add(cg.RawExpression(f"{var}->set_colors({colors_init})"))
-
-    return var
+    return cg.new_Pvariable(scheme_object_id, scheme_array, steps)

@@ -32,7 +32,7 @@ class AnimationElement : public Element {
   uint32_t start_time_{0};
   float speed_{1.0f};
 
-  Color get_gradient_color_(float p) { return color_scheme_->get_color(p); }
+  Color get_color_(float p) { return color_scheme_->get_color(p); }
 };
 
 class MetaballsAnimationElement : public AnimationElement {
@@ -210,62 +210,28 @@ struct Edge {
   uint8_t a, b;
 };
 
-template <size_t NumPoints, size_t NumEdges>
 class SolidAnimationElement : public AnimationElement {
  public:
   using AnimationElement::AnimationElement;
   const char* get_type_name() const override { return "solid_animation"; }
 
-  void set_points(const std::array<Vec3, NumPoints>& points) {
+  void set_points(const Vec3* points, size_t num_points) {
     points_ = points;
+    num_points_ = num_points;
   }
-  void set_edges(const std::array<Edge, NumEdges>& edges) { edges_ = edges; }
+  void set_edges(const Edge* edges, size_t num_edges) {
+    edges_ = edges;
+    num_edges_ = num_edges;
+  }
 
   void draw(display::Display& display, int width, int height,
-            uint32_t time) override {
-    const float t = time / 8000.0f;
-    const float ax = t * 2.0f * std::numbers::pi_v<float> * 0.397f;
-    const float ay = t * 2.0f * std::numbers::pi_v<float>;
-    const float cx_r = std::cos(ax), sx_r = std::sin(ax);
-    const float cy_r = std::cos(ay), sy_r = std::sin(ay);
-    const float scale = std::min(width, height) * 0.42f;
-    const float ox = width * 0.5f, oy = height * 0.5f;
-    // Transform and project points.
-    std::array<float, NumPoints> rz;
-    std::array<int, NumPoints> px;
-    std::array<int, NumPoints> py;
-    for (size_t i = 0; i < NumPoints; i++) {
-      const Vec3& vert = points_[i];
-      const float y1 = vert.y * cx_r - vert.z * sx_r;
-      const float z1 = vert.y * sx_r + vert.z * cx_r;
-      const float x2 = vert.x * cy_r + z1 * sy_r;
-      rz[i] = -vert.x * sy_r + z1 * cy_r;
-      px[i] = (int)(ox + x2 * scale);
-      py[i] = (int)(oy - y1 * scale);
-    }
-    // Draw background lines first
-    for (size_t i = 0; i < NumEdges; i++) {
-      const Edge& edge = edges_[i];
-      const float depth = ((rz[edge.a] + rz[edge.b]) * 0.5f + 1.0f) * 0.5f;
-      if (depth < 0.5f) {
-        display.line(px[edge.a], py[edge.a], px[edge.b], py[edge.b],
-                     get_gradient_color_(depth));
-      }
-    }
-    // Draw foreground lines on top
-    for (size_t i = 0; i < NumEdges; i++) {
-      const Edge& edge = edges_[i];
-      const float depth = ((rz[edge.a] + rz[edge.b]) * 0.5f + 1.0f) * 0.5f;
-      if (depth >= 0.5f) {
-        display.line(px[edge.a], py[edge.a], px[edge.b], py[edge.b],
-                     get_gradient_color_(depth));
-      }
-    }
-  }
+            uint32_t time) override;
 
  protected:
-  std::array<Vec3, NumPoints> points_{};
-  std::array<Edge, NumEdges> edges_{};
+  const Vec3* points_{nullptr};
+  size_t num_points_{0};
+  const Edge* edges_{nullptr};
+  size_t num_edges_{0};
 };
 
 class ParallaxAnimationElement : public AnimationElement {

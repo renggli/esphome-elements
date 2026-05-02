@@ -71,7 +71,7 @@ void MetaballsAnimationElement::draw(display::Display& display, int width,
         val += 80.0f / (dist2 + 1.0f);
       }
       val = std::min(val / 5.5f, 0.85f);
-      display.draw_pixel_at(x, y, get_gradient_color_(val));
+      display.draw_pixel_at(x, y, get_color_(val));
     }
   }
 }
@@ -101,7 +101,7 @@ void AuroraAnimationElement::draw(display::Display& display, int width,
               0.08f,
           2.0f));
       float val = std::min(b1 + b2 * 0.8f + b3 * 0.6f, 1.0f);
-      display.draw_pixel_at(x, y, get_gradient_color_(val));
+      display.draw_pixel_at(x, y, get_color_(val));
     }
   }
 }
@@ -129,7 +129,7 @@ void KaleidoscopeAnimationElement::draw(display::Display& display, int width,
       float val = std::sin(tx / 3.0f + t * TWO_PI_F) *
                   std::cos(ty / 3.0f - t * TWO_PI_F * 0.7f);
       val = (val + 1.0f) / 2.0f;
-      display.draw_pixel_at(x, y, get_gradient_color_(val));
+      display.draw_pixel_at(x, y, get_color_(val));
     }
   }
 }
@@ -154,7 +154,7 @@ void PlasmaAnimationElement::draw(display::Display& display, int width,
       val += std::sin(std::sqrt(128.0f * (cx * cx + cy * cy) + 1.0f) +
                       t * TWO_PI_F);
       val = (val / 3.0f + 1.0f) / 2.0f;
-      display.draw_pixel_at(x, y, get_gradient_color_(val));
+      display.draw_pixel_at(x, y, get_color_(val));
     }
   }
 }
@@ -181,7 +181,7 @@ void RipplesAnimationElement::draw(display::Display& display, int width,
         float dist = std::sqrt(dx * dx + dy * dy);
         val += std::exp(-std::pow((dist - radius) / 1.5f, 2.0f)) * fade;
       }
-      display.draw_pixel_at(x, y, get_gradient_color_(std::min(val, 1.0f)));
+      display.draw_pixel_at(x, y, get_color_(std::min(val, 1.0f)));
     }
   }
 }
@@ -208,7 +208,7 @@ void SpiralAnimationElement::draw(display::Display& display, int width,
       if (val < 0) {
         val += 1.0f;
       }
-      display.draw_pixel_at(x, y, get_gradient_color_(val));
+      display.draw_pixel_at(x, y, get_color_(val));
     }
   }
 }
@@ -239,7 +239,7 @@ void VoronoiAnimationElement::draw(display::Display& display, int width,
       }
       float val =
           1.0f - std::min(std::pow(min_dist / (width / 2.5f), 1.5f), 1.0f);
-      display.draw_pixel_at(x, y, get_gradient_color_(val));
+      display.draw_pixel_at(x, y, get_color_(val));
     }
   }
 }
@@ -264,7 +264,7 @@ void InterferenceAnimationElement::draw(display::Display& display, int width,
         v += std::sin(d * 0.4f - t * TWO_PI_F);
       }
       float val = (v / (float)count_ + 1.0f) / 2.0f;
-      display.draw_pixel_at(x, y, get_gradient_color_(val));
+      display.draw_pixel_at(x, y, get_color_(val));
     }
   }
 }
@@ -293,7 +293,7 @@ void JuliaAnimationElement::draw(display::Display& display, int width,
         i++;
       }
       float val = i / 16.0f;
-      display.draw_pixel_at(x, y, get_gradient_color_(val));
+      display.draw_pixel_at(x, y, get_color_(val));
     }
   }
 }
@@ -320,7 +320,7 @@ void MatrixAnimationElement::draw(display::Display& display, int width,
         if (dist < 0 && dist > -length_) {
           float fade = 1.0f - (std::abs(dist) / length_);
           float val = std::fmod(fade * 0.8f + gradient_offset, 1.0f);
-          display.draw_pixel_at(x, y, get_gradient_color_(val));
+          display.draw_pixel_at(x, y, get_color_(val));
         }
       }
     }
@@ -378,7 +378,7 @@ void FireAnimationElement::draw(display::Display& display, int width,
       // Apply a gamma-like curve to "stretch" the lower heat values
       // (reds/oranges)
       float heat = std::pow(heat_buffer_[y * width + x], 0.8f);
-      display.draw_pixel_at(x, y, get_gradient_color_(heat));
+      display.draw_pixel_at(x, y, get_color_(heat));
     }
   }
 }
@@ -400,7 +400,7 @@ void TunnelAnimationElement::draw(display::Display& display, int width,
       float stripe = fract(depth - t * 2.0f);
       float twist = fract(angle + depth * 0.25f);
       float val = fract(stripe + twist);
-      display.draw_pixel_at(x, y, get_gradient_color_(val));
+      display.draw_pixel_at(x, y, get_color_(val));
     }
   }
 }
@@ -419,7 +419,7 @@ void WaveAnimationElement::draw(display::Display& display, int width,
       float v = std::sin(nx * 15.0f + t * TWO_PI_F);
       v += std::sin(ny * 10.0f - t * TWO_PI_F * 0.5f);
       float val = (v / 2.0f + 1.0f) / 2.0f;
-      display.draw_pixel_at(x, y, get_gradient_color_(val));
+      display.draw_pixel_at(x, y, get_color_(val));
     }
   }
 }
@@ -443,7 +443,7 @@ void StarsAnimationElement::draw(display::Display& display, int width,
       float threshold = 1.0f - density_;
       float val =
           (base_brightness > threshold) ? base_brightness * twinkle : 0.0f;
-      display.draw_pixel_at(x, y, get_gradient_color_(val));
+      display.draw_pixel_at(x, y, get_color_(val));
     }
   }
 }
@@ -459,7 +459,7 @@ void ParallaxAnimationElement::draw(display::Display& display, int width,
   // Draw background sky using the first segment of the color scheme.
   for (int y = 0; y < height; y++) {
     float y_p = (float)y / std::max(1, height - 1);
-    Color sky_color = get_gradient_color_(y_p * seg * 0.999f);
+    Color sky_color = get_color_(y_p * seg * 0.999f);
     display.horizontal_line(0, y, width, sky_color);
   }
   // Draw each layer from the back to the front.
@@ -489,10 +489,58 @@ void ParallaxAnimationElement::draw(display::Display& display, int width,
       terrain_h = std::clamp(terrain_h, 0, height);
       if (terrain_h > 0) {
         float y_p = (float)(height - terrain_h) / std::max(1, height - 1);
-        Color pixel_color =
-            get_gradient_color_(seg * (l + 1.001f) + y_p * seg * 0.998f);
+        Color pixel_color = get_color_(seg * (l + 1.001f) + y_p * seg * 0.998f);
         display.vertical_line(x, height - terrain_h, terrain_h, pixel_color);
       }
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// SolidAnimationElement
+// ---------------------------------------------------------------------------
+
+void SolidAnimationElement::draw(display::Display& display, int width,
+                                 int height, uint32_t time) {
+  const float t = time / 8000.0f;
+  const float ax = t * TWO_PI_F * 0.397f;
+  const float ay = t * TWO_PI_F;
+  const float cx_r = std::cos(ax), sx_r = std::sin(ax);
+  const float cy_r = std::cos(ay), sy_r = std::sin(ay);
+  const float scale = std::min(width, height) * 0.42f;
+  const float ox = width * 0.5f, oy = height * 0.5f;
+  static std::vector<float> rz;
+  static std::vector<int> px;
+  static std::vector<int> py;
+  rz.resize(num_points_);
+  px.resize(num_points_);
+  py.resize(num_points_);
+  // Transform and project points.
+  for (size_t i = 0; i < num_points_; i++) {
+    const Vec3& vert = points_[i];
+    const float y1 = vert.y * cx_r - vert.z * sx_r;
+    const float z1 = vert.y * sx_r + vert.z * cx_r;
+    const float x2 = vert.x * cy_r + z1 * sy_r;
+    rz[i] = -vert.x * sy_r + z1 * cy_r;
+    px[i] = (int)(ox + x2 * scale);
+    py[i] = (int)(oy - y1 * scale);
+  }
+  // Draw background lines first
+  for (size_t i = 0; i < num_edges_; i++) {
+    const Edge& edge = edges_[i];
+    const float depth = ((rz[edge.a] + rz[edge.b]) * 0.5f + 1.0f) * 0.5f;
+    if (depth < 0.5f) {
+      display.line(px[edge.a], py[edge.a], px[edge.b], py[edge.b],
+                   get_color_(depth));
+    }
+  }
+  // Draw foreground lines on top
+  for (size_t i = 0; i < num_edges_; i++) {
+    const Edge& edge = edges_[i];
+    const float depth = ((rz[edge.a] + rz[edge.b]) * 0.5f + 1.0f) * 0.5f;
+    if (depth >= 0.5f) {
+      display.line(px[edge.a], py[edge.a], px[edge.b], py[edge.b],
+                   get_color_(depth));
     }
   }
 }
@@ -555,7 +603,7 @@ void LorenzAnimationElement::draw(display::Display& display, int width,
     int px2 = (int)(ox + x2_2 * scale);
     int py2 = (int)(oy - y1_2 * scale);
     float p = (float)i / points_.size();
-    display.line(px1, py1, px2, py2, get_gradient_color_(p));
+    display.line(px1, py1, px2, py2, get_color_(p));
   }
 }
 

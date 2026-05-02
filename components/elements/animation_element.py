@@ -1,4 +1,5 @@
 import esphome.codegen as cg
+import esphome.core as core
 import esphome.config_validation as cv
 from esphome.const import CONF_ID
 
@@ -425,37 +426,32 @@ SOLID_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
     }
 )
 
+Vec3Struct = shared.elements_ns.struct("Vec3")
+EdgeStruct = shared.elements_ns.struct("Edge")
+
 
 async def solid_animation_to_code(config, component, parent):
-    shape = SHAPE_DATA[config[CONF_SHAPE]]
-    num_verts = len(shape["verts"])
-    num_edges = len(shape["edges"])
-    config[CONF_ID].type = SolidAnimationElement.template(num_verts, num_edges)
-
     var = await animation_element_to_code(config, component, parent)
-    cg.add(
-        var.set_points(
-            cg.RawExpression(
-                f"std::array<esphome::elements::Vec3, {num_verts}>{{ {{"
-                + ", ".join(
-                    [
-                        f"{{{float(v[0])}f, {float(v[1])}f, {float(v[2])}f}}"
-                        for v in shape["verts"]
-                    ]
-                )
-                + "} }"
-            )
-        )
+    shape = SHAPE_DATA[config[CONF_SHAPE]]
+
+    verts = [[float(value) for value in vert] for vert in shape["verts"]]
+    verts_id = core.ID(
+        f"{config[CONF_ID]}_verts",
+        is_declaration=True,
+        type=Vec3Struct,
     )
-    cg.add(
-        var.set_edges(
-            cg.RawExpression(
-                f"std::array<esphome::elements::Edge, {num_edges}>{{ {{"
-                + ", ".join([f"{{{e[0]}, {e[1]}}}" for e in shape["edges"]])
-                + "} }"
-            )
-        )
+    verts_array = cg.progmem_array(verts_id, verts)
+    cg.add(var.set_points(verts_array, len(verts)))
+
+    edges = [[int(value) for value in edge] for edge in shape["edges"]]
+    edges_id = core.ID(
+        f"{config[CONF_ID]}_edges",
+        is_declaration=True,
+        type=EdgeStruct,
     )
+    edges_array = cg.progmem_array(edges_id, edges)
+    cg.add(var.set_edges(edges_array, len(edges)))
+
     return var
 
 

@@ -12,6 +12,11 @@ void CustomElement::draw(display::Display& display) {
   }
 }
 
+void CustomElement::on_show() {
+  start_time_ = millis();
+  Element::on_show();
+}
+
 bool CustomElement::is_active() {
   if (is_active_) {
     return is_active_(*this);
@@ -22,7 +27,8 @@ bool CustomElement::is_active() {
 void CustomElement::test_draw_(display::Display& display) {
   int center_x = display.get_width() / 2;
   int center_y = display.get_height() / 2;
-  float delta = fmod(millis() / 2000.0f, 2.0f * std::numbers::pi_v<float>);
+  float delta = fmod((millis() - start_time_) / 2000.0f,
+                     2.0f * std::numbers::pi_v<float>);
   int x1 = center_x;
   int y1 = (center_y * sin(delta)) + center_y;
   for (int i = 1; i <= 0xff; i++) {

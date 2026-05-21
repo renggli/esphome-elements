@@ -23,11 +23,14 @@ class CustomElement : public Element {
 
   void draw(display::Display& display) override;
 
+  void on_show() override;
+
   bool is_active() override;
 
  protected:
   DrawFunction draw_;
   PredicateFunction is_active_;
+  uint32_t start_time_{0};
 
   void test_draw_(display::Display& display);
 };

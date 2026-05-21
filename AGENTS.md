@@ -10,6 +10,7 @@
 - C++: Google style, C++20 (`-std=c++20`)
 - Format: `./bin/format.sh` runs `clang-format -i`
 - clang-tidy configuration in `.clang-tidy`
+- only `float` (hardware, fast), no `double` (emulated, slow)
 
 ## Key Files
 

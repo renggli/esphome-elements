@@ -40,7 +40,9 @@ float fract(float v) { return v - std::floor(v); }
 
 void AnimationElement::draw(display::Display& display) {
   if (color_scheme_ == nullptr) set_color_scheme(&DEFAULT_SCHEME);
-  draw(display, display.get_width(), display.get_height(), millis() * speed_);
+  float time =
+      ((millis() - start_time_) / 1000.0f) * speed_ * get_time_scale_();
+  draw(display, display.get_width(), display.get_height(), time);
 }
 
 void AnimationElement::on_show() {
@@ -53,8 +55,7 @@ void AnimationElement::on_show() {
 // ---------------------------------------------------------------------------
 
 void MetaballsAnimationElement::draw(display::Display& display, int width,
-                                     int height, uint32_t time) {
-  float t = time / 5000.0f;
+                                     int height, float time) {
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       float val = 0;
@@ -62,9 +63,9 @@ void MetaballsAnimationElement::draw(display::Display& display, int width,
         float bx = 0.25f + 0.5f * noise(i, 5, start_time_);
         float by = 0.25f + 0.5f * noise(i, 6, start_time_);
         float cx =
-            width * bx + std::sin(t * TWO_PI_F + i * 2.1f) * (width / 3.5f);
-        float cy =
-            height * by + std::cos(t * TWO_PI_F + i * 3.3f) * (height / 3.5f);
+            width * bx + std::sin(time * TWO_PI_F + i * 2.1f) * (width / 3.5f);
+        float cy = height * by +
+                   std::cos(time * TWO_PI_F + i * 3.3f) * (height / 3.5f);
         float dx = x - cx;
         float dy = y - cy;
         float dist2 = dx * dx + dy * dy;
@@ -81,23 +82,23 @@ void MetaballsAnimationElement::draw(display::Display& display, int width,
 // ---------------------------------------------------------------------------
 
 void AuroraAnimationElement::draw(display::Display& display, int width,
-                                  int height, uint32_t time) {
-  float t = time / 8000.0f;
+                                  int height, float time) {
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       float nx = x / (float)width;
       float ny = y / (float)height;
       float b1 = std::exp(-std::pow(
-          (ny - (0.25f + 0.15f * std::sin(nx * 6.0f + t * TWO_PI_F))) / 0.12f,
+          (ny - (0.25f + 0.15f * std::sin(nx * 6.0f + time * TWO_PI_F))) /
+              0.12f,
           2.0f));
       float b2 = std::exp(-std::pow(
-          (ny -
-           (0.50f + 0.12f * std::sin(nx * 4.5f - t * TWO_PI_F * 0.7f + 1.5f))) /
+          (ny - (0.50f +
+                 0.12f * std::sin(nx * 4.5f - time * TWO_PI_F * 0.7f + 1.5f))) /
               0.10f,
           2.0f));
       float b3 = std::exp(-std::pow(
-          (ny -
-           (0.75f + 0.10f * std::sin(nx * 7.5f + t * TWO_PI_F * 1.3f + 3.0f))) /
+          (ny - (0.75f +
+                 0.10f * std::sin(nx * 7.5f + time * TWO_PI_F * 1.3f + 3.0f))) /
               0.08f,
           2.0f));
       float val = std::min(b1 + b2 * 0.8f + b3 * 0.6f, 1.0f);
@@ -111,14 +112,13 @@ void AuroraAnimationElement::draw(display::Display& display, int width,
 // ---------------------------------------------------------------------------
 
 void KaleidoscopeAnimationElement::draw(display::Display& display, int width,
-                                        int height, uint32_t time) {
-  float t = time / 8000.0f;
+                                        int height, float time) {
   const int segments = 6;
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       float dx = x - width / 2.0f;
       float dy = y - height / 2.0f;
-      float angle = std::atan2(dy, dx) + t * TWO_PI_F;
+      float angle = std::atan2(dy, dx) + time * TWO_PI_F;
       float dist = std::sqrt(dx * dx + dy * dy);
       float seg_angle = std::fmod(std::abs(angle), TWO_PI_F / segments);
       if (seg_angle > TWO_PI_F / (2 * segments)) {
@@ -126,8 +126,8 @@ void KaleidoscopeAnimationElement::draw(display::Display& display, int width,
       }
       float tx = dist * std::cos(seg_angle);
       float ty = dist * std::sin(seg_angle);
-      float val = std::sin(tx / 3.0f + t * TWO_PI_F) *
-                  std::cos(ty / 3.0f - t * TWO_PI_F * 0.7f);
+      float val = std::sin(tx / 3.0f + time * TWO_PI_F) *
+                  std::cos(ty / 3.0f - time * TWO_PI_F * 0.7f);
       val = (val + 1.0f) / 2.0f;
       display.draw_pixel_at(x, y, get_color_(val));
     }
@@ -139,20 +139,19 @@ void KaleidoscopeAnimationElement::draw(display::Display& display, int width,
 // ---------------------------------------------------------------------------
 
 void PlasmaAnimationElement::draw(display::Display& display, int width,
-                                  int height, uint32_t time) {
-  float t = time / 5000.0f;
+                                  int height, float time) {
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       float nx = x / (float)width;
       float ny = y / (float)height;
-      float val = std::sin(nx * 10.0f + t * TWO_PI_F);
-      val += std::sin(10.0f * (nx * std::sin(t * PI_F) +
-                               ny * std::cos(t * TWO_PI_F * 0.5f)) +
-                      t * TWO_PI_F);
-      float cx = nx + 0.5f * std::sin(t * TWO_PI_F * 0.33f);
-      float cy = ny + 0.5f * std::cos(t * TWO_PI_F * 0.5f);
+      float val = std::sin(nx * 10.0f + time * TWO_PI_F);
+      val += std::sin(10.0f * (nx * std::sin(time * PI_F) +
+                               ny * std::cos(time * TWO_PI_F * 0.5f)) +
+                      time * TWO_PI_F);
+      float cx = nx + 0.5f * std::sin(time * TWO_PI_F * 0.33f);
+      float cy = ny + 0.5f * std::cos(time * TWO_PI_F * 0.5f);
       val += std::sin(std::sqrt(128.0f * (cx * cx + cy * cy) + 1.0f) +
-                      t * TWO_PI_F);
+                      time * TWO_PI_F);
       val = (val / 3.0f + 1.0f) / 2.0f;
       display.draw_pixel_at(x, y, get_color_(val));
     }
@@ -164,14 +163,13 @@ void PlasmaAnimationElement::draw(display::Display& display, int width,
 // ---------------------------------------------------------------------------
 
 void RipplesAnimationElement::draw(display::Display& display, int width,
-                                   int height, uint32_t time) {
-  float t = time / 1000.0f;
+                                   int height, float time) {
   float max_radius = std::max(width, height) * 0.6f;
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       float val = 0.0f;
       for (int i = 0; i < count_; i++) {
-        float burst_t = fract(t * 0.2f + i * (1.0f / count_));
+        float burst_t = fract(time * 0.2f + i * (1.0f / count_));
         float cx = (0.1f + 0.8f * noise(i, 0, start_time_)) * width;
         float cy = (0.1f + 0.8f * noise(i, 1, start_time_)) * height;
         float radius = burst_t * max_radius;
@@ -191,8 +189,7 @@ void RipplesAnimationElement::draw(display::Display& display, int width,
 // ---------------------------------------------------------------------------
 
 void SpiralAnimationElement::draw(display::Display& display, int width,
-                                  int height, uint32_t time) {
-  float t = time / 5000.0f;
+                                  int height, float time) {
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       float cx = width / 2.0f;
@@ -204,7 +201,7 @@ void SpiralAnimationElement::draw(display::Display& display, int width,
         angle += TWO_PI_F;
       }
       float dist = std::sqrt(dx * dx + dy * dy);
-      float val = std::fmod(angle / TWO_PI_F + dist / 8.0f - t, 1.0f);
+      float val = std::fmod(angle / TWO_PI_F + dist / 8.0f - time, 1.0f);
       if (val < 0) {
         val += 1.0f;
       }
@@ -218,8 +215,7 @@ void SpiralAnimationElement::draw(display::Display& display, int width,
 // ---------------------------------------------------------------------------
 
 void VoronoiAnimationElement::draw(display::Display& display, int width,
-                                   int height, uint32_t time) {
-  float t = time / 5000.0f;
+                                   int height, float time) {
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       float min_dist = 1000.0f;
@@ -229,9 +225,10 @@ void VoronoiAnimationElement::draw(display::Display& display, int width,
         float orbit_r_x = width / 4.0f * (0.5f + noise(i, 2, start_time_));
         float orbit_r_y = height / 4.0f * (0.5f + noise(i, 3, start_time_));
         float phase = i * 1.0472f;
-        float px = width * base_x + std::sin(t * TWO_PI_F + phase) * orbit_r_x;
+        float px =
+            width * base_x + std::sin(time * TWO_PI_F + phase) * orbit_r_x;
         float py = height * base_y +
-                   std::cos(t * TWO_PI_F + phase * 1.618f) * orbit_r_y;
+                   std::cos(time * TWO_PI_F + phase * 1.618f) * orbit_r_y;
         float dx = x - px;
         float dy = y - py;
         float dist = std::sqrt(dx * dx + dy * dy);
@@ -249,19 +246,18 @@ void VoronoiAnimationElement::draw(display::Display& display, int width,
 // ---------------------------------------------------------------------------
 
 void InterferenceAnimationElement::draw(display::Display& display, int width,
-                                        int height, uint32_t time) {
-  float t = time / 5000.0f;
+                                        int height, float time) {
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       float v = 0;
       for (int i = 0; i < count_; i++) {
         float phase = i * TWO_PI_F / (float)count_;
         float cx =
-            width * (0.5f + 0.35f * std::sin(t * TWO_PI_F * 0.2f + phase));
+            width * (0.5f + 0.35f * std::sin(time * TWO_PI_F * 0.2f + phase));
         float cy =
-            height * (0.5f + 0.35f * std::cos(t * TWO_PI_F * 0.3f + phase));
+            height * (0.5f + 0.35f * std::cos(time * TWO_PI_F * 0.3f + phase));
         float d = std::sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy));
-        v += std::sin(d * 0.4f - t * TWO_PI_F);
+        v += std::sin(d * 0.4f - time * TWO_PI_F);
       }
       float val = (v / (float)count_ + 1.0f) / 2.0f;
       display.draw_pixel_at(x, y, get_color_(val));
@@ -274,17 +270,21 @@ void InterferenceAnimationElement::draw(display::Display& display, int width,
 // ---------------------------------------------------------------------------
 
 void JuliaAnimationElement::draw(display::Display& display, int width,
-                                 int height, uint32_t time) {
-  float t = time / 5000.0f;
-  float off_x = 0.2f * std::sin(t * TWO_PI_F * 0.11f);
-  float off_y = 0.2f * std::cos(t * TWO_PI_F * 0.13f);
+                                 int height, float time) {
+  float off_x = 0.2f * std::sin(time * TWO_PI_F * 0.11f);
+  float off_y = 0.2f * std::cos(time * TWO_PI_F * 0.13f);
+  float zoom = 2.0f + 1.5f * std::sin(time * TWO_PI_F * 0.17f);
+  float cx = -0.4f + 0.6f * std::sin(time * TWO_PI_F * 0.33f);
+  float cy = 0.618f * std::cos(time * TWO_PI_F * 0.41f);
+
+  float zoom_width_factor = 0.5f * zoom * width;
+  float zoom_height_factor = 0.5f * zoom * height;
+
   for (int y = 0; y < height; ++y) {
+    float zy_init = 1.0f * (y - height / 2.0f) / zoom_height_factor + off_y;
     for (int x = 0; x < width; ++x) {
-      float zoom = 2.0f + 1.5f * std::sin(t * TWO_PI_F * 0.17f);
-      float zx = 1.5f * (x - width / 2.0f) / (0.5f * zoom * width) + off_x;
-      float zy = 1.0f * (y - height / 2.0f) / (0.5f * zoom * height) + off_y;
-      float cx = -0.4f + 0.6f * std::sin(t * TWO_PI_F * 0.33f);
-      float cy = 0.618f * std::cos(t * TWO_PI_F * 0.41f);
+      float zx = 1.5f * (x - width / 2.0f) / zoom_width_factor + off_x;
+      float zy = zy_init;
       int i = 0;
       while (zx * zx + zy * zy < 4 && i < 16) {
         float tmp = zx * zx - zy * zy + cx;
@@ -303,17 +303,16 @@ void JuliaAnimationElement::draw(display::Display& display, int width,
 // ---------------------------------------------------------------------------
 
 void MatrixAnimationElement::draw(display::Display& display, int width,
-                                  int height, uint32_t time) {
-  float t = time / 2500.0f;
+                                  int height, float time) {
   for (int x = 0; x < width; ++x) {
     if (noise(x, 0, 123) > (1.0f - density_)) {
       uint32_t column_seed = hash(x + start_time_);
       float speed_mult = 0.5f + 1.0f * (noise(x, 1, column_seed));
       float drop_y = std::fmod(
-          t * height * 2.0f * speed_mult + noise(x, 2, column_seed) * height,
+          time * height * 2.0f * speed_mult + noise(x, 2, column_seed) * height,
           (float)height * 2.0f);
       float gradient_offset = std::fmod(
-          noise(x, 3, column_seed) + t * 0.05f * noise(x, 4, column_seed),
+          noise(x, 3, column_seed) + time * 0.05f * noise(x, 4, column_seed),
           1.0f);
       for (int y = 0; y < height; ++y) {
         float dist = (float)y - drop_y;
@@ -337,7 +336,7 @@ void FireAnimationElement::on_hide() {
 }
 
 void FireAnimationElement::draw(display::Display& display, int width,
-                                int height, uint32_t time) {
+                                int height, float time) {
   int size = width * height;
   if (heat_buffer_.size() != size) {
     heat_buffer_.assign(size, 0.0f);
@@ -349,11 +348,10 @@ void FireAnimationElement::draw(display::Display& display, int width,
     next_heat.assign(size, 0.0f);
   }
   // Seed the bottom row with noise
-  float t = time / 200.0f;
   for (int x = 0; x < width; x++) {
     // Seed with full [0, 1] range, but keep it hot overall
     next_heat[(height - 1) * width + x] =
-        std::pow(noise(x, (int)t, start_time_), 0.5f);
+        std::pow(noise(x, (int)time, start_time_), 0.5f);
   }
   // Propagate heat upwards with diffusion and cooling
   for (int y = 0; y < height - 1; y++) {
@@ -365,7 +363,7 @@ void FireAnimationElement::draw(display::Display& display, int width,
       h += heat_buffer_[(y + 1) * width + std::min(width - 1, x + 1)];
       h = (h / 3.0f) * strength_;
       // Random jitter for the cooling factor makes it look "wispy"
-      float jitter = 0.8f + 0.4f * noise(x, y, (int)(time / 100));
+      float jitter = 0.8f + 0.4f * noise(x, y, (int)(time * 2.0f));
       // Cooling factor increases with height to ensure it hits black at the top
       float height_factor = 1.0f + (float)(height - 1 - y) / height;
       next_heat[y * width + x] =
@@ -388,8 +386,7 @@ void FireAnimationElement::draw(display::Display& display, int width,
 // ---------------------------------------------------------------------------
 
 void TunnelAnimationElement::draw(display::Display& display, int width,
-                                  int height, uint32_t time) {
-  float t = time / 2000.0f;
+                                  int height, float time) {
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       float dx = x - width / 2.0f;
@@ -397,7 +394,7 @@ void TunnelAnimationElement::draw(display::Display& display, int width,
       float dist = std::sqrt(dx * dx + dy * dy) + 0.1f;
       float angle = fract(std::atan2(dy, dx) / TWO_PI_F);
       float depth = 10.0f / dist;
-      float stripe = fract(depth - t * 2.0f);
+      float stripe = fract(depth - time * 2.0f);
       float twist = fract(angle + depth * 0.25f);
       float val = fract(stripe + twist);
       display.draw_pixel_at(x, y, get_color_(val));
@@ -410,14 +407,13 @@ void TunnelAnimationElement::draw(display::Display& display, int width,
 // ---------------------------------------------------------------------------
 
 void WaveAnimationElement::draw(display::Display& display, int width,
-                                int height, uint32_t time) {
-  float t = time / 3000.0f;
+                                int height, float time) {
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       float nx = x / (float)width;
       float ny = y / (float)height;
-      float v = std::sin(nx * 15.0f + t * TWO_PI_F);
-      v += std::sin(ny * 10.0f - t * TWO_PI_F * 0.5f);
+      float v = std::sin(nx * 15.0f + time * TWO_PI_F);
+      v += std::sin(ny * 10.0f - time * TWO_PI_F * 0.5f);
       float val = (v / 2.0f + 1.0f) / 2.0f;
       display.draw_pixel_at(x, y, get_color_(val));
     }
@@ -429,21 +425,23 @@ void WaveAnimationElement::draw(display::Display& display, int width,
 // ---------------------------------------------------------------------------
 
 void StarsAnimationElement::draw(display::Display& display, int width,
-                                 int height, uint32_t time) {
-  float t = time / 5000.0f;
+                                 int height, float time) {
+  float threshold = 1.0f - density_;
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       uint32_t seed = start_time_ + y * width + x;
       float base_brightness = noise(x, y, seed);
-      // Each star has its own twinkle frequency and phase
-      float freq = 0.5f + noise(x, y, seed + 1) * 2.0f;
-      float phase = noise(x, y, seed + 2) * TWO_PI_F;
-      float twinkle = (std::sin(t * freq * TWO_PI_F + phase) + 1.0f) / 2.0f;
-      // Only show pixels above a density threshold
-      float threshold = 1.0f - density_;
-      float val =
-          (base_brightness > threshold) ? base_brightness * twinkle : 0.0f;
-      display.draw_pixel_at(x, y, get_color_(val));
+      if (base_brightness > threshold) {
+        // Each star has its own twinkle frequency and phase
+        float freq = 0.5f + noise(x, y, seed + 1) * 2.0f;
+        float phase = noise(x, y, seed + 2) * TWO_PI_F;
+        float twinkle =
+            (std::sin(time * freq * TWO_PI_F + phase) + 1.0f) / 2.0f;
+        float val = base_brightness * twinkle;
+        display.draw_pixel_at(x, y, get_color_(val));
+      } else {
+        display.draw_pixel_at(x, y, get_color_(0.0f));
+      }
     }
   }
 }
@@ -453,8 +451,7 @@ void StarsAnimationElement::draw(display::Display& display, int width,
 // ---------------------------------------------------------------------------
 
 void ParallaxAnimationElement::draw(display::Display& display, int width,
-                                    int height, uint32_t time) {
-  float t = time / 1000.0f;
+                                    int height, float time) {
   float seg = 1.0f / (num_layers_ + 1);
   // Draw background sky using the first segment of the color scheme.
   for (int y = 0; y < height; y++) {
@@ -466,7 +463,7 @@ void ParallaxAnimationElement::draw(display::Display& display, int width,
   for (int l = 0; l < num_layers_; l++) {
     float layer_p = (num_layers_ > 1) ? (float)l / (num_layers_ - 1) : 1.0f;
     float parallax = 0.05f + 0.95f * layer_p;
-    float offset = t * speed_ * parallax * 15.0f;
+    float offset = time * speed_ * parallax * 15.0f;
     for (int x = 0; x < width; x++) {
       float nx = (x + offset) * (0.04f + 0.06f * (1.0f - layer_p));
       float noise_val = 0;
@@ -501,10 +498,9 @@ void ParallaxAnimationElement::draw(display::Display& display, int width,
 // ---------------------------------------------------------------------------
 
 void SolidAnimationElement::draw(display::Display& display, int width,
-                                 int height, uint32_t time) {
-  const float t = time / 8000.0f;
-  const float ax = t * TWO_PI_F * 0.397f;
-  const float ay = t * TWO_PI_F;
+                                 int height, float time) {
+  const float ax = time * TWO_PI_F * 0.397f;
+  const float ay = time * TWO_PI_F;
   const float cx_r = std::cos(ax), sx_r = std::sin(ax);
   const float cy_r = std::cos(ay), sy_r = std::sin(ay);
   const float scale = std::min(width, height) * 0.42f;
@@ -571,7 +567,7 @@ void LorenzAnimationElement::on_show() {
 }
 
 void LorenzAnimationElement::draw(display::Display& display, int width,
-                                  int height, uint32_t time) {
+                                  int height, float time) {
   for (int i = 0; i < 2; i++) {
     this->step_();
     points_.push_back({x_, y_, z_});
@@ -580,9 +576,8 @@ void LorenzAnimationElement::draw(display::Display& display, int width,
     points_.pop_front();
   }
   if (points_.size() < 2) return;
-  float t = time / 10000.0f;
-  float ax = t * TWO_PI_F * 0.2f;
-  float ay = t * TWO_PI_F * 0.3f;
+  float ax = time * TWO_PI_F * 0.2f;
+  float ay = time * TWO_PI_F * 0.3f;
   float cx_r = std::cos(ax), sx_r = std::sin(ax);
   float cy_r = std::cos(ay), sy_r = std::sin(ay);
   float scale = std::min(width, height) * 0.015f;

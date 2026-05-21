@@ -23,7 +23,7 @@ class AnimationElement : public Element {
 
   void draw(display::Display& display) override;
   virtual void draw(display::Display& display, int width, int height,
-                    uint32_t time) = 0;
+                    float time) = 0;
 
   void on_show() override;
 
@@ -33,6 +33,7 @@ class AnimationElement : public Element {
   float speed_{1.0f};
 
   Color get_color_(float p) { return color_scheme_->get_color(p); }
+  virtual float get_time_scale_() const { return 1.0f; }
 };
 
 class MetaballsAnimationElement : public AnimationElement {
@@ -42,10 +43,11 @@ class MetaballsAnimationElement : public AnimationElement {
 
   void set_count(int count) { count_ = count; }
   void draw(display::Display& display, int width, int height,
-            uint32_t time) override;
+            float time) override;
 
  protected:
   int count_{3};
+  float get_time_scale_() const override { return 1.0f / 5.0f; }
 };
 
 class AuroraAnimationElement : public AnimationElement {
@@ -54,7 +56,10 @@ class AuroraAnimationElement : public AnimationElement {
   const char* get_type_name() const override { return "aurora_animation"; }
 
   void draw(display::Display& display, int width, int height,
-            uint32_t time) override;
+            float time) override;
+
+ protected:
+  float get_time_scale_() const override { return 1.0f / 8.0f; }
 };
 
 class KaleidoscopeAnimationElement : public AnimationElement {
@@ -65,7 +70,10 @@ class KaleidoscopeAnimationElement : public AnimationElement {
   }
 
   void draw(display::Display& display, int width, int height,
-            uint32_t time) override;
+            float time) override;
+
+ protected:
+  float get_time_scale_() const override { return 1.0f / 8.0f; }
 };
 
 class PlasmaAnimationElement : public AnimationElement {
@@ -74,7 +82,10 @@ class PlasmaAnimationElement : public AnimationElement {
   const char* get_type_name() const override { return "plasma_animation"; }
 
   void draw(display::Display& display, int width, int height,
-            uint32_t time) override;
+            float time) override;
+
+ protected:
+  float get_time_scale_() const override { return 1.0f / 5.0f; }
 };
 
 class RipplesAnimationElement : public AnimationElement {
@@ -84,7 +95,7 @@ class RipplesAnimationElement : public AnimationElement {
 
   void set_count(int count) { count_ = count; }
   void draw(display::Display& display, int width, int height,
-            uint32_t time) override;
+            float time) override;
 
  protected:
   int count_{8};
@@ -96,7 +107,10 @@ class SpiralAnimationElement : public AnimationElement {
   const char* get_type_name() const override { return "spiral_animation"; }
 
   void draw(display::Display& display, int width, int height,
-            uint32_t time) override;
+            float time) override;
+
+ protected:
+  float get_time_scale_() const override { return 1.0f / 5.0f; }
 };
 
 class VoronoiAnimationElement : public AnimationElement {
@@ -106,10 +120,11 @@ class VoronoiAnimationElement : public AnimationElement {
 
   void set_count(int count) { count_ = count; }
   void draw(display::Display& display, int width, int height,
-            uint32_t time) override;
+            float time) override;
 
  protected:
   int count_{5};
+  float get_time_scale_() const override { return 1.0f / 5.0f; }
 };
 
 class InterferenceAnimationElement : public AnimationElement {
@@ -121,10 +136,11 @@ class InterferenceAnimationElement : public AnimationElement {
 
   void set_count(int count) { count_ = count; }
   void draw(display::Display& display, int width, int height,
-            uint32_t time) override;
+            float time) override;
 
  protected:
   int count_{3};
+  float get_time_scale_() const override { return 1.0f / 5.0f; }
 };
 
 class JuliaAnimationElement : public AnimationElement {
@@ -133,7 +149,10 @@ class JuliaAnimationElement : public AnimationElement {
   const char* get_type_name() const override { return "julia_animation"; }
 
   void draw(display::Display& display, int width, int height,
-            uint32_t time) override;
+            float time) override;
+
+ protected:
+  float get_time_scale_() const override { return 1.0f / 5.0f; }
 };
 
 class MatrixAnimationElement : public AnimationElement {
@@ -145,11 +164,12 @@ class MatrixAnimationElement : public AnimationElement {
   void set_length(float length) { length_ = length; }
 
   void draw(display::Display& display, int width, int height,
-            uint32_t time) override;
+            float time) override;
 
  protected:
   float length_{10.0f};
   float density_{0.5f};
+  float get_time_scale_() const override { return 1.0f / 2.5f; }
 };
 
 class FireAnimationElement : public AnimationElement {
@@ -162,12 +182,13 @@ class FireAnimationElement : public AnimationElement {
 
   void on_hide() override;
   void draw(display::Display& display, int width, int height,
-            uint32_t time) override;
+            float time) override;
 
  protected:
   float strength_{0.98f};
   float cooling_{0.02f};
   std::vector<float> heat_buffer_;
+  float get_time_scale_() const override { return 5.0f; }
 };
 
 class TunnelAnimationElement : public AnimationElement {
@@ -176,7 +197,10 @@ class TunnelAnimationElement : public AnimationElement {
   const char* get_type_name() const override { return "tunnel_animation"; }
 
   void draw(display::Display& display, int width, int height,
-            uint32_t time) override;
+            float time) override;
+
+ protected:
+  float get_time_scale_() const override { return 1.0f / 2.0f; }
 };
 
 class WaveAnimationElement : public AnimationElement {
@@ -185,7 +209,10 @@ class WaveAnimationElement : public AnimationElement {
   const char* get_type_name() const override { return "wave_animation"; }
 
   void draw(display::Display& display, int width, int height,
-            uint32_t time) override;
+            float time) override;
+
+ protected:
+  float get_time_scale_() const override { return 1.0f / 3.0f; }
 };
 
 class StarsAnimationElement : public AnimationElement {
@@ -196,10 +223,11 @@ class StarsAnimationElement : public AnimationElement {
   void set_density(float density) { density_ = density; }
 
   void draw(display::Display& display, int width, int height,
-            uint32_t time) override;
+            float time) override;
 
  protected:
   float density_{0.05f};
+  float get_time_scale_() const override { return 1.0f / 5.0f; }
 };
 
 struct Vec3 {
@@ -225,13 +253,14 @@ class SolidAnimationElement : public AnimationElement {
   }
 
   void draw(display::Display& display, int width, int height,
-            uint32_t time) override;
+            float time) override;
 
  protected:
   const Vec3* points_{nullptr};
   size_t num_points_{0};
   const Edge* edges_{nullptr};
   size_t num_edges_{0};
+  float get_time_scale_() const override { return 1.0f / 8.0f; }
 };
 
 class ParallaxAnimationElement : public AnimationElement {
@@ -242,7 +271,7 @@ class ParallaxAnimationElement : public AnimationElement {
   void set_num_layers(int num_layers) { num_layers_ = num_layers; }
 
   void draw(display::Display& display, int width, int height,
-            uint32_t time) override;
+            float time) override;
 
  protected:
   int num_layers_{3};
@@ -260,7 +289,7 @@ class LorenzAnimationElement : public AnimationElement {
 
   void on_show() override;
   void draw(display::Display& display, int width, int height,
-            uint32_t time) override;
+            float time) override;
 
  protected:
   void step_();
@@ -271,6 +300,7 @@ class LorenzAnimationElement : public AnimationElement {
   float sigma_{10.0f};
   float rho_{28.0f};
   float beta_{8.0f / 3.0f};
+  float get_time_scale_() const override { return 1.0f / 10.0f; }
 };
 
 }  // namespace esphome::elements

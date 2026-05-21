@@ -14,7 +14,11 @@ CONF_COLOR_SCHEME = "color_scheme"
 CONF_COOLING = "cooling"
 CONF_COUNT = "count"
 CONF_DENSITY = "density"
+CONF_DISPLAY = "display"
+CONF_DRAW = "draw"
+CONF_ELEMENT = "element"
 CONF_FADE_STEPS = "fade_steps"
+CONF_IS_ACTIVE = "is_active"
 CONF_LAYERS = "layers"
 CONF_LENGTH = "length"
 CONF_RHO = "rho"
@@ -522,4 +526,57 @@ element_registry.register_element(
     "lorenz_animation",
     LORENZ_ANIMATION_ELEMENT_SCHEMA,
     lorenz_animation_to_code,
+)
+
+
+# Custom Animation Element
+
+CustomAnimationElement = shared.elements_ns.class_(
+    "CustomAnimationElement", AnimationElement
+)
+
+CUSTOM_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
+    {
+        cv.GenerateID(CONF_ID): cv.declare_id(CustomAnimationElement),
+        cv.Optional(CONF_DRAW): cv.lambda_,
+        cv.Optional(CONF_IS_ACTIVE): cv.returning_lambda,
+    }
+)
+
+
+async def custom_animation_to_code(config, component, parent):
+    var = await animation_element_to_code(config, component, parent)
+    if conf := config.get(CONF_DRAW):
+        value = await cg.process_lambda(
+            conf,
+            [
+                (shared.ElementRef, CONF_ELEMENT),
+                (shared.DisplayRef, CONF_DISPLAY),
+                (cg.int_, "width"),
+                (cg.int_, "height"),
+                (cg.float_, "time"),
+            ],
+            return_type=cg.void,
+        )
+        cg.add(var.set_draw(value))
+    if conf := config.get(CONF_IS_ACTIVE):
+        value = await cg.process_lambda(
+            conf,
+            [(shared.ElementConstRef, CONF_ELEMENT)],
+            return_type=cg.bool_,
+        )
+        cg.add(var.set_is_active(value))
+    return var
+
+
+element_registry.register_element(
+    "custom",
+    CUSTOM_ANIMATION_ELEMENT_SCHEMA,
+    custom_animation_to_code,
+)
+
+element_registry.register_element(
+    "custom_animation",
+    CUSTOM_ANIMATION_ELEMENT_SCHEMA,
+    custom_animation_to_code,
 )

@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstdint>
 #include <deque>
+#include <functional>
 #include <numbers>
 #include <vector>
 
@@ -301,6 +302,34 @@ class LorenzAnimationElement : public AnimationElement {
   float rho_{28.0f};
   float beta_{8.0f / 3.0f};
   float get_time_scale_() const override { return 1.0f / 10.0f; }
+};
+
+class CustomAnimationElement : public AnimationElement {
+ public:
+  using AnimationElement::AnimationElement;
+  const char* get_type_name() const override { return "custom_animation"; }
+
+  using DrawFunction = std::function<void(CustomAnimationElement&,
+                                          display::Display&, int, int, float)>;
+  using PredicateFunction = std::function<bool(const CustomAnimationElement&)>;
+
+  void set_draw(DrawFunction draw) { draw_ = std::move(draw); }
+  void set_is_active(PredicateFunction is_active) {
+    is_active_ = std::move(is_active);
+  }
+
+  void draw(display::Display& display, int width, int height,
+            float time) override;
+
+  bool is_active() override;
+
+ protected:
+  DrawFunction draw_{test_draw_};
+  PredicateFunction is_active_;
+
+  static void test_draw_(CustomAnimationElement& element,
+                         display::Display& display, int width, int height,
+                         float time);
 };
 
 }  // namespace esphome::elements

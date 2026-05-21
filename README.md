@@ -217,14 +217,14 @@ The `solid_animation` supports the following shapes:
 
 ### Custom Element
 
-Allows for user-defined, highly specific visual elements or behaviors beyond the built-in options.
+Allows for user-defined, highly specific visual elements or behaviors beyond the built-in options. Both `type: custom` and `type: custom_animation` are supported.
 
 The following configuration variables are supported:
 
-- **draw** (Optional, lambda): A lambda function that defines how the element is rendered on the display. This is the core of a custom element, allowing you to draw anything you want using the [Display](https://esphome.io/components/display/index.html#display-rendering-engine) drawing primitives. The variable `element` refers to the custom element, `display` to the render display. If the lambda is not set, the [default lissajous animation](#basic-setup) is displayed.
+- **draw** (Optional, lambda): A lambda function that defines how the element is rendered on the display. This is the core of a custom element, allowing you to draw anything you want using the [Display](https://esphome.io/components/display/index.html#display-rendering-engine) drawing primitives. The variable `element` refers to the custom element, `display` to the render display, `width` and `height` to the display dimensions (integers), and `time` to the pre-scaled drift-free relative elapsed time in seconds (float). If the lambda is not set, the default lissajous animation is displayed.
 - **is_active** (Optional, lambda): A lambda that returns a boolean which determines whether the element is currently active and should be displayed. The variable `element` refers to the custom element.
 
-The following example displays a yellow circle when the weather is sunny, and otherwise a blue rectangle:
+The following example displays a yellow circle in the center of the display when the weather is sunny, and otherwise a blue rectangle, automatically adapting to the display dimensions:
 
 ```yaml
 type: custom
@@ -232,10 +232,12 @@ is_active: |-
   return id(outside_weather).has_state();
 draw: |-
   auto state = id(outside_weather).state;
+  int cx = width / 2;
+  int cy = height / 2;
   if (state == "sunny") {
-    display.filled_circle(16, 16, 8, Color(0xffff00));
+    display.filled_circle(cx, cy, 8, Color(0xffff00));
   } else {
-    display.filled_rectangle(8, 8, 16, 16, Color(0x0000ff));
+    display.filled_rectangle(cx - 8, cy - 8, 16, 16, Color(0x0000ff));
   }
 ```
 

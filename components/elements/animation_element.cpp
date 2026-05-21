@@ -602,4 +602,44 @@ void LorenzAnimationElement::draw(display::Display& display, int width,
   }
 }
 
+// ---------------------------------------------------------------------------
+// CustomAnimationElement
+// ---------------------------------------------------------------------------
+
+void CustomAnimationElement::draw(display::Display& display, int width,
+                                  int height, float time) {
+  if (draw_) {
+    draw_(*this, display, width, height, time);
+  }
+}
+
+bool CustomAnimationElement::is_active() {
+  if (is_active_) {
+    return is_active_(*this);
+  }
+  return AnimationElement::is_active();
+}
+
+void CustomAnimationElement::test_draw_(CustomAnimationElement& element,
+                                        display::Display& display, int width,
+                                        int height, float time) {
+  int center_x = width / 2;
+  int center_y = height / 2;
+  float delta = std::fmod(time / 2.0f, TWO_PI_F);
+  int x1 = center_x;
+  int y1 = (center_y * std::sin(delta)) + center_y;
+  for (int i = 1; i <= 0xff; i++) {
+    float t = TWO_PI_F * i / 255.0f;
+    float r;
+    float g;
+    float b;
+    hsv_to_rgb(360 * i / 0xff, 1.0f, 1.0f, r, g, b);
+    int x2 = (center_x * std::sin(2.0f * t)) + center_x;
+    int y2 = (center_y * std::sin((3.0f * t) + delta)) + center_y;
+    display.line(x1, y1, x2, y2, Color(0xff * r, 0xff * g, 0xff * b));
+    x1 = x2;
+    y1 = y2;
+  }
+}
+
 }  // namespace esphome::elements

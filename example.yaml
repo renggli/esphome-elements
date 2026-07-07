@@ -43,7 +43,7 @@ sensor:
   # External Sensors
   - id: outside_temperature
     platform: homeassistant
-    entity_id: sensor.meteo_swiss_temperature
+    entity_id: sensor.zurich_wiedikon_air_temperature
     on_value:
       then:
         - lambda: |-
@@ -53,7 +53,7 @@ sensor:
             id(outside_temperature_text_element).set_text(str_snprintf("%.1f °C", 12, x));
   - id: inside_temperature
     platform: homeassistant
-    entity_id: sensor.apollo_air_1_sen55_temperature
+    entity_id: sensor.average_home_temperature
     on_value:
       then:
         - lambda: |-
@@ -108,10 +108,10 @@ sensor:
     entity_id: sensor.zurich_moon_illumination_fraction
   - id: wind_direction
     platform: homeassistant
-    entity_id: sensor.meteo_swiss_wind_direction
+    entity_id: sensor.zurich_wiedikon_wind_direction
   - id: wind_speed
     platform: homeassistant
-    entity_id: sensor.meteo_swiss_wind_speed
+    entity_id: sensor.zurich_wiedikon_wind_speed_scalar
 text_sensor:
   # External Sensors
   - platform: homeassistant
@@ -234,17 +234,17 @@ elements:
         id: message_text_element
         font: font_spleen_5x8
         scroll_mode: LEFT_TO_RIGHT
-        scroll_speed: 24  # pixel per second
+        scroll_speed: 24 # pixel per second
         color: purple_500
         on_complete:
           - then:
-            - elements.next: primary_elements
+              - elements.next: primary_elements
       # Time and Date
       - type: timeout
         duration: 10s
         on_complete:
           - then:
-            - elements.next: primary_elements
+              - elements.next: primary_elements
         element:
           type: vertical
           elements:
@@ -268,8 +268,8 @@ elements:
         duration: 10s
         on_complete:
           - then:
-            - elements.next: primary_elements
-            - elements.next: weather_sequence
+              - elements.next: primary_elements
+              - elements.next: weather_sequence
         element:
           type: sequence
           id: weather_sequence
@@ -280,50 +280,50 @@ elements:
               elements:
                 - type: horizontal
                   elements:
-                  - type: image
-                    id: weather_condition_1h_image
-                    scale: 0.3
-                  - type: image
-                    id: weather_condition_2h_image
-                    scale: 0.3
-                  - type: image
-                    id: weather_condition_3h_image
-                    scale: 0.3
+                    - type: image
+                      id: weather_condition_1h_image
+                      scale: 0.3
+                    - type: image
+                      id: weather_condition_2h_image
+                      scale: 0.3
+                    - type: image
+                      id: weather_condition_3h_image
+                      scale: 0.3
                 - type: horizontal
                   elements:
-                  - type: image
-                    id: weather_condition_4h_image
-                    scale: 0.3
-                  - type: image
-                    id: weather_condition_5h_image
-                    scale: 0.3
-                  - type: image
-                    id: weather_condition_6h_image
-                    scale: 0.3
+                    - type: image
+                      id: weather_condition_4h_image
+                      scale: 0.3
+                    - type: image
+                      id: weather_condition_5h_image
+                      scale: 0.3
+                    - type: image
+                      id: weather_condition_6h_image
+                      scale: 0.3
             - type: vertical
               elements:
                 - type: horizontal
                   elements:
-                  - type: image
-                    id: weather_condition_1d_image
-                    scale: 0.5
-                  - type: image
-                    id: weather_condition_2d_image
-                    scale: 0.5
+                    - type: image
+                      id: weather_condition_1d_image
+                      scale: 0.5
+                    - type: image
+                      id: weather_condition_2d_image
+                      scale: 0.5
                 - type: horizontal
                   elements:
-                  - type: image
-                    id: weather_condition_3d_image
-                    scale: 0.5
-                  - type: image
-                    id: weather_condition_4d_image
-                    scale: 0.5
+                    - type: image
+                      id: weather_condition_3d_image
+                      scale: 0.5
+                    - type: image
+                      id: weather_condition_4d_image
+                      scale: 0.5
       # Calendar
       - type: timeout
         duration: 10s
         on_complete:
           - then:
-            - elements.next: primary_elements
+              - elements.next: primary_elements
         element:
           type: vertical
           active_mode: any
@@ -343,7 +343,7 @@ elements:
         duration: 10s
         on_complete:
           - then:
-            - elements.next: primary_elements
+              - elements.next: primary_elements
         element:
           type: vertical
           active_mode: any
@@ -363,7 +363,7 @@ elements:
         duration: 10s
         on_complete:
           - then:
-            - elements.next: primary_elements
+              - elements.next: primary_elements
         element:
           type: dynamic_text
           font: font_matrix_chunky_6
@@ -384,7 +384,7 @@ elements:
         duration: 10s
         on_complete:
           - then:
-            - elements.next: primary_elements
+              - elements.next: primary_elements
         element:
           type: vertical
           elements:
@@ -399,7 +399,7 @@ elements:
         duration: 10s
         on_complete:
           - then:
-            - elements.next: primary_elements
+              - elements.next: primary_elements
         element:
           type: vertical
           elements:
@@ -414,7 +414,7 @@ elements:
         duration: 10s
         on_complete:
           - then:
-            - elements.next: primary_elements
+              - elements.next: primary_elements
         element:
           type: custom
           is_active: |-
@@ -477,7 +477,7 @@ elements:
         duration: 10s
         on_complete:
           - then:
-            - elements.next: primary_elements
+              - elements.next: primary_elements
         element:
           type: clock
           time: current_time
@@ -498,8 +498,8 @@ elements:
         duration: 20s
         on_complete:
           - then:
-            - elements.next: primary_elements
-            - elements.next: animation_sequence
+              - elements.next: primary_elements
+              - elements.next: animation_sequence
         element:
           type: random
           id: animation_sequence

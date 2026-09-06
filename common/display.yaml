@@ -48,14 +48,14 @@ number:
 light:
   # Physical LED grids.
   - platform: esp32_rmt_led_strip
-    rgb_order: GRB
+    channel_colors: GRB
     id: led_grid_1
     pin: GPIO16
     num_leds: 512
     chipset: WS2812
     max_refresh_rate: 50ms
   - platform: esp32_rmt_led_strip
-    rgb_order: GRB
+    channel_colors: GRB
     id: led_grid_2
     pin: GPIO17
     num_leds: 512

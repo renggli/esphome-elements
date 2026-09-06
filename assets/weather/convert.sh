@@ -6,7 +6,6 @@ YAML_FILE="$BASE/weather.yaml"
 
 # Prepare the header of the yaml package.
 echo "image:" > $YAML_FILE
-echo "  rgb:" >> $YAML_FILE
 
 # Process all SVG files.
 for FILE in $BASE/*.svg; do
@@ -31,7 +30,9 @@ for FILE in $BASE/*.svg; do
     "${PNG_FILE}"
 
   # Write config.
-  echo "  - id: ${PNG_ID}" >> $YAML_FILE
+  echo "  - platform: file" >> $YAML_FILE
+  echo "    type: rgb" >> $YAML_FILE
+  echo "    id: ${PNG_ID}" >> $YAML_FILE
   echo "    file: ${PNG_FILE}" >> $YAML_FILE
 
 done

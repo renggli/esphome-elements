@@ -1,32 +1,61 @@
 image:
-  rgb:
-  - id: clear_night
+  - platform: file
+    type: rgb
+    id: clear_night
     file: assets/weather/clear-night.png
-  - id: cloudy
+  - platform: file
+    type: rgb
+    id: cloudy
     file: assets/weather/cloudy.png
-  - id: fog
+  - platform: file
+    type: rgb
+    id: fog
     file: assets/weather/fog.png
-  - id: hail
+  - platform: file
+    type: rgb
+    id: hail
     file: assets/weather/hail.png
-  - id: lightning_rainy
+  - platform: file
+    type: rgb
+    id: lightning_rainy
     file: assets/weather/lightning-rainy.png
-  - id: lightning
+  - platform: file
+    type: rgb
+    id: lightning
     file: assets/weather/lightning.png
-  - id: partlycloudy_night
+  - platform: file
+    type: rgb
+    id: partlycloudy_night
     file: assets/weather/partlycloudy-night.png
-  - id: partlycloudy
+  - platform: file
+    type: rgb
+    id: partlycloudy
     file: assets/weather/partlycloudy.png
-  - id: pouring
+  - platform: file
+    type: rgb
+    id: pouring
     file: assets/weather/pouring.png
-  - id: rainy
+  - platform: file
+    type: rgb
+    id: rainy
     file: assets/weather/rainy.png
-  - id: snowy_rainy
+  - platform: file
+    type: rgb
+    id: snowy_rainy
     file: assets/weather/snowy-rainy.png
-  - id: snowy
+  - platform: file
+    type: rgb
+    id: snowy
     file: assets/weather/snowy.png
-  - id: sunny
+  - platform: file
+    type: rgb
+    id: sunny
     file: assets/weather/sunny.png
-  - id: windy_variant
+  - platform: file
+    type: rgb
+    id: windy_variant
     file: assets/weather/windy-variant.png
-  - id: windy
+  - platform: file
+    type: rgb
+    id: windy
     file: assets/weather/windy.png

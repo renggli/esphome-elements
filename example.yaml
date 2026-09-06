@@ -40,7 +40,7 @@ esphome:
 
 # Sensors
 sensor:
-  # External Sensors
+  # External Sensors: Temperature
   - id: outside_temperature
     platform: homeassistant
     entity_id: sensor.zurich_wiedikon_air_temperature
@@ -61,6 +61,7 @@ sensor:
             uint8_t hue = remap<int, float>(clamp(x, min, max), min, max, 0x80, 0xff);
             id(inside_temperature_text_element).set_color(ESPHSVColor(hue, 0xff, 0xff).to_rgb());
             id(inside_temperature_text_element).set_text(str_snprintf("%.1f °C", 12, x));
+  # External Sensors: Particles
   - id: outside_particles
     platform: homeassistant
     entity_id: sensor.zurich_wiedikon_pm2_5_to_10
@@ -91,12 +92,21 @@ sensor:
               id(inside_particles_text_element).set_color(id(blue_gray_500));
               id(inside_particles_text_element).set_text("n/a");
             }
+  # External Sensors: Sun
   - id: sun_azimuth
     platform: homeassistant
     entity_id: sensor.sun_solar_azimuth
   - id: sun_elevation
     platform: homeassistant
     entity_id: sensor.sun_solar_elevation
+  # External Sensors: Wind
+  - id: wind_direction
+    platform: homeassistant
+    entity_id: sensor.zurich_wiedikon_wind_direction
+  - id: wind_speed
+    platform: homeassistant
+    entity_id: sensor.zurich_wiedikon_wind_speed_scalar
+  # External Sensors: Moon
   - id: moon_azimuth
     platform: homeassistant
     entity_id: sensor.zurich_moon_azimuth
@@ -106,14 +116,8 @@ sensor:
   - id: moon_illumination
     platform: homeassistant
     entity_id: sensor.zurich_moon_illumination_fraction
-  - id: wind_direction
-    platform: homeassistant
-    entity_id: sensor.zurich_wiedikon_wind_direction
-  - id: wind_speed
-    platform: homeassistant
-    entity_id: sensor.zurich_wiedikon_wind_speed_scalar
 text_sensor:
-  # External Sensors
+  # External Sensors: Weather
   - platform: homeassistant
     entity_id: sensor.weather_condition_0h
     id: weather_condition_0h
@@ -180,6 +184,7 @@ text_sensor:
     on_value:
       then:
         lambda: set_weather_image(id(weather_condition_4d_image), x);
+  # External Sensors: Calendar
   - platform: homeassistant
     id: calendar_current_event
     entity_id: sensor.current_event
@@ -192,19 +197,46 @@ text_sensor:
     on_value:
       then:
         - lambda: id(calendar_next_event_text_element).set_text(x);
+  # External Sensors: Dishwasher
   - platform: homeassistant
     id: dishwasher_status
     entity_id: sensor.dishwasher_status
     on_value:
       then:
-        - lambda: |-
-            id(dishwasher_status_text_element).set_text(x == "standby" ? "" : x);
+        - lambda: id(dishwasher_status_text_element).set_text(x);
   - platform: homeassistant
     id: dishwasher_notification
     entity_id: sensor.dishwasher_notification
     on_value:
       then:
         - lambda: id(dishwasher_notification_text_element).set_text(x);
+  # External Sensors: Flights
+  - platform: homeassistant
+    id: flight_current_flight_number
+    entity_id: sensor.flight_current_flight_number
+    on_value:
+      then:
+        - lambda: id(flight_current_flight_number_text_element).set_text(x);
+  - platform: homeassistant
+    id: flight_current_origin
+    entity_id: sensor.flight_current_origin
+    on_value:
+      then:
+        - lambda: |- 
+            id(flight_current_origin_text_element).set_text(x.empty() ? "" : x + " >");
+  - platform: homeassistant
+    id: flight_current_destination
+    entity_id: sensor.flight_current_destination
+    on_value:
+      then:
+        - lambda: |-
+            id(flight_current_destination_text_element).set_text(x.empty() ? "" : "> " + x);
+  - platform: homeassistant
+    id: flight_current_aircraft_code
+    entity_id: sensor.flight_current_aircraft_code
+    on_value:
+      then:
+        - lambda: id(flight_current_aircraft_code_text_element).set_text(x);
 
 # Timer
 timer:
@@ -235,7 +267,7 @@ elements:
         font: font_spleen_5x8
         scroll_mode: LEFT_TO_RIGHT
         scroll_speed: 24 # pixel per second
-        color: purple_500
+        color: deep_purple_400
         on_complete:
           - then:
               - elements.next: primary_elements
@@ -251,17 +283,17 @@ elements:
             - type: time_text
               time: current_time
               font: font_matrix_chunky_6
-              color: light_blue_900
+              color: light_blue_400
               format: "%a %e" # abbr weekday name, day of month
             - type: time_text
               time: current_time
               font: font_matrix_chunky_6
-              color: cyan_700
+              color: cyan_400
               format: "%b %Y" # abbr month name, year
             - type: time_text
               time: current_time
               font: font_matrix_chunky_6
-              color: teal_500
+              color: teal_300
               format: "%H:%M:%S"
       # Weather
       - type: timeout
@@ -331,12 +363,12 @@ elements:
             - type: static_text
               id: calendar_current_event_text_element
               font: font_spleen_5x8
-              color: lime_800
+              color: red_400
               scroll_mode: LEFT_TO_RIGHT
             - type: static_text
               id: calendar_next_event_text_element
               font: font_spleen_5x8
-              color: green_800
+              color: amber_700
               scroll_mode: LEFT_TO_RIGHT
       # Dishwasher
       - type: timeout
@@ -351,13 +383,39 @@ elements:
             - type: static_text
               id: dishwasher_status_text_element
               font: font_spleen_5x8
-              color: indigo_800
+              color: light_green_400
               scroll_mode: LEFT_TO_RIGHT
             - type: static_text
               id: dishwasher_notification_text_element
               font: font_spleen_5x8
-              color: indigo_800
+              color: cyan_300
               scroll_mode: LEFT_TO_RIGHT
+      # Flight
+      - type: timeout
+        duration: 10s
+        on_complete:
+          - then:
+              - elements.next: primary_elements
+        element:
+          type: vertical
+          active_mode: any
+          elements:
+            - type: static_text
+              id: flight_current_flight_number_text_element
+              font: font_spleen_5x8
+              color: amber_500              
+            - type: static_text
+              id: flight_current_origin_text_element
+              font: font_spleen_5x8
+              color: orange_300
+            - type: static_text
+              id: flight_current_destination_text_element
+              font: font_spleen_5x8
+              color: orange_300
+            - type: static_text
+              id: flight_current_aircraft_code_text_element
+              font: font_spleen_5x8
+              color: blue_gray_300
       # Timer
       - type: timeout
         duration: 10s
@@ -369,10 +427,10 @@ elements:
           font: font_matrix_chunky_6
           lambda: |-
             auto state = id(default_timer).get_state();
-            if (state == "Stopped") return "";
+            if (state == std::string("Stopped")) return "";
             element.set_color(
-              state == "Expired" ? id(red_500) :
-              state == "Paused" ? id(blue_500) :
+              state == std::string("Expired") ? id(red_500) :
+              state == std::string("Paused") ? id(blue_500) :
               id(blue_gray_500));
             int remaining = id(default_timer).get_remaining() / 1000;
             int seconds = remaining % 60;

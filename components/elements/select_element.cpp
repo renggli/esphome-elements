@@ -42,11 +42,35 @@ void SelectElement::update_visibility(bool now_visible) {
   }
 }
 
+int SelectElement::index_of(const Element* element) const {
+  if (element == nullptr) return -1;
+  for (size_t i = 0; i < elements_.size(); i++) {
+    if (elements_[i] == element) {
+      return static_cast<int>(i);
+    }
+  }
+  return -1;
+}
+
 void SelectElement::go_to(int index) {
+  if (index < -1 || index >= static_cast<int>(elements_.size())) {
+    return;
+  }
   if (index != index_) {
     int from = index_;
     index_ = index;
     on_change(from, index);
+  } else if (index_ >= 0 && index_ < static_cast<int>(elements_.size())) {
+    elements_[index_]->update_visibility(false);
+    elements_[index_]->update_visibility(this->visible_);
+    on_change(index_, index_);
+  }
+}
+
+void SelectElement::go_to(const Element* element) {
+  int index = index_of(element);
+  if (index >= 0) {
+    go_to(index);
   }
 }
 
@@ -121,7 +145,33 @@ void RandomElement::prev() {
   }
 }
 
+void RandomElement::push(int index) {
+  if (index >= 0 && index < (int)elements_.size()) {
+    queue_.push_back(index);
+  }
+}
+
+void RandomElement::push(Element* element) {
+  int index = index_of(element);
+  if (index >= 0) {
+    push(index);
+  }
+}
+
+void RandomElement::clear_queue() { queue_.clear(); }
+
 void RandomElement::next() {
+  while (!queue_.empty()) {
+    int index = queue_.front();
+    queue_.pop_front();
+    if (index >= 0 && index < (int)elements_.size() &&
+        elements_[index]->is_active()) {
+      update_history_();
+      go_to(index);
+      return;
+    }
+  }
+
   std::vector<int> candidates;
   int min = std::numeric_limits<int>::max();
   for (int index = 0; index < (int)elements_.size(); index++) {

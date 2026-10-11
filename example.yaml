@@ -27,6 +27,22 @@ text:
     initial_value: ""
     set_action:
       - lambda: id(message_text_element).set_text(x);
+# Switch
+switch:
+  - id: !extend display_switch
+    on_turn_on:
+      - elements.go_to:
+          id: weather_sequence
+          index: 1
+      - elements.push:
+          id: primary_elements
+          clear: true
+          advance: true
+          elements:
+            - time_element
+            - temperature_element
+            - weather_element
+
 esphome:
   on_boot:
     priority: -100
@@ -273,6 +289,7 @@ elements:
               - elements.next: primary_elements
       # Time and Date
       - type: timeout
+        id: time_element
         duration: 10s
         on_complete:
           - then:
@@ -297,6 +314,7 @@ elements:
               format: "%H:%M:%S"
       # Weather
       - type: timeout
+        id: weather_element
         duration: 10s
         on_complete:
           - then:
@@ -439,6 +457,7 @@ elements:
             return str_snprintf("%s%d:%02d", 12, sign, abs(minutes), abs(seconds));
       # Temperature
       - type: timeout
+        id: temperature_element
         duration: 10s
         on_complete:
           - then:

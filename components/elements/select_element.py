@@ -1,7 +1,7 @@
 import esphome.config_validation as cv
 import esphome.codegen as cg
 import esphome.automation as automation
-from esphome.const import CONF_ID, CONF_TRIGGER_ID
+from esphome.const import CONF_CLEAR, CONF_ID, CONF_INDEX, CONF_TRIGGER_ID
 
 from . import shared
 from . import element
@@ -9,6 +9,8 @@ from . import element_registry
 
 CONF_ON_CHANGE = "on_change"
 CONF_ELEMENTS = "elements"
+CONF_ELEMENT = "element"
+CONF_ADVANCE = "advance"
 
 # Abstract Select Element
 
@@ -74,6 +76,36 @@ async def elements_prev_to_code(config, action_id, template_arg, args):
     return cg.new_Pvariable(action_id, template_arg, paren)
 
 
+SELECT_GO_TO_ACTION_SCHEMA = cv.All(
+    cv.Schema(
+        {
+            cv.Required(CONF_ID): cv.use_id(SelectElement),
+            cv.Optional(CONF_INDEX): cv.templatable(cv.int_),
+            cv.Optional(CONF_ELEMENT): cv.use_id(element.Element),
+        }
+    ),
+    cv.has_exactly_one_key(CONF_INDEX, CONF_ELEMENT),
+)
+
+
+@automation.register_action(
+    "elements.go_to",
+    shared.elements_ns.class_("SelectGoToAction", automation.Action),
+    SELECT_GO_TO_ACTION_SCHEMA,
+    synchronous=True,
+)
+async def elements_go_to_to_code(config, action_id, template_arg, args):
+    paren = await cg.get_variable(config[CONF_ID])
+    var = cg.new_Pvariable(action_id, template_arg, paren)
+    if CONF_INDEX in config:
+        template_ = await cg.templatable(config[CONF_INDEX], args, cg.int_)
+        cg.add(var.set_index(template_))
+    if CONF_ELEMENT in config:
+        elem = await cg.get_variable(config[CONF_ELEMENT])
+        cg.add(var.set_element(elem))
+    return var
+
+
 # Priority Element
 
 PriorityElement = shared.elements_ns.class_("PriorityElement", SelectElement)
@@ -101,6 +133,58 @@ RANDOM_ELEMENT_SCHEMA = SELECT_ELEMENT_SCHEMA.extend(
 element_registry.register_element(
     "random", RANDOM_ELEMENT_SCHEMA, select_element_to_code
 )
+
+RANDOM_PUSH_ACTION_SCHEMA = cv.Schema(
+    {
+        cv.Required(CONF_ID): cv.use_id(RandomElement),
+        cv.Optional(CONF_CLEAR, default=False): cv.boolean,
+        cv.Optional(CONF_ADVANCE, default=False): cv.boolean,
+        cv.Optional(CONF_ELEMENT): cv.use_id(element.Element),
+        cv.Optional(CONF_ELEMENTS, default=[]): cv.ensure_list(
+            cv.use_id(element.Element)
+        ),
+    }
+)
+
+
+@automation.register_action(
+    "elements.push",
+    shared.elements_ns.class_("RandomPushAction", automation.Action),
+    RANDOM_PUSH_ACTION_SCHEMA,
+    synchronous=True,
+)
+async def elements_push_to_code(config, action_id, template_arg, args):
+    paren = await cg.get_variable(config[CONF_ID])
+    var = cg.new_Pvariable(action_id, template_arg, paren)
+    if config[CONF_CLEAR]:
+        cg.add(var.set_clear(True))
+    if config[CONF_ADVANCE]:
+        cg.add(var.set_advance(True))
+    if CONF_ELEMENT in config:
+        elem = await cg.get_variable(config[CONF_ELEMENT])
+        cg.add(var.add_element(elem))
+    for elem_id in config.get(CONF_ELEMENTS, []):
+        elem = await cg.get_variable(elem_id)
+        cg.add(var.add_element(elem))
+    return var
+
+
+RANDOM_CLEAR_QUEUE_ACTION_SCHEMA = automation.maybe_simple_id(
+    {
+        cv.Required(CONF_ID): cv.use_id(RandomElement),
+    }
+)
+
+
+@automation.register_action(
+    "elements.clear_queue",
+    shared.elements_ns.class_("RandomClearQueueAction", automation.Action),
+    RANDOM_CLEAR_QUEUE_ACTION_SCHEMA,
+    synchronous=True,
+)
+async def elements_clear_queue_to_code(config, action_id, template_arg, args):
+    paren = await cg.get_variable(config[CONF_ID])
+    return cg.new_Pvariable(action_id, template_arg, paren)
 
 # Sequence Element
 

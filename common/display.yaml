@@ -18,6 +18,7 @@ button:
 switch:
   # Enable and disable the display.
   - platform: template
+    id: display_switch
     name: "Switch"
     optimistic: true
     turn_on_action:

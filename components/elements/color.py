@@ -152,6 +152,20 @@ def _sampler_static(h_deg, s, v):
 
 
 def _sampler_gradient(from_h, from_s, from_v, to_h, to_s, to_v):
+    # When one endpoint is black (v == 0), its hue and saturation are mathematically
+    # undefined. To prevent desaturating into white/gray or hue shifting while fading
+    # to/from black, adopt the hue and saturation of the non-black endpoint.
+    if from_v <= 1e-6:
+        from_h = to_h
+        from_s = to_s
+    elif to_v <= 1e-6:
+        to_h = from_h
+        to_s = from_s
+    elif from_s <= 1e-6:
+        from_h = to_h
+    elif to_s <= 1e-6:
+        to_h = from_h
+
     def sample(p):
         h = _lerp_hue(from_h, to_h, p)
         s = from_s + (to_s - from_s) * p
@@ -229,6 +243,12 @@ def _scheme_config_to_sampler(config):
             for child in config[CONF_CS_SCHEMES]
         ]
         return _sampler_sequence(items)
+
+    if scheme_type in ("rainbow", "hue_gradient"):
+        start_h = config.get(CONF_CS_HUE_OFFSET, 0.0)
+        s = config.get(CONF_CS_SATURATION_SCALE, 1.0)
+        v = config.get(CONF_CS_VALUE_SCALE, 1.0)
+        return lambda p: ((start_h + p * 360.0) % 360.0, s, v)
 
     # Palette shorthands
     h, s, v = _parse_color_to_hsv(config[CONF_COLOR])
@@ -401,6 +421,14 @@ SQUARE_CS_SCHEMA = CS_BASE_SCHEMA.extend(
     }
 )
 
+RAINBOW_CS_SCHEMA = CS_BASE_SCHEMA.extend(
+    {
+        cv.Optional(CONF_CS_HUE_OFFSET, default=0.0): cv.float_range(min=0.0, max=360.0),
+        cv.Optional(CONF_CS_SATURATION_SCALE, default=1.0): cv.float_range(min=0.0, max=1.0),
+        cv.Optional(CONF_CS_VALUE_SCALE, default=1.0): cv.float_range(min=0.0, max=1.0),
+    }
+)
+
 COLOR_SCHEME_SCHEMA = cv.typed_schema(
     {
         "static": STATIC_CS_SCHEMA,
@@ -414,6 +442,8 @@ COLOR_SCHEME_SCHEMA = cv.typed_schema(
         "split_complementary": SPLIT_COMPLEMENTARY_CS_SCHEMA,
         "triadic": TRIADIC_CS_SCHEMA,
         "square": SQUARE_CS_SCHEMA,
+        "rainbow": RAINBOW_CS_SCHEMA,
+        "hue_gradient": RAINBOW_CS_SCHEMA,
     },
     lower=True,
 )

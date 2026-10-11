@@ -19,7 +19,6 @@ CONF_DRAW = "draw"
 CONF_ELEMENT = "element"
 CONF_FADE_STEPS = "fade_steps"
 CONF_IS_ACTIVE = "is_active"
-CONF_LAYERS = "layers"
 CONF_LENGTH = "length"
 CONF_RHO = "rho"
 CONF_SHAPE = "shape"
@@ -77,53 +76,7 @@ element_registry.register_element(
     metaballs_animation_to_code,
 )
 
-# Aurora Animation
 
-AuroraAnimationElement = shared.elements_ns.class_(
-    "AuroraAnimationElement", AnimationElement
-)
-
-AURORA_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
-    {
-        cv.GenerateID(CONF_ID): cv.declare_id(AuroraAnimationElement),
-    }
-)
-
-
-async def aurora_animation_to_code(config, component, parent):
-    var = await animation_element_to_code(config, component, parent)
-    return var
-
-
-element_registry.register_element(
-    "aurora_animation",
-    AURORA_ANIMATION_ELEMENT_SCHEMA,
-    aurora_animation_to_code,
-)
-
-# Kaleidoscope Animation
-
-KaleidoscopeAnimationElement = shared.elements_ns.class_(
-    "KaleidoscopeAnimationElement", AnimationElement
-)
-
-KALEIDOSCOPE_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
-    {
-        cv.GenerateID(CONF_ID): cv.declare_id(KaleidoscopeAnimationElement),
-    }
-)
-
-
-async def kaleidoscope_animation_to_code(config, component, parent):
-    var = await animation_element_to_code(config, component, parent)
-    return var
-
-
-element_registry.register_element(
-    "kaleidoscope_animation",
-    KALEIDOSCOPE_ANIMATION_ELEMENT_SCHEMA,
-    kaleidoscope_animation_to_code,
-)
 
 # Plasma Animation
 
@@ -466,32 +419,6 @@ element_registry.register_element(
 )
 
 
-# Parallax Animation
-
-ParallaxAnimationElement = shared.elements_ns.class_(
-    "ParallaxAnimationElement", AnimationElement
-)
-
-PARALLAX_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
-    {
-        cv.GenerateID(CONF_ID): cv.declare_id(ParallaxAnimationElement),
-        cv.Optional(CONF_LAYERS, default=3): cv.int_range(min=1, max=10),
-    }
-)
-
-
-async def parallax_animation_to_code(config, component, parent):
-    var = await animation_element_to_code(config, component, parent)
-    cg.add(var.set_num_layers(config[CONF_LAYERS]))
-    return var
-
-
-element_registry.register_element(
-    "parallax_animation",
-    PARALLAX_ANIMATION_ELEMENT_SCHEMA,
-    parallax_animation_to_code,
-)
-
 # Lorenz Animation
 
 LorenzAnimationElement = shared.elements_ns.class_(
@@ -580,3 +507,155 @@ element_registry.register_element(
     CUSTOM_ANIMATION_ELEMENT_SCHEMA,
     custom_animation_to_code,
 )
+
+# Caustics Animation (Caustics refraction)
+CausticsAnimationElement = shared.elements_ns.class_(
+    "CausticsAnimationElement", AnimationElement
+)
+
+CAUSTICS_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
+    {
+        cv.GenerateID(CONF_ID): cv.declare_id(CausticsAnimationElement),
+    }
+)
+
+
+async def caustics_animation_to_code(config, component, parent):
+    var = await animation_element_to_code(config, component, parent)
+    return var
+
+
+element_registry.register_element(
+    "caustics_animation",
+    CAUSTICS_ANIMATION_ELEMENT_SCHEMA,
+    caustics_animation_to_code,
+)
+
+
+# Clockwork Animation (Radial gear / clockwork rotation)
+ClockworkAnimationElement = shared.elements_ns.class_(
+    "ClockworkAnimationElement", AnimationElement
+)
+
+CLOCKWORK_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
+    {
+        cv.GenerateID(CONF_ID): cv.declare_id(ClockworkAnimationElement),
+        cv.Optional(CONF_COUNT, default=3): cv.int_range(min=1),
+    }
+)
+
+
+async def clockwork_animation_to_code(config, component, parent):
+    var = await animation_element_to_code(config, component, parent)
+    if conf := config.get(CONF_COUNT):
+        cg.add(var.set_count(conf))
+    return var
+
+
+element_registry.register_element(
+    "clockwork_animation",
+    CLOCKWORK_ANIMATION_ELEMENT_SCHEMA,
+    clockwork_animation_to_code,
+)
+
+# Frizzle Animation (Electric spark discharge)
+FrizzleAnimationElement = shared.elements_ns.class_(
+    "FrizzleAnimationElement", AnimationElement
+)
+
+FRIZZLE_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
+    {
+        cv.GenerateID(CONF_ID): cv.declare_id(FrizzleAnimationElement),
+        cv.Optional(CONF_COUNT, default=6): cv.int_range(min=1),
+    }
+)
+
+
+async def frizzle_animation_to_code(config, component, parent):
+    var = await animation_element_to_code(config, component, parent)
+    if conf := config.get(CONF_COUNT):
+        cg.add(var.set_count(conf))
+    return var
+
+
+element_registry.register_element(
+    "frizzle_animation",
+    FRIZZLE_ANIMATION_ELEMENT_SCHEMA,
+    frizzle_animation_to_code,
+)
+
+# Spectral Animation (Spectral flame / phantom trail)
+SpectralAnimationElement = shared.elements_ns.class_(
+    "SpectralAnimationElement", AnimationElement
+)
+
+SPECTRAL_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
+    {
+        cv.GenerateID(CONF_ID): cv.declare_id(SpectralAnimationElement),
+        cv.Optional(CONF_LENGTH, default=12.0): cv.float_range(min=1.0),
+    }
+)
+
+
+async def spectral_animation_to_code(config, component, parent):
+    var = await animation_element_to_code(config, component, parent)
+    if conf := config.get(CONF_LENGTH):
+        cg.add(var.set_length(conf))
+    return var
+
+
+element_registry.register_element(
+    "spectral_animation",
+    SPECTRAL_ANIMATION_ELEMENT_SCHEMA,
+    spectral_animation_to_code,
+)
+
+# Splatter Animation (Splatter / droplet impact dispersion)
+SplatterAnimationElement = shared.elements_ns.class_(
+    "SplatterAnimationElement", AnimationElement
+)
+
+SPLATTER_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
+    {
+        cv.GenerateID(CONF_ID): cv.declare_id(SplatterAnimationElement),
+        cv.Optional(CONF_COUNT, default=5): cv.int_range(min=1),
+    }
+)
+
+
+async def splatter_animation_to_code(config, component, parent):
+    var = await animation_element_to_code(config, component, parent)
+    if conf := config.get(CONF_COUNT):
+        cg.add(var.set_count(conf))
+    return var
+
+
+element_registry.register_element(
+    "splatter_animation",
+    SPLATTER_ANIMATION_ELEMENT_SCHEMA,
+    splatter_animation_to_code,
+)
+
+# Black Hole Animation (Gravitational black hole simulation)
+BlackholeAnimationElement = shared.elements_ns.class_(
+    "BlackholeAnimationElement", AnimationElement
+)
+
+BLACKHOLE_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
+    {
+        cv.GenerateID(CONF_ID): cv.declare_id(BlackholeAnimationElement),
+    }
+)
+
+
+async def blackhole_animation_to_code(config, component, parent):
+    var = await animation_element_to_code(config, component, parent)
+    return var
+
+
+element_registry.register_element(
+    "blackhole_animation",
+    BLACKHOLE_ANIMATION_ELEMENT_SCHEMA,
+    blackhole_animation_to_code,
+)
+

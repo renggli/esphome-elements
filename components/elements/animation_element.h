@@ -51,32 +51,6 @@ class MetaballsAnimationElement : public AnimationElement {
   float get_time_scale_() const override { return 1.0f / 5.0f; }
 };
 
-class AuroraAnimationElement : public AnimationElement {
- public:
-  using AnimationElement::AnimationElement;
-  const char* get_type_name() const override { return "aurora_animation"; }
-
-  void draw(display::Display& display, int width, int height,
-            float time) override;
-
- protected:
-  float get_time_scale_() const override { return 1.0f / 8.0f; }
-};
-
-class KaleidoscopeAnimationElement : public AnimationElement {
- public:
-  using AnimationElement::AnimationElement;
-  const char* get_type_name() const override {
-    return "kaleidoscope_animation";
-  }
-
-  void draw(display::Display& display, int width, int height,
-            float time) override;
-
- protected:
-  float get_time_scale_() const override { return 1.0f / 8.0f; }
-};
-
 class PlasmaAnimationElement : public AnimationElement {
  public:
   using AnimationElement::AnimationElement;
@@ -189,6 +163,7 @@ class FireAnimationElement : public AnimationElement {
   float strength_{0.98f};
   float cooling_{0.02f};
   std::vector<float> heat_buffer_;
+  std::vector<float> next_heat_;
   float get_time_scale_() const override { return 5.0f; }
 };
 
@@ -264,20 +239,6 @@ class SolidAnimationElement : public AnimationElement {
   float get_time_scale_() const override { return 1.0f / 8.0f; }
 };
 
-class ParallaxAnimationElement : public AnimationElement {
- public:
-  using AnimationElement::AnimationElement;
-  const char* get_type_name() const override { return "parallax_animation"; }
-
-  void set_num_layers(int num_layers) { num_layers_ = num_layers; }
-
-  void draw(display::Display& display, int width, int height,
-            float time) override;
-
- protected:
-  int num_layers_{3};
-};
-
 class LorenzAnimationElement : public AnimationElement {
  public:
   using AnimationElement::AnimationElement;
@@ -330,6 +291,93 @@ class CustomAnimationElement : public AnimationElement {
   static void test_draw_(CustomAnimationElement& element,
                          display::Display& display, int width, int height,
                          float time);
+};
+
+class CausticsAnimationElement : public AnimationElement {
+ public:
+  using AnimationElement::AnimationElement;
+  const char* get_type_name() const override { return "caustics_animation"; }
+
+  void draw(display::Display& display, int width, int height,
+            float time) override;
+
+ protected:
+  float get_time_scale_() const override { return 1.0f; }
+};
+
+class ClockworkAnimationElement : public AnimationElement {
+ public:
+  using AnimationElement::AnimationElement;
+  const char* get_type_name() const override { return "clockwork_animation"; }
+
+  void set_count(int count) { count_ = count; }
+  void draw(display::Display& display, int width, int height,
+            float time) override;
+
+ protected:
+  int count_{3};
+  float get_time_scale_() const override { return 1.0f / 3.0f; }
+};
+
+class FrizzleAnimationElement : public AnimationElement {
+ public:
+  using AnimationElement::AnimationElement;
+  const char* get_type_name() const override { return "frizzle_animation"; }
+
+  void set_count(int count) { count_ = count; }
+  void draw(display::Display& display, int width, int height,
+            float time) override;
+
+ protected:
+  int count_{6};
+  float get_time_scale_() const override { return 1.0f / 2.0f; }
+};
+
+class SpectralAnimationElement : public AnimationElement {
+ public:
+  using AnimationElement::AnimationElement;
+  const char* get_type_name() const override { return "spectral_animation"; }
+
+  void set_length(float length) { length_ = length; }
+  void draw(display::Display& display, int width, int height,
+            float time) override;
+
+ protected:
+  float length_{12.0f};
+  float get_time_scale_() const override { return 1.0f / 3.0f; }
+};
+
+class SplatterAnimationElement : public AnimationElement {
+ public:
+  using AnimationElement::AnimationElement;
+  const char* get_type_name() const override { return "splatter_animation"; }
+
+  void set_count(int count) { count_ = count; }
+  void on_show() override;
+  void on_hide() override;
+  void draw(display::Display& display, int width, int height,
+            float time) override;
+
+ protected:
+  int count_{5};
+  float get_time_scale_() const override { return 1.0f / 3.0f; }
+  std::vector<Color> canvas_;
+  int last_baked_splat_{-1};
+  uint32_t activation_seed_{0};
+  void render_splat_(display::Display* display, int width, int height,
+                     int splat_id, float tau, bool to_canvas);
+};
+
+class BlackholeAnimationElement : public AnimationElement {
+ public:
+  using AnimationElement::AnimationElement;
+  const char* get_type_name() const override { return "blackhole_animation"; }
+
+  void draw(display::Display& display, int width, int height,
+            float time) override;
+
+ protected:
+  float get_time_scale_() const override { return 1.0f / 1.25f; }
 };
 
 }  // namespace esphome::elements

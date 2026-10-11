@@ -200,7 +200,7 @@ hour_hand:
 
 Provides complex procedural animations to serve as backgrounds or standalone visualizations. The following animations are available:
 
-`aurora_animation`, `fire_animation`, `interference_animation`, `julia_animation`, `kaleidoscope_animation`, `matrix_animation`, `meatballs_animation`, `parallax_animation`, `plasma_animation`, `ripples_animation`, `solid_animation`, `spiral_animation`, `stars_animation`, `tunnel_animation`, `voronoi_animation`, and `wave_animation`.
+`blackhole_animation`, `caustics_animation`, `clockwork_animation`, `fire_animation`, `frizzle_animation`, `interference_animation`, `julia_animation`, `lorenz_animation`, `matrix_animation`, `meatballs_animation`, `plasma_animation`, `ripples_animation`, `solid_animation`, `spectral_animation`, `spiral_animation`, `splatter_animation`, `stars_animation`, `tunnel_animation`, `voronoi_animation`, and `wave_animation`.
 
 All animations support the following configuration variables:
 

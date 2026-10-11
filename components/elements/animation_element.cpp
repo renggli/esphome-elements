@@ -6,6 +6,7 @@
 
 #include "color.h"
 #include "esphome/core/color.h"
+#include "esphome/core/helpers.h"
 
 namespace esphome::elements {
 
@@ -78,63 +79,6 @@ void MetaballsAnimationElement::draw(display::Display& display, int width,
 }
 
 // ---------------------------------------------------------------------------
-// AuroraAnimationElement
-// ---------------------------------------------------------------------------
-
-void AuroraAnimationElement::draw(display::Display& display, int width,
-                                  int height, float time) {
-  for (int y = 0; y < height; ++y) {
-    for (int x = 0; x < width; ++x) {
-      float nx = x / (float)width;
-      float ny = y / (float)height;
-      float b1 = std::exp(-std::pow(
-          (ny - (0.25f + 0.15f * std::sin(nx * 6.0f + time * TWO_PI_F))) /
-              0.12f,
-          2.0f));
-      float b2 = std::exp(-std::pow(
-          (ny - (0.50f +
-                 0.12f * std::sin(nx * 4.5f - time * TWO_PI_F * 0.7f + 1.5f))) /
-              0.10f,
-          2.0f));
-      float b3 = std::exp(-std::pow(
-          (ny - (0.75f +
-                 0.10f * std::sin(nx * 7.5f + time * TWO_PI_F * 1.3f + 3.0f))) /
-              0.08f,
-          2.0f));
-      float val = std::min(b1 + b2 * 0.8f + b3 * 0.6f, 1.0f);
-      display.draw_pixel_at(x, y, get_color_(val));
-    }
-  }
-}
-
-// ---------------------------------------------------------------------------
-// KaleidoscopeAnimationElement
-// ---------------------------------------------------------------------------
-
-void KaleidoscopeAnimationElement::draw(display::Display& display, int width,
-                                        int height, float time) {
-  const int segments = 6;
-  for (int y = 0; y < height; ++y) {
-    for (int x = 0; x < width; ++x) {
-      float dx = x - width / 2.0f;
-      float dy = y - height / 2.0f;
-      float angle = std::atan2(dy, dx) + time * TWO_PI_F;
-      float dist = std::sqrt(dx * dx + dy * dy);
-      float seg_angle = std::fmod(std::abs(angle), TWO_PI_F / segments);
-      if (seg_angle > TWO_PI_F / (2 * segments)) {
-        seg_angle = TWO_PI_F / segments - seg_angle;
-      }
-      float tx = dist * std::cos(seg_angle);
-      float ty = dist * std::sin(seg_angle);
-      float val = std::sin(tx / 3.0f + time * TWO_PI_F) *
-                  std::cos(ty / 3.0f - time * TWO_PI_F * 0.7f);
-      val = (val + 1.0f) / 2.0f;
-      display.draw_pixel_at(x, y, get_color_(val));
-    }
-  }
-}
-
-// ---------------------------------------------------------------------------
 // PlasmaAnimationElement
 // ---------------------------------------------------------------------------
 
@@ -178,6 +122,11 @@ void RipplesAnimationElement::draw(display::Display& display, int width,
         float dy = y - cy;
         float dist = std::sqrt(dx * dx + dy * dy);
         val += std::exp(-std::pow((dist - radius) / 1.5f, 2.0f)) * fade;
+      }
+      if (val < 0.05f) {
+        val = 0.0f;
+      } else {
+        val = (val - 0.05f) / 0.95f;
       }
       display.draw_pixel_at(x, y, get_color_(std::min(val, 1.0f)));
     }
@@ -247,20 +196,25 @@ void VoronoiAnimationElement::draw(display::Display& display, int width,
 
 void InterferenceAnimationElement::draw(display::Display& display, int width,
                                         int height, float time) {
+  const float k = 0.55f;
+  const float omega = time * TWO_PI_F * 1.5f;
+  const float cos0 = 1.0f, sin0 = 0.0f;
+  const float cos1 = -0.5f, sin1 = 0.8660254f;
+  const float cos2 = -0.5f, sin2 = -0.8660254f;
+
   for (int y = 0; y < height; ++y) {
+    float fy = (float)y - (float)height * 0.5f;
     for (int x = 0; x < width; ++x) {
-      float v = 0;
-      for (int i = 0; i < count_; i++) {
-        float phase = i * TWO_PI_F / (float)count_;
-        float cx =
-            width * (0.5f + 0.35f * std::sin(time * TWO_PI_F * 0.2f + phase));
-        float cy =
-            height * (0.5f + 0.35f * std::cos(time * TWO_PI_F * 0.3f + phase));
-        float d = std::sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy));
-        v += std::sin(d * 0.4f - time * TWO_PI_F);
+      float fx = (float)x - (float)width * 0.5f;
+      float w1 = std::cos((fx * cos0 + fy * sin0) * k - omega);
+      float w2 = std::cos((fx * cos1 + fy * sin1) * k - omega);
+      float w3 = std::cos((fx * cos2 + fy * sin2) * k + omega * 0.7f);
+      float sum = (w1 + w2 + w3) / 3.0f;
+      float intensity = sum * sum;
+      if (intensity < 0.20f) {
+        intensity = 0.0f;
       }
-      float val = (v / (float)count_ + 1.0f) / 2.0f;
-      display.draw_pixel_at(x, y, get_color_(val));
+      display.draw_pixel_at(x, y, get_color_(intensity));
     }
   }
 }
@@ -332,6 +286,7 @@ void MatrixAnimationElement::draw(display::Display& display, int width,
 
 void FireAnimationElement::on_hide() {
   heat_buffer_.clear();
+  next_heat_.clear();
   Element::on_hide();
 }
 
@@ -343,14 +298,13 @@ void FireAnimationElement::draw(display::Display& display, int width,
   }
   // Use a second buffer for the next state to avoid using already-cooled pixels
   // in the same pass
-  static std::vector<float> next_heat;
-  if (next_heat.size() != size) {
-    next_heat.assign(size, 0.0f);
+  if (next_heat_.size() != size) {
+    next_heat_.assign(size, 0.0f);
   }
   // Seed the bottom row with noise
   for (int x = 0; x < width; x++) {
     // Seed with full [0, 1] range, but keep it hot overall
-    next_heat[(height - 1) * width + x] =
+    next_heat_[(height - 1) * width + x] =
         std::pow(noise(x, (int)time, start_time_), 0.5f);
   }
   // Propagate heat upwards with diffusion and cooling
@@ -366,11 +320,11 @@ void FireAnimationElement::draw(display::Display& display, int width,
       float jitter = 0.8f + 0.4f * noise(x, y, (int)(time * 2.0f));
       // Cooling factor increases with height to ensure it hits black at the top
       float height_factor = 1.0f + (float)(height - 1 - y) / height;
-      next_heat[y * width + x] =
+      next_heat_[y * width + x] =
           std::clamp(h - (cooling_ * jitter * height_factor), 0.0f, 1.0f);
     }
   }
-  heat_buffer_ = next_heat;
+  heat_buffer_ = next_heat_;
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
       // Apply a gamma-like curve to "stretch" the lower heat values
@@ -441,53 +395,6 @@ void StarsAnimationElement::draw(display::Display& display, int width,
         display.draw_pixel_at(x, y, get_color_(val));
       } else {
         display.draw_pixel_at(x, y, get_color_(0.0f));
-      }
-    }
-  }
-}
-
-// ---------------------------------------------------------------------------
-// ParallaxAnimationElement
-// ---------------------------------------------------------------------------
-
-void ParallaxAnimationElement::draw(display::Display& display, int width,
-                                    int height, float time) {
-  float seg = 1.0f / (num_layers_ + 1);
-  // Draw background sky using the first segment of the color scheme.
-  for (int y = 0; y < height; y++) {
-    float y_p = (float)y / std::max(1, height - 1);
-    Color sky_color = get_color_(y_p * seg * 0.999f);
-    display.horizontal_line(0, y, width, sky_color);
-  }
-  // Draw each layer from the back to the front.
-  for (int l = 0; l < num_layers_; l++) {
-    float layer_p = (num_layers_ > 1) ? (float)l / (num_layers_ - 1) : 1.0f;
-    float parallax = 0.05f + 0.95f * layer_p;
-    float offset = time * speed_ * parallax * 15.0f;
-    for (int x = 0; x < width; x++) {
-      float nx = (x + offset) * (0.04f + 0.06f * (1.0f - layer_p));
-      float noise_val = 0;
-      float freq = 1.0f;
-      float amp = 1.0f;
-      for (int oct = 0; oct < 3; oct++) {
-        float sample_x = nx * freq;
-        int i = std::floor(sample_x);
-        float f = sample_x - i;
-        float v1 = noise(i, 42 + l, start_time_);
-        float v2 = noise(i + 1, 42 + l, start_time_);
-        float v = v1 + f * f * (3.0f - 2.0f * f) * (v2 - v1);
-        noise_val += v * amp;
-        freq *= 2.0f;
-        amp *= 0.5f;
-      }
-      noise_val /= 1.75f;
-      float base_height = 0.2f + 0.5f * (1.0f - layer_p);
-      int terrain_h = (int)((base_height + 0.7f * (noise_val - 0.5f)) * height);
-      terrain_h = std::clamp(terrain_h, 0, height);
-      if (terrain_h > 0) {
-        float y_p = (float)(height - terrain_h) / std::max(1, height - 1);
-        Color pixel_color = get_color_(seg * (l + 1.001f) + y_p * seg * 0.998f);
-        display.vertical_line(x, height - terrain_h, terrain_h, pixel_color);
       }
     }
   }
@@ -639,6 +546,520 @@ void CustomAnimationElement::test_draw_(CustomAnimationElement& element,
     display.line(x1, y1, x2, y2, Color(0xff * r, 0xff * g, 0xff * b));
     x1 = x2;
     y1 = y2;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// CausticsAnimationElement
+// ---------------------------------------------------------------------------
+
+void CausticsAnimationElement::draw(display::Display& display, int width,
+                                    int height, float time) {
+  const float inv_w = 1.0f / (float)width;
+  const float inv_h = 1.0f / (float)height;
+  for (int y = 0; y < height; ++y) {
+    float ny = ((float)y - (float)height * 0.5f) * inv_h * 8.0f;
+    for (int x = 0; x < width; ++x) {
+      float nx = ((float)x - (float)width * 0.5f) * inv_w * 8.0f;
+      float u = nx;
+      float v = ny;
+      float sum = 0.0f;
+      for (int i = 1; i <= 4; ++i) {
+        float fi = (float)i;
+        float u_next =
+            u + (0.6f / fi) * std::sin(fi * v + time * 2.5f + fi * 0.4f);
+        float v_next =
+            v + (0.6f / fi) * std::cos(fi * u - time * 2.2f + fi * 0.6f);
+        u = u_next;
+        v = v_next;
+        sum += std::abs(std::sin(u) * std::cos(v));
+      }
+      float intensity = std::pow(sum * 0.25f, 3.0f);
+      float val = std::clamp(intensity, 0.0f, 1.0f);
+      display.draw_pixel_at(x, y, get_color_(val));
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// ClockworkAnimationElement
+// ---------------------------------------------------------------------------
+
+void ClockworkAnimationElement::draw(display::Display& display, int width,
+                                     int height, float time) {
+  const int gear_count = std::clamp(count_, 1, 3);
+  const float cx0 =
+      (float)width * (0.5f + 0.14f * std::sin(time * TWO_PI_F * 0.25f));
+  const float cy0 =
+      (float)height * (0.5f + 0.14f * std::cos(time * TWO_PI_F * 0.20f));
+  const float base_r = (float)std::min(width, height) * 0.28f;
+  const float omega0 = time * TWO_PI_F * 1.1f;
+
+  struct Gear {
+    float cx, cy;
+    float r;
+    int teeth;
+    float omega;
+    int spokes;
+    float color_base;
+  };
+  Gear gears[3];
+  gears[0] = {cx0, cy0, base_r, 12, omega0, 6, 0.35f};
+
+  const float r1 = base_r * (8.0f / 12.0f);
+  const float ang1 = 0.45f + time * 0.4f;
+  const float d1 = base_r + r1;
+  const float omega1 = -omega0 * (12.0f / 8.0f);
+  gears[1] = {cx0 + d1 * std::cos(ang1),
+              cy0 + d1 * std::sin(ang1),
+              r1,
+              8,
+              omega1,
+              4,
+              0.65f};
+
+  const float r2 = base_r * (10.0f / 12.0f);
+  const float ang2 = 0.45f + PI_F * 0.95f + time * 0.35f;
+  const float d2 = base_r + r2;
+  const float omega2 = -omega0 * (12.0f / 10.0f);
+  gears[2] = {cx0 + d2 * std::cos(ang2),
+              cy0 + d2 * std::sin(ang2),
+              r2,
+              10,
+              omega2,
+              5,
+              0.95f};
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      float pixel_val = 0.0f;
+      for (int g = 0; g < gear_count; ++g) {
+        float dx = (float)x - gears[g].cx;
+        float dy = (float)y - gears[g].cy;
+        float dist = std::sqrt(dx * dx + dy * dy);
+        float r = gears[g].r;
+        float tooth_amp = 1.3f;
+        if (dist > r + tooth_amp + 0.5f) continue;
+
+        float angle = std::atan2(dy, dx);
+        float teeth_wave =
+            std::cos((float)gears[g].teeth * (angle - gears[g].omega));
+        float outer_r = r + tooth_amp * teeth_wave;
+
+        if (dist > outer_r) continue;
+
+        float base = gears[g].color_base;
+        if (dist <= 1.2f) {
+          pixel_val = base + 0.04f;
+        } else if (dist <= 2.2f) {
+          pixel_val = base - 0.04f;
+        } else if (dist >= r - tooth_amp - 1.2f) {
+          pixel_val = base + 0.05f * teeth_wave;
+        } else {
+          float spoke_wave = std::abs(std::sin((float)gears[g].spokes * 0.5f *
+                                               (angle - gears[g].omega)));
+          if (spoke_wave < 0.22f) {
+            pixel_val = base - 0.06f;
+          }
+        }
+        if (pixel_val > 0.0f) break;
+      }
+      if (pixel_val > 0.0f) {
+        display.draw_pixel_at(x, y,
+                              get_color_(std::clamp(pixel_val, 0.05f, 1.0f)));
+      }
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// FrizzleAnimationElement
+// ---------------------------------------------------------------------------
+
+void FrizzleAnimationElement::draw(display::Display& display, int width,
+                                   int height, float time) {
+  const int count = std::clamp(count_, 1, 12);
+  const uint32_t step = (uint32_t)(time * 18.0f);
+  const float cx = (float)width * 0.5f;
+  const float cy = (float)height * 0.5f;
+  const float max_reach = (float)std::min(width, height);
+  for (int i = 0; i < count; ++i) {
+    uint32_t seed = step * 101u + (uint32_t)i * 37u;
+    if ((hash(seed) % 100u) < 20u) continue;
+    float angle = ((float)(hash(seed + 1u) % 1000u) / 1000.0f) * TWO_PI_F;
+    float reach =
+        (0.35f + 0.45f * ((float)(hash(seed + 2u) % 1000u) / 1000.0f)) *
+        max_reach;
+    float target_x = cx + std::cos(angle) * reach;
+    float target_y = cy + std::sin(angle) * reach;
+    float x0 = cx;
+    float y0 = cy;
+    const int segments = 5;
+    for (int s = 1; s <= segments; ++s) {
+      float t_seg = (float)s / (float)segments;
+      float next_x = cx + (target_x - cx) * t_seg;
+      float next_y = cy + (target_y - cy) * t_seg;
+      if (s < segments) {
+        float jitter_x =
+            (((float)(hash(seed + (uint32_t)s * 13u) % 1000u) / 1000.0f) -
+             0.5f) *
+            5.0f;
+        float jitter_y =
+            (((float)(hash(seed + (uint32_t)s * 29u) % 1000u) / 1000.0f) -
+             0.5f) *
+            5.0f;
+        next_x += jitter_x;
+        next_y += jitter_y;
+      }
+      float brightness = 1.0f - (t_seg * 0.4f);
+      display.line((int)x0, (int)y0, (int)next_x, (int)next_y,
+                   get_color_(brightness));
+      if (s == 2 && (hash(seed + 77u) % 100u) < 60u) {
+        float bx =
+            next_x +
+            (((float)(hash(seed + 83u) % 1000u) / 1000.0f) - 0.5f) * 8.0f;
+        float by =
+            next_y +
+            (((float)(hash(seed + 89u) % 1000u) / 1000.0f) - 0.5f) * 8.0f;
+        display.line((int)next_x, (int)next_y, (int)bx, (int)by,
+                     get_color_(0.55f));
+      }
+      x0 = next_x;
+      y0 = next_y;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// SpectralAnimationElement
+// ---------------------------------------------------------------------------
+
+void SpectralAnimationElement::draw(display::Display& display, int width,
+                                    int height, float time) {
+  const int n_wisps = 3;
+  for (int y = 0; y < height; ++y) {
+    float fy = (float)y;
+    float norm_y = fy / (float)height;
+    for (int x = 0; x < width; ++x) {
+      float fx = (float)x;
+      float total_val = 0.0f;
+      for (int w = 0; w < n_wisps; ++w) {
+        float fw = (float)w;
+        float base_x = (float)width * (0.22f + 0.28f * fw);
+        float sway = 4.5f * std::sin(norm_y * 4.0f - time * 3.0f + fw * 2.1f) +
+                     2.5f * std::cos(norm_y * 7.0f + time * 2.2f + fw * 1.5f);
+        float wisp_x = base_x + sway;
+        float dx = fx - wisp_x;
+        float sigma = 1.3f + 0.8f * (1.0f - norm_y);
+        float intensity = std::exp(-(dx * dx) / (2.0f * sigma * sigma)) *
+                          (0.3f + 0.7f * norm_y);
+        total_val += intensity;
+      }
+      if (total_val > 0.12f) {
+        display.draw_pixel_at(
+            x, y, get_color_(std::clamp(total_val * 0.85f, 0.0f, 1.0f)));
+      }
+    }
+  }
+
+  const int num_embers = 16;
+  for (int i = 0; i < num_embers; ++i) {
+    float fi = (float)i;
+    float ember_t = fract(time * 0.8f + fi * (1.0f / (float)num_embers));
+    float ey = (1.0f - ember_t) * (float)height;
+    float ex = (float)width * (0.15f + 0.7f * noise(i, 1, 100)) +
+               3.5f * std::sin(ember_t * 8.0f + fi * 1.7f);
+    int px = (int)ex;
+    int py = (int)ey;
+    if (px >= 0 && px < width && py >= 0 && py < height) {
+      float sparkle = 0.6f + 0.4f * std::sin(time * 12.0f + fi * 2.0f);
+      display.draw_pixel_at(px, py, get_color_(sparkle));
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// SplatterAnimationElement
+// ---------------------------------------------------------------------------
+
+void SplatterAnimationElement::on_show() {
+  canvas_.clear();
+  last_baked_splat_ = -1;
+  activation_seed_ = random_uint32();
+  AnimationElement::on_show();
+}
+
+void SplatterAnimationElement::on_hide() {
+  canvas_.clear();
+  last_baked_splat_ = -1;
+  AnimationElement::on_hide();
+}
+
+void SplatterAnimationElement::render_splat_(display::Display* display,
+                                             int width, int height,
+                                             int splat_id, float tau,
+                                             bool to_canvas) {
+  uint32_t cycle = (uint32_t)splat_id;
+  int k = splat_id % 7;
+  uint32_t seed = hash(cycle * 0x9e3779b9u + activation_seed_);
+  float cx = (float)width * (0.20f + 0.60f * noise(k, 1, seed));
+  float cy = (float)height * (0.20f + 0.60f * noise(k, 2, seed));
+
+  float color_offset = noise(13, 0, activation_seed_);
+  float splat_color =
+      fract(color_offset + 0.23f * (float)cycle + 0.11f * (float)k);
+  Color color = get_color_(splat_color);
+
+  float max_r = 2.4f + 1.4f * noise(k, 3, seed);
+  float expand = std::min(1.0f, tau / 0.20f);
+  float cur_r = max_r * expand;
+
+  float p1 = noise(k, 4, seed) * TWO_PI_F;
+  float p2 = noise(k, 5, seed) * TWO_PI_F;
+  float p3 = noise(k, 6, seed) * TWO_PI_F;
+
+  int min_x = std::max(0, (int)(cx - cur_r * 2.0f));
+  int max_x = std::min(width - 1, (int)(cx + cur_r * 2.0f));
+  int min_y = std::max(0, (int)(cy - cur_r * 2.0f));
+  int max_y = std::min(height - 1, (int)(cy + cur_r * 2.0f));
+
+  for (int y = min_y; y <= max_y; ++y) {
+    for (int x = min_x; x <= max_x; ++x) {
+      float dx = (float)x - cx;
+      float dy = (float)y - cy;
+      float dist = std::sqrt(dx * dx + dy * dy);
+      float angle = std::atan2(dy, dx);
+      float star = 1.0f + 0.35f * std::sin(3.0f * angle + p1) +
+                   0.30f * std::cos(5.0f * angle + p2) +
+                   0.20f * std::sin(7.0f * angle + p3);
+      if (dist <= cur_r * star) {
+        if (to_canvas) {
+          canvas_[y * width + x] = color;
+        } else if (display != nullptr) {
+          display->draw_pixel_at(x, y, color);
+        }
+      }
+    }
+  }
+
+  const int num_droplets = 3;
+  for (int d = 0; d < num_droplets; ++d) {
+    float fd = (float)d;
+    float d_angle = fd * (TWO_PI_F / (float)num_droplets) +
+                    0.8f * (noise(d, 7, seed) - 0.5f);
+    float travel = 1.0f + 2.0f * noise(d, 8, seed);
+    float d_dist = cur_r + travel * (1.0f - std::exp(-tau * 5.0f));
+    int dx_p = (int)(cx + std::cos(d_angle) * d_dist);
+    int dy_p = (int)(cy + std::sin(d_angle) * d_dist);
+    if (dx_p >= 0 && dx_p < width && dy_p >= 0 && dy_p < height) {
+      if (to_canvas) {
+        canvas_[dy_p * width + dx_p] = color;
+      } else if (display != nullptr) {
+        display->draw_pixel_at(dx_p, dy_p, color);
+      }
+    }
+  }
+}
+
+void SplatterAnimationElement::draw(display::Display& display, int width,
+                                    int height, float time) {
+  int size = width * height;
+  if ((int)canvas_.size() != size) {
+    canvas_.assign(size, Color(0, 0, 0, 0));
+    last_baked_splat_ = -1;
+  }
+
+  const float splat_interval = 2.5f / (float)std::clamp(count_, 1, 8);
+  int current_splat = (int)(time / splat_interval);
+
+  // Bake any completed splats into canvas
+  for (int s = last_baked_splat_ + 1; s < current_splat; ++s) {
+    render_splat_(nullptr, width, height, s, 1.0f, true);
+    last_baked_splat_ = s;
+  }
+
+  float tau = time - (float)current_splat * splat_interval;
+  if (tau >= 0.25f && current_splat > last_baked_splat_) {
+    render_splat_(nullptr, width, height, current_splat, 1.0f, true);
+    last_baked_splat_ = current_splat;
+  }
+
+  // Draw accumulated canvas
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      Color c = canvas_[y * width + x];
+      if (c.raw_32 != 0) {
+        display.draw_pixel_at(x, y, c);
+      }
+    }
+  }
+
+  // Draw expanding active splat if not yet baked
+  if (current_splat > last_baked_splat_) {
+    render_splat_(&display, width, height, current_splat, tau, false);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// BlackholeAnimationElement
+// ---------------------------------------------------------------------------
+
+void BlackholeAnimationElement::draw(display::Display& display, int width,
+                                     int height, float time) {
+  const int min_dim = std::min(width, height);
+  const int step = std::max(1, min_dim / 32);
+
+  const float orbit_angle = time * 0.85f;
+  const float cam_dist = 3.6f;
+  // Slowly vary elevation between ~10 deg and ~23 deg
+  const float elev = 0.28f + 0.12f * std::sin(time * 0.50f);
+
+  const float cx = cam_dist * std::cos(orbit_angle) * std::cos(elev);
+  const float cy = cam_dist * std::sin(elev);
+  const float cz = cam_dist * std::sin(orbit_angle) * std::cos(elev);
+
+  const float fwd_x = -cx / cam_dist;
+  const float fwd_y = -cy / cam_dist;
+  const float fwd_z = -cz / cam_dist;
+
+  const float rx = fwd_z;
+  const float rz = -fwd_x;
+  const float rlen = std::sqrt(rx * rx + rz * rz);
+  const float inv_rlen = 1.0f / (rlen + 1e-6f);
+  const float right_x = rx * inv_rlen;
+  const float right_z = rz * inv_rlen;
+
+  // true up = cross(right, fwd)
+  const float up_x = -right_z * fwd_y;
+  const float up_y = right_z * fwd_x - right_x * fwd_z;
+  const float up_z = right_x * fwd_y;
+
+  const float rs = 0.38f;
+  const float rs_capture = rs * 1.05f;
+  const float rs_capture_sq = rs_capture * rs_capture;
+  const float r_in = 0.75f;
+  const float r_out = 2.40f;
+  const float r_in_sq = r_in * r_in;
+  const float r_out_sq = r_out * r_out;
+  const float inv_r_span = 1.0f / (r_out - r_in);
+
+  const float dt = 0.18f;
+  const int n_steps = 38;
+  const float fov_scale = 0.85f;
+  const float inv_half_dim = 1.0f / ((float)min_dim * 0.5f);
+
+  for (int y = 0; y < height; y += step) {
+    const float py =
+        ((float)(height - 1) * 0.5f - (float)y) * inv_half_dim * fov_scale;
+    for (int x = 0; x < width; x += step) {
+      const float px =
+          ((float)x - (float)(width - 1) * 0.5f) * inv_half_dim * fov_scale;
+
+      float rdx = fwd_x + px * right_x + py * up_x;
+      float rdy = fwd_y + py * up_y;
+      float rdz = fwd_z + px * right_z + py * up_z;
+      const float inv_len = 1.0f / std::sqrt(rdx * rdx + rdy * rdy + rdz * rdz);
+      rdx *= inv_len;
+      rdy *= inv_len;
+      rdz *= inv_len;
+
+      float pos_x = cx;
+      float pos_y = cy;
+      float pos_z = cz;
+
+      float val = 0.0f;
+      float opacity = 0.0f;
+      float min_r = 100.0f;
+      bool fell_in = false;
+
+      for (int s = 0; s < n_steps; ++s) {
+        const float r2 = pos_x * pos_x + pos_y * pos_y + pos_z * pos_z;
+        if (r2 <= rs_capture_sq) {
+          fell_in = true;
+          break;
+        }
+
+        const float r = std::sqrt(r2);
+        if (r < min_r) min_r = r;
+
+        // Conserved angular momentum L = pos x rd
+        const float lx = pos_y * rdz - pos_z * rdy;
+        const float ly = pos_z * rdx - pos_x * rdz;
+        const float lz = pos_x * rdy - pos_y * rdx;
+        const float l2 = lx * lx + ly * ly + lz * lz;
+
+        // Gravitational light deflection in Schwarzschild metric
+        const float bend = 1.5f * rs * l2 / (r2 * r2 * r + 1e-4f);
+        rdx -= pos_x * bend * dt;
+        rdy -= pos_y * bend * dt;
+        rdz -= pos_z * bend * dt;
+        const float inv_rd =
+            1.0f / std::sqrt(rdx * rdx + rdy * rdy + rdz * rdz);
+        rdx *= inv_rd;
+        rdy *= inv_rd;
+        rdz *= inv_rd;
+
+        const float next_y = pos_y + rdy * dt;
+
+        // Check if ray crosses the equatorial accretion disk plane y = 0
+        if ((pos_y > 0.0f && next_y <= 0.0f) ||
+            (pos_y < 0.0f && next_y >= 0.0f)) {
+          const float t_c = -pos_y / (next_y - pos_y + 1e-9f);
+          const float cx_p = pos_x + rdx * dt * t_c;
+          const float cz_p = pos_z + rdz * dt * t_c;
+          const float r_disk_sq = cx_p * cx_p + cz_p * cz_p;
+
+          if (r_disk_sq >= r_in_sq && r_disk_sq <= r_out_sq) {
+            const float r_disk = std::sqrt(r_disk_sq);
+            const float t_d = (r_disk - r_in) * inv_r_span;
+            const float prof =
+                std::sin(t_d * PI_F) * std::pow(r_in / r_disk, 0.65f);
+            const float phi = std::atan2(cz_p, cx_p);
+            const float omega =
+                std::sqrt(rs / (r_disk_sq * r_disk + 0.1f)) * 3.2f;
+            const float arm1 =
+                std::sin(3.0f * (phi - omega * time) - r_disk * 4.0f);
+            const float arm2 =
+                std::sin(7.0f * (phi - 0.7f * omega * time) + r_disk * 3.0f);
+            const float swirl = 0.45f + 0.35f * arm1 + 0.20f * arm2;
+            const float v_rot = 0.65f * std::sqrt(rs / r_disk);
+            const float v_proj = (cz_p * rdx - cx_p * rdz) / r_disk * v_rot;
+            const float doppler =
+                std::max(0.08f, std::pow(1.0f + v_proj, 3.2f));
+            const float emission = prof * swirl * doppler;
+
+            val += emission * (1.0f - opacity);
+            opacity += 0.85f * (1.0f - opacity);
+            if (opacity >= 0.95f) {
+              break;
+            }
+          }
+        }
+
+        pos_x += rdx * dt;
+        pos_y = next_y;
+        pos_z += rdz * dt;
+      }
+
+      // Thin photon ring encircling the event horizon shadow
+      if (!fell_in && min_r < rs * 2.0f) {
+        const float d_ph = std::abs(min_r - rs * 1.5f);
+        const float ring = std::exp(-(d_ph * d_ph) / 0.008f) * 0.45f;
+        val += ring * (1.0f - opacity);
+      }
+
+      float p = 0.0f;
+      if (val > 0.015f) {
+        p = std::clamp(std::pow(val / 1.15f, 0.80f), 0.0f, 1.0f);
+      }
+
+      Color c = get_color_(p);
+      if (step == 1) {
+        display.draw_pixel_at(x, y, c);
+      } else {
+        display.filled_rectangle(x, y, step, step, c);
+      }
+    }
   }
 }
 

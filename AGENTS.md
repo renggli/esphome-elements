@@ -25,7 +25,7 @@
 
 - `elements` component manages a tree of `Element` objects
 - Elements: text (static/dynamic/time), image, custom, clock, animations, composition (horizontal/vertical/overlay), selection (priority/sequence/random), delegate (timeout)
-- Animations include aurora, fire, interference, julia, kaleidoscope, lorenz, matrix, meatballs, parallax, plasma, ripples, solid (3D shapes), spiral, stars, tunnel, voronoi, wave
+- Animations include blackhole, caustics, clockwork, fire, frizzle, interference, julia, lorenz, matrix, meatballs, plasma, ripples, solid (3D shapes), spectral, spiral, splatter, stars, tunnel, voronoi, wave
 - Element components auto-load: `display`, `image`, `time`
 
 ## Local Development

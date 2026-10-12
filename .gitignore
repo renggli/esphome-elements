@@ -1,5 +1,8 @@
 /.agents/
 /.esphome/
+/build/
 /secrets.yaml
 __pycache__/
 .DS_Store
+*.blend
+*.blend1

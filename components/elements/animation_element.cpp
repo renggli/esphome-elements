@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstring>
 #include <numbers>
 
 #include "color.h"
@@ -406,18 +407,28 @@ void StarsAnimationElement::draw(display::Display& display, int width,
 
 void SolidAnimationElement::draw(display::Display& display, int width,
                                  int height, float time) {
+  if (width <= 0 || height <= 0 || points_ == nullptr || num_points_ == 0) {
+    return;
+  }
+
   const float ax = time * TWO_PI_F * 0.397f;
   const float ay = time * TWO_PI_F;
   const float cx_r = std::cos(ax), sx_r = std::sin(ax);
   const float cy_r = std::cos(ay), sy_r = std::sin(ay);
   const float scale = std::min(width, height) * 0.42f;
-  const float ox = width * 0.5f, oy = height * 0.5f;
+  const float ox = (width - 1) * 0.5f, oy = (height - 1) * 0.5f;
+
   static std::vector<float> rz;
   static std::vector<int> px;
   static std::vector<int> py;
-  rz.resize(num_points_);
-  px.resize(num_points_);
-  py.resize(num_points_);
+  static std::vector<uint16_t> pz;
+  if (px.size() < num_points_) {
+    px.resize(num_points_);
+    py.resize(num_points_);
+    pz.resize(num_points_);
+    rz.resize(num_points_);
+  }
+
   // Transform and project points.
   for (size_t i = 0; i < num_points_; i++) {
     const Vec3& vert = points_[i];
@@ -425,25 +436,366 @@ void SolidAnimationElement::draw(display::Display& display, int width,
     const float z1 = vert.y * sx_r + vert.z * cx_r;
     const float x2 = vert.x * cy_r + z1 * sy_r;
     rz[i] = -vert.x * sy_r + z1 * cy_r;
-    px[i] = (int)(ox + x2 * scale);
-    py[i] = (int)(oy - y1 * scale);
+    px[i] =
+        std::clamp(static_cast<int>(std::round(ox + x2 * scale)), 0, width - 1);
+    py[i] = std::clamp(static_cast<int>(std::round(oy - y1 * scale)), 0,
+                       height - 1);
+    const float z_norm = std::clamp((rz[i] + 1.5f) / 3.0f, 0.0f, 1.0f);
+    pz[i] = static_cast<uint16_t>(z_norm * 65535.0f);
   }
-  // Draw background lines first
-  for (size_t i = 0; i < num_edges_; i++) {
-    const Edge& edge = edges_[i];
-    const float depth = ((rz[edge.a] + rz[edge.b]) * 0.5f + 1.0f) * 0.5f;
-    if (depth < 0.5f) {
-      display.line(px[edge.a], py[edge.a], px[edge.b], py[edge.b],
-                   get_color_(depth));
+
+  if (mode_ == SolidMode::WIRE || faces_ == nullptr || num_faces_ == 0) {
+    // Draw background lines first
+    for (size_t i = 0; i < num_edges_; i++) {
+      const Edge& edge = edges_[i];
+      if (edge.a >= num_points_ || edge.b >= num_points_) {
+        continue;
+      }
+      const float depth = ((rz[edge.a] + rz[edge.b]) * 0.5f + 1.0f) * 0.5f;
+      if (depth < 0.5f) {
+        display.line(px[edge.a], py[edge.a], px[edge.b], py[edge.b],
+                     get_color_(std::clamp(depth, 0.0f, 1.0f)));
+      }
+    }
+    // Draw foreground lines on top
+    for (size_t i = 0; i < num_edges_; i++) {
+      const Edge& edge = edges_[i];
+      if (edge.a >= num_points_ || edge.b >= num_points_) {
+        continue;
+      }
+      const float depth = ((rz[edge.a] + rz[edge.b]) * 0.5f + 1.0f) * 0.5f;
+      if (depth >= 0.5f) {
+        display.line(px[edge.a], py[edge.a], px[edge.b], py[edge.b],
+                     get_color_(std::clamp(depth, 0.0f, 1.0f)));
+      }
+    }
+    return;
+  }
+
+  static std::vector<uint16_t> depth_buffer;
+  const size_t buffer_size =
+      static_cast<size_t>(width) * static_cast<size_t>(height);
+  if (depth_buffer.size() < buffer_size) {
+    depth_buffer.resize(buffer_size);
+  }
+  std::memset(depth_buffer.data(), 0, buffer_size * sizeof(uint16_t));
+
+  static std::vector<bool> face_front;
+  if (face_front.size() < num_faces_) {
+    face_front.resize(num_faces_);
+  }
+  std::fill_n(face_front.begin(), num_faces_, false);
+
+  static std::vector<bool> edge_front;
+  if (edge_front.size() < num_edges_) {
+    edge_front.resize(num_edges_);
+  }
+  std::fill_n(edge_front.begin(), num_edges_, false);
+
+  constexpr float LX = -0.577350269f;
+  constexpr float LY = 0.577350269f;
+  constexpr float LZ = 0.577350269f;
+
+  for (size_t i = 0; i < num_faces_; i++) {
+    const Vec3& normal = normals_[i];
+    const float ny1 = normal.y * cx_r - normal.z * sx_r;
+    const float nz1 = normal.y * sx_r + normal.z * cx_r;
+    const float nx2 = normal.x * cy_r + nz1 * sy_r;
+    const float nz2 = -normal.x * sy_r + nz1 * cy_r;
+
+    if (nz2 <= 0.0f) {
+      continue;
+    }
+    face_front[i] = true;
+
+    const Face& face = faces_[i];
+    if (face.a >= num_points_ || face.b >= num_points_ ||
+        face.c >= num_points_) {
+      continue;
+    }
+
+    if (mode_ == SolidMode::HIDDEN) {
+      rasterize_triangle_(display, depth_buffer.data(), width, height,
+                          px[face.a], py[face.a], pz[face.a], px[face.b],
+                          py[face.b], pz[face.b], px[face.c], py[face.c],
+                          pz[face.c], false, Color{});
+    } else if (mode_ == SolidMode::SOLID) {
+      const float dot_key = nx2 * LX + ny1 * LY + nz2 * LZ;
+      const float dot_fill = nx2 * (-LX) + ny1 * (-LY) + nz2 * LZ;
+      const float diff_key = std::max(0.0f, dot_key);
+      const float diff_fill = std::max(0.0f, dot_fill);
+      const float intensity = 0.10f + 0.65f * diff_key + 0.15f * diff_fill;
+      const Color color = get_color_(std::clamp(intensity, 0.0f, 0.85f));
+
+      rasterize_triangle_(display, depth_buffer.data(), width, height,
+                          px[face.a], py[face.a], pz[face.a], px[face.b],
+                          py[face.b], pz[face.b], px[face.c], py[face.c],
+                          pz[face.c], true, color);
+    }
+
+    // Mark edges belonging to this front-facing face
+    for (size_t e = 0; e < num_edges_; ++e) {
+      const Edge& edge = edges_[e];
+      if ((face.a == edge.a && face.b == edge.b) ||
+          (face.a == edge.b && face.b == edge.a) ||
+          (face.b == edge.a && face.c == edge.b) ||
+          (face.b == edge.b && face.c == edge.a) ||
+          (face.c == edge.a && face.a == edge.b) ||
+          (face.c == edge.b && face.a == edge.a)) {
+        edge_front[e] = true;
+      }
     }
   }
-  // Draw foreground lines on top
-  for (size_t i = 0; i < num_edges_; i++) {
-    const Edge& edge = edges_[i];
-    const float depth = ((rz[edge.a] + rz[edge.b]) * 0.5f + 1.0f) * 0.5f;
-    if (depth >= 0.5f) {
-      display.line(px[edge.a], py[edge.a], px[edge.b], py[edge.b],
-                   get_color_(depth));
+
+  constexpr uint16_t BIAS = 2048;
+
+  if (mode_ == SolidMode::HIDDEN) {
+    for (size_t i = 0; i < num_edges_; i++) {
+      if (!edge_front[i]) {
+        continue;
+      }
+      const Edge& edge = edges_[i];
+      if (edge.a >= num_points_ || edge.b >= num_points_) {
+        continue;
+      }
+      const float depth = ((rz[edge.a] + rz[edge.b]) * 0.5f + 1.0f) * 0.5f;
+      const Color color = get_color_(std::clamp(depth, 0.0f, 1.0f));
+      draw_line_depth_(display, depth_buffer.data(), width, height, px[edge.a],
+                       py[edge.a], pz[edge.a], px[edge.b], py[edge.b],
+                       pz[edge.b], BIAS, color);
+    }
+  } else if (mode_ == SolidMode::SOLID) {
+    const Color edge_color = get_color_(1.0f);
+    for (size_t i = 0; i < num_edges_; i++) {
+      if (!edge_front[i]) {
+        continue;
+      }
+      const Edge& edge = edges_[i];
+      if (edge.a >= num_points_ || edge.b >= num_points_) {
+        continue;
+      }
+      draw_line_depth_(display, depth_buffer.data(), width, height, px[edge.a],
+                       py[edge.a], pz[edge.a], px[edge.b], py[edge.b],
+                       pz[edge.b], BIAS, edge_color);
+    }
+  }
+}
+
+void SolidAnimationElement::rasterize_triangle_(
+    display::Display& display, uint16_t* depth_buffer, int width, int height,
+    int x0, int y0, uint16_t z0, int x1, int y1, uint16_t z1, int x2, int y2,
+    uint16_t z2, bool write_color, Color color) {
+  const float det =
+      static_cast<float>((x1 - x0) * (y2 - y0) - (x2 - x0) * (y1 - y0));
+  if (std::abs(det) < 0.001f) {
+    return;
+  }
+
+  // Sort vertices by Y ascending: a <= b <= c
+  int ax = x0, ay = y0;
+  uint16_t az = z0;
+  int bx = x1, by = y1;
+  uint16_t bz = z1;
+  int cx = x2, cy = y2;
+  uint16_t cz = z2;
+
+  if (ay > by) {
+    std::swap(ax, bx);
+    std::swap(ay, by);
+    std::swap(az, bz);
+  }
+  if (ay > cy) {
+    std::swap(ax, cx);
+    std::swap(ay, cy);
+    std::swap(az, cz);
+  }
+  if (by > cy) {
+    std::swap(bx, cx);
+    std::swap(by, cy);
+    std::swap(bz, cz);
+  }
+
+  if (ay == cy) {
+    return;
+  }
+
+  const float z0_f = static_cast<float>(z0);
+  const float z1_f = static_cast<float>(z1);
+  const float z2_f = static_cast<float>(z2);
+  const float min_z = std::min({z0_f, z1_f, z2_f});
+  const float max_z = std::max({z0_f, z1_f, z2_f});
+  const float inv_det = 1.0f / det;
+  const float dz_dx = ((z1_f - z0_f) * static_cast<float>(y2 - y0) -
+                       (z2_f - z0_f) * static_cast<float>(y1 - y0)) *
+                      inv_det;
+  const float dz_dy = (static_cast<float>(x1 - x0) * (z2_f - z0_f) -
+                       static_cast<float>(x2 - x0) * (z1_f - z0_f)) *
+                      inv_det;
+
+  // Slope-dependent polygon depth offset prevents depth fighting with edges
+  const float poly_offset =
+      std::min(12000.0f, 2.0f * (std::abs(dz_dx) + std::abs(dz_dy)) + 1024.0f);
+
+  const int y_start = std::max(ay, 0);
+  const int y_end = std::min(cy, height - 1);
+
+  const float inv_cy_ay = 1.0f / static_cast<float>(cy - ay);
+  const float inv_by_ay =
+      (by != ay) ? (1.0f / static_cast<float>(by - ay)) : 0.0f;
+  const float inv_cy_by =
+      (cy != by) ? (1.0f / static_cast<float>(cy - by)) : 0.0f;
+
+  for (int y = y_start; y <= y_end; ++y) {
+    const float y_ay = static_cast<float>(y - ay);
+    const float x_ac =
+        static_cast<float>(ax) + static_cast<float>(cx - ax) * y_ay * inv_cy_ay;
+    float x_other;
+    if (y < by) {
+      x_other = static_cast<float>(ax) +
+                static_cast<float>(bx - ax) * y_ay * inv_by_ay;
+    } else {
+      const float y_by = static_cast<float>(y - by);
+      x_other = (cy != by) ? (static_cast<float>(bx) +
+                              static_cast<float>(cx - bx) * y_by * inv_cy_by)
+                           : static_cast<float>(bx);
+    }
+
+    const int min_x = static_cast<int>(std::round(std::min(x_ac, x_other)));
+    const int max_x = static_cast<int>(std::round(std::max(x_ac, x_other)));
+
+    const int xs = std::max(min_x, 0);
+    const int xe = std::min(max_x, width - 1);
+
+    if (xs > xe) {
+      continue;
+    }
+
+    const size_t row_idx = static_cast<size_t>(y) * width;
+    float z_curr = z0_f + static_cast<float>(xs - x0) * dz_dx +
+                   static_cast<float>(y - y0) * dz_dy;
+
+    for (int x = xs; x <= xe; ++x, z_curr += dz_dx) {
+      const float z_clamped = std::clamp(z_curr, min_z, max_z);
+      const float z_write = std::max(0.0f, z_clamped - poly_offset);
+      const uint16_t z_val =
+          static_cast<uint16_t>(std::clamp(z_write, 0.0f, 65535.0f));
+      const size_t idx = row_idx + x;
+      if (z_val > depth_buffer[idx]) {
+        depth_buffer[idx] = z_val;
+        if (write_color) {
+          display.draw_pixel_at(x, y, color);
+        }
+      }
+    }
+  }
+}
+
+void SolidAnimationElement::draw_line_depth_(display::Display& display,
+                                             const uint16_t* depth_buffer,
+                                             int width, int height, int x0,
+                                             int y0, uint16_t z0, int x1,
+                                             int y1, uint16_t z1, uint16_t bias,
+                                             Color color) {
+  if (width <= 0 || height <= 0) {
+    return;
+  }
+  const int dx = std::abs(x1 - x0);
+  const int dy = std::abs(y1 - y0);
+  const int steps = std::max(dx, dy);
+
+  if (steps == 0) {
+    if (x0 >= 0 && x0 < width && y0 >= 0 && y0 < height) {
+      const size_t idx = static_cast<size_t>(y0) * width + x0;
+      if (static_cast<uint32_t>(z0) + bias >= depth_buffer[idx]) {
+        display.draw_pixel_at(x0, y0, color);
+      }
+    }
+    return;
+  }
+
+  // Pre-allocated static vectors for zero heap allocations in steady-state loop
+  static std::vector<int> line_x;
+  static std::vector<int> line_y;
+  static std::vector<bool> line_pass;
+  const size_t total_points = static_cast<size_t>(steps + 1);
+  if (line_x.size() < total_points) {
+    line_x.resize(total_points);
+    line_y.resize(total_points);
+    line_pass.resize(total_points);
+  }
+
+  const int sx = (x0 < x1) ? 1 : -1;
+  const int sy = (y0 < y1) ? 1 : -1;
+  int err = dx - dy;
+  float z_curr = static_cast<float>(z0);
+  const float dz = (static_cast<float>(z1) - static_cast<float>(z0)) /
+                   static_cast<float>(steps);
+
+  int cur_x = x0;
+  int cur_y = y0;
+  int pass_count = 0;
+
+  for (size_t i = 0; i < total_points; ++i) {
+    line_x[i] = cur_x;
+    line_y[i] = cur_y;
+
+    if (cur_x >= 0 && cur_x < width && cur_y >= 0 && cur_y < height) {
+      const size_t idx = static_cast<size_t>(cur_y) * width + cur_x;
+      const uint16_t z_val =
+          static_cast<uint16_t>(std::clamp(z_curr, 0.0f, 65535.0f));
+      bool pass = (static_cast<uint32_t>(z_val) + bias >= depth_buffer[idx]);
+      line_pass[i] = pass;
+      if (pass) {
+        pass_count++;
+      }
+    } else {
+      line_pass[i] = false;
+    }
+
+    if (i < static_cast<size_t>(steps)) {
+      const int e2 = 2 * err;
+      if (e2 > -dy) {
+        err -= dy;
+        cur_x += sx;
+      }
+      if (e2 < dx) {
+        err += dx;
+        cur_y += sy;
+      }
+      z_curr += dz;
+    }
+  }
+
+  // Fill up to 2-pixel gaps caused by rasterization/slope depth fighting
+  for (size_t i = 1; i + 1 < total_points; ++i) {
+    if (!line_pass[i] && line_pass[i - 1] && line_pass[i + 1]) {
+      line_pass[i] = true;
+      pass_count++;
+    }
+  }
+  for (size_t i = 1; i + 2 < total_points; ++i) {
+    if (!line_pass[i] && !line_pass[i + 1] && line_pass[i - 1] &&
+        line_pass[i + 2]) {
+      line_pass[i] = true;
+      line_pass[i + 1] = true;
+      pass_count += 2;
+    }
+  }
+
+  // If both endpoints pass: edge connects visible vertices, render unbroken
+  // continuous line to prevent low-resolution rasterization gaps.
+  if (line_pass[0] && line_pass[steps]) {
+    for (size_t i = 0; i < total_points; ++i) {
+      display.draw_pixel_at(line_x[i], line_y[i], color);
+    }
+    return;
+  }
+
+  // Otherwise draw all visible pixels (including stubs and runs on partially
+  // occluded edges)
+  for (size_t i = 0; i < total_points; ++i) {
+    if (line_pass[i]) {
+      display.draw_pixel_at(line_x[i], line_y[i], color);
     }
   }
 }

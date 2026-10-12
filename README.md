@@ -204,16 +204,21 @@ Provides complex procedural animations to serve as backgrounds or standalone vis
 
 All animations support the following configuration variables:
 
-- **color_scheme** (Optional, ColorScheme): Configures the color palette and gradients of the animation. Depending on the `type`, it can be `static`, `gradient`, `sequence`, `mirror`, `inverse`, `monochromatic`, `analogous`, `complementary`, `split_complementary`, `triadic`, or `square`.
+- **color_scheme** (Optional, ColorScheme): Configures the color palette and gradients of the animation. Depending on the `type`, it can be `static`, `gradient`, `sequence`, `mirror`, `inverse`, `rainbow` (full 360° HSV hue rotation with optional `hue_offset`, `saturation`, and `value`), `monochromatic`, `analogous`, `complementary`, `split_complementary`, `triadic`, or `square`.
 - **speed** (Optional, float): A multiplier to speed up or slow down the animation. Defaults to `1.0`.
 
-Depending on the animation type, extra options like `strength`, `cooling`, `length`, `density`, `fade_steps`, `count`, `shape`, or `layers` might also be available.
+Depending on the animation type, extra options like `strength`, `cooling`, `length`, `density`, `fade_steps`, `count`, `shape`, `mode`, or `layers` might also be available.
 
-The `solid_animation` supports the following shapes:
+The `solid_animation` renders 3D polyhedra with depth testing and supports:
 
-- **Platonic solids:** `tetrahedron`, `cube`, `octahedron`, `icosahedron`, `dodecahedron`
-- **Archimedean solids:** `truncated_tetrahedron`, `cuboctahedron`, `truncated_cube`, `truncated_octahedron`, `rhombicuboctahedron`, `truncated_cuboctahedron`, `snub_cube`, `icosidodecahedron`, `truncated_dodecahedron`, `truncated_icosahedron`, `rhombicosidodecahedron`, `truncated_icosidodecahedron`, `snub_dodecahedron`
-- **Others:** `triangular_prism`, `pentagonal_prism`, `square_antiprism`, `pentagonal_antiprism`, `triangular_bipyramid`, `square_bipyramid`, `pentagonal_bipyramid`, `sphere`
+- **mode** (Optional, string): 3D rendering mode: `wire` (default, transparent wireframe showing all edges), `hidden` (wireframe with back edges hidden behind front faces), or `solid` (solid filled faces with directional lighting mapped to the color palette).
+- **shape** (Optional, string): The 3D polyhedral mesh to display:
+  - **Platonic solids:** `tetrahedron`, `cube`, `octahedron`, `icosahedron`, `dodecahedron`
+  - **Star polyhedra:** `stella_octangula`, `star`, `triakis_tetrahedron`, `small_stellated_dodecahedron`, `great_stellated_dodecahedron`
+  - **Archimedean solids:** `truncated_tetrahedron`, `cuboctahedron`, `truncated_cube`, `truncated_octahedron`, `rhombicuboctahedron`, `truncated_cuboctahedron`, `snub_cube`, `icosidodecahedron`, `truncated_dodecahedron`, `truncated_icosahedron`, `rhombicosidodecahedron`, `truncated_icosidodecahedron`, `snub_dodecahedron`
+  - **Primitives & Others:** `pyramid`, `cylinder`, `cone`, `torus`, `diamond`, `rhombic_dodecahedron`, `triangular_prism`, `pentagonal_prism`, `square_antiprism`, `pentagonal_antiprism`, `triangular_bipyramid`, `square_bipyramid`, `pentagonal_bipyramid`, `sphere`
+
+![3D Shapes Overview](assets/shapes.png)
 
 ### Custom Element
 

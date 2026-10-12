@@ -115,133 +115,226 @@
 # Platonic solids
 - type: solid_animation
   shape: tetrahedron
+  mode: hidden
   color_scheme:
     type: monochromatic
     color: "#00ffff" # cyan
 - type: solid_animation
   shape: cube
+  mode: hidden
   color_scheme:
     type: monochromatic
     color: "#ffff00" # yellow
 - type: solid_animation
   shape: octahedron
+  mode: hidden
   color_scheme:
     type: monochromatic
     color: "#ff00ff" # magenta
 - type: solid_animation
   shape: icosahedron
+  mode: hidden
   color_scheme:
     type: monochromatic
     color: "#ff0000" # red
 - type: solid_animation
   shape: dodecahedron
+  mode: hidden
   color_scheme:
     type: monochromatic
     color: "#00ff00" # green
+# Star polyhedra
+- type: solid_animation
+  shape: stella_octangula
+  mode: hidden
+  color_scheme:
+    type: monochromatic
+    color: "#ffaa00" # amber gold
+- type: solid_animation
+  shape: star
+  mode: hidden
+  color_scheme:
+    type: monochromatic
+    color: "#ffff00" # yellow
+- type: solid_animation
+  shape: triakis_tetrahedron
+  mode: hidden
+  color_scheme:
+    type: monochromatic
+    color: "#00e5ff" # cyan
+- type: solid_animation
+  shape: small_stellated_dodecahedron
+  mode: hidden
+  color_scheme:
+    type: monochromatic
+    color: "#ffd700" # gold
+- type: solid_animation
+  shape: great_stellated_dodecahedron
+  mode: hidden
+  color_scheme:
+    type: monochromatic
+    color: "#ff1493" # deep pink
 # Archimedean solids
 - type: solid_animation
   shape: truncated_tetrahedron
+  mode: hidden
   color_scheme:
     type: monochromatic
     color: "#ff6347" # tomato
 - type: solid_animation
   shape: cuboctahedron
+  mode: hidden
   color_scheme:
     type: monochromatic
     color: "#ffa500" # orange
 - type: solid_animation
   shape: truncated_cube
+  mode: hidden
   color_scheme:
     type: monochromatic
     color: "#da70d6" # orchid
 - type: solid_animation
   shape: truncated_octahedron
+  mode: hidden
   color_scheme:
     type: monochromatic
     color: "#7fff00" # chartreuse
 - type: solid_animation
   shape: rhombicuboctahedron
+  mode: hidden
   color_scheme:
     type: monochromatic
     color: "#40e0d0" # turquoise
 - type: solid_animation
   shape: truncated_cuboctahedron
+  mode: hidden
   color_scheme:
     type: monochromatic
     color: "#ee82ee" # violet
 - type: solid_animation
   shape: snub_cube
+  mode: hidden
   color_scheme:
     type: monochromatic
     color: "#ffd700" # gold
 - type: solid_animation
   shape: icosidodecahedron
+  mode: hidden
   color_scheme:
     type: monochromatic
     color: "#1e90ff" # dodger blue
 - type: solid_animation
   shape: truncated_dodecahedron
+  mode: hidden
   color_scheme:
     type: monochromatic
     color: "#ff69b4" # hot pink
 - type: solid_animation
   shape: truncated_icosahedron
+  mode: hidden
   color_scheme:
     type: monochromatic
     color: "#00fa9a" # medium spring green
 - type: solid_animation
   shape: rhombicosidodecahedron
+  mode: hidden
   color_scheme:
     type: monochromatic
     color: "#ff4500" # orange red
 - type: solid_animation
   shape: truncated_icosidodecahedron
+  mode: hidden
   color_scheme:
     type: monochromatic
     color: "#9370db" # medium purple
 - type: solid_animation
   shape: snub_dodecahedron
+  mode: hidden
   color_scheme:
     type: monochromatic
     color: "#00ced1" # dark turquoise
-# Others
+# Primitives & Others
+- type: solid_animation
+  shape: pyramid
+  mode: hidden
+  color_scheme:
+    type: monochromatic
+    color: "#ff9800" # orange
+- type: solid_animation
+  shape: cylinder
+  mode: hidden
+  color_scheme:
+    type: monochromatic
+    color: "#4caf50" # green
+- type: solid_animation
+  shape: cone
+  mode: hidden
+  color_scheme:
+    type: monochromatic
+    color: "#e91e63" # pink
+- type: solid_animation
+  shape: torus
+  mode: hidden
+  color_scheme:
+    type: monochromatic
+    color: "#9c27b0" # purple
+- type: solid_animation
+  shape: diamond
+  mode: hidden
+  color_scheme:
+    type: monochromatic
+    color: "#00bcd4" # diamond cyan
+- type: solid_animation
+  shape: rhombic_dodecahedron
+  mode: hidden
+  color_scheme:
+    type: monochromatic
+    color: "#3f51b5" # indigo
 - type: solid_animation
   shape: triangular_prism
+  mode: hidden
   color_scheme:
     type: monochromatic
     color: "#67e8f9" # sky
 - type: solid_animation
   shape: pentagonal_prism
+  mode: hidden
   color_scheme:
     type: monochromatic
     color: "#86efac" # green
 - type: solid_animation
   shape: square_antiprism
+  mode: hidden
   color_scheme:
     type: monochromatic
     color: "#fdba74" # peach
 - type: solid_animation
   shape: pentagonal_antiprism
+  mode: hidden
   color_scheme:
     type: monochromatic
     color: "#d8b4fe" # lavender
 - type: solid_animation
   shape: triangular_bipyramid
+  mode: hidden
   color_scheme:
     type: monochromatic
     color: "#fcd34d" # amber
 - type: solid_animation
   shape: square_bipyramid
+  mode: hidden
   color_scheme:
     type: monochromatic
     color: "#6d28d9" # purple
 - type: solid_animation
   shape: pentagonal_bipyramid
+  mode: hidden
   color_scheme:
     type: monochromatic
     color: "#10b981" # emerald
 - type: solid_animation
   shape: sphere
+  mode: hidden
   color_scheme:
     type: monochromatic
     color: "#0000ff" # blue

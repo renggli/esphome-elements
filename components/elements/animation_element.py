@@ -20,6 +20,7 @@ CONF_ELEMENT = "element"
 CONF_FADE_STEPS = "fade_steps"
 CONF_IS_ACTIVE = "is_active"
 CONF_LENGTH = "length"
+CONF_MODE = "mode"
 CONF_RHO = "rho"
 CONF_SHAPE = "shape"
 CONF_SIGMA = "sigma"
@@ -374,17 +375,33 @@ SolidAnimationElement = shared.elements_ns.class_(
 
 SHAPE_DATA = animation_data.SHAPE_DATA
 
+SolidMode = shared.elements_ns.enum("SolidMode", is_class=True)
+
+# 3D solid animation rendering modes:
+# - wire: Wireframe rendering showing all edges without occlusion (transparent/see-through).
+# - hidden: Wireframe rendering with occluded/back edges hidden behind front faces.
+# - solid: Solid filled faces with directional lighting mapped to the color palette.
+SOLID_MODE = {
+    "WIRE": SolidMode.WIRE,
+    "HIDDEN": SolidMode.HIDDEN,
+    "SOLID": SolidMode.SOLID,
+}
+
 SOLID_ANIMATION_ELEMENT_SCHEMA = ANIMATION_ELEMENT_SCHEMA.extend(
     {
         cv.GenerateID(CONF_ID): cv.declare_id(SolidAnimationElement),
         cv.Optional(CONF_SHAPE, default="icosahedron"): cv.one_of(
             *SHAPE_DATA.keys(), lower=True
         ),
+        cv.Optional(CONF_MODE, default="wire"): cv.enum(
+            SOLID_MODE, upper=True, space="_"
+        ),
     }
 )
 
 Vec3Struct = shared.elements_ns.struct("Vec3")
 EdgeStruct = shared.elements_ns.struct("Edge")
+FaceStruct = shared.elements_ns.struct("Face")
 
 
 async def solid_animation_to_code(config, component, parent):
@@ -408,6 +425,25 @@ async def solid_animation_to_code(config, component, parent):
     )
     edges_array = cg.progmem_array(edges_id, edges)
     cg.add(var.set_edges(edges_array, len(edges)))
+
+    faces = [[int(value) for value in face] for face in shape["faces"]]
+    faces_id = core.ID(
+        f"{config[CONF_ID]}_faces",
+        is_declaration=True,
+        type=FaceStruct,
+    )
+    faces_array = cg.progmem_array(faces_id, faces)
+
+    normals = [[float(value) for value in normal] for normal in shape["normals"]]
+    normals_id = core.ID(
+        f"{config[CONF_ID]}_normals",
+        is_declaration=True,
+        type=Vec3Struct,
+    )
+    normals_array = cg.progmem_array(normals_id, normals)
+
+    cg.add(var.set_faces(faces_array, normals_array, len(shape["faces"])))
+    cg.add(var.set_mode(config[CONF_MODE]))
 
     return var
 

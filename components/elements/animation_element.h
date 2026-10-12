@@ -214,6 +214,23 @@ struct Edge {
   uint8_t a, b;
 };
 
+struct Face {
+  uint8_t a, b, c;
+};
+
+// 3D solid animation rendering mode:
+// - WIRE: Wireframe rendering showing all edges without occlusion
+// (transparent).
+// - HIDDEN: Wireframe rendering with occluded/back edges hidden behind front
+// faces.
+// - SOLID: Solid filled faces with directional lighting mapped to the color
+// palette.
+enum class SolidMode : uint8_t {
+  WIRE,
+  HIDDEN,
+  SOLID,
+};
+
 class SolidAnimationElement : public AnimationElement {
  public:
   using AnimationElement::AnimationElement;
@@ -227,15 +244,34 @@ class SolidAnimationElement : public AnimationElement {
     edges_ = edges;
     num_edges_ = num_edges;
   }
+  void set_faces(const Face* faces, const Vec3* normals, size_t num_faces) {
+    faces_ = faces;
+    normals_ = normals;
+    num_faces_ = num_faces;
+  }
+  void set_mode(SolidMode mode) { mode_ = mode; }
 
   void draw(display::Display& display, int width, int height,
             float time) override;
 
  protected:
+  void rasterize_triangle_(display::Display& display, uint16_t* depth_buffer,
+                           int width, int height, int x0, int y0, uint16_t z0,
+                           int x1, int y1, uint16_t z1, int x2, int y2,
+                           uint16_t z2, bool write_color, Color color);
+  void draw_line_depth_(display::Display& display, const uint16_t* depth_buffer,
+                        int width, int height, int x0, int y0, uint16_t z0,
+                        int x1, int y1, uint16_t z1, uint16_t bias,
+                        Color color);
+
   const Vec3* points_{nullptr};
   size_t num_points_{0};
   const Edge* edges_{nullptr};
   size_t num_edges_{0};
+  const Face* faces_{nullptr};
+  const Vec3* normals_{nullptr};
+  size_t num_faces_{0};
+  SolidMode mode_{SolidMode::WIRE};
   float get_time_scale_() const override { return 1.0f / 8.0f; }
 };
 

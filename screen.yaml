@@ -2,8 +2,7 @@ substitutions:
   device_name: "screen"
   friendly_name: "Screen"
 packages:
-  fonts: !include common/fonts.yaml
-  colors: !include common/tango-colors.yaml
+  colors: !include assets/colors/tango.yaml
 external_components:
   - source: github://renggli/esphome-clock
   - source:

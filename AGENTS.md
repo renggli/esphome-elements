@@ -2,8 +2,10 @@
 
 ## Build & Test
 
-- No local tests; build validation is the primary check
-- Build command: `esphome compile <config.yaml>`
+- Build command: `esphome compile <config.yaml>` (`example.yaml`, `example_animations.yaml`, `screen.yaml`)
+- Python mesh tests: `python3 tests/test_mesh.py` (or `python3 -m unittest discover tests`)
+- Offline C++ rasterizer test: `clang++ -std=c++20 -O2 tests/test_rasterizer.cpp -o build/test_rasterizer && ./build/test_rasterizer`
+- Blender export & preview: `./bin/export_blender.py` (generates `build/shapes.blend`)
 
 ## Code Style
 
@@ -15,9 +17,13 @@
 ## Key Files
 
 - `components/elements/` - Custom ESPHome component (Python config, C++ implementation)
+- `components/elements/animation_data.py` - Pre-computed vertex, edge, face, and normal data for 3D meshes
+- `bin/export_blender.py` - Blender Python export tool for mesh inspection (`shapes.blend`)
+- `tests/` - Offline geometry and rasterizer stress test suites
 - `common/` - Shared YAML configs (animations, display, hardware)
 - `assets/` - Shared assets (fonts, colors, weather images)
 - `example.yaml` - Primary config for 32x32 LED matrix
+- `example_animations.yaml` - Animation showcase config
 - `screen.yaml` - Alternate config for 320x480 LCD display
 - `common/compatibility.h` - C++ compatibility header (`PI`, `radians`)
 
@@ -26,6 +32,7 @@
 - `elements` component manages a tree of `Element` objects
 - Elements: text (static/dynamic/time), image, custom, clock, animations, composition (horizontal/vertical/overlay), selection (priority/sequence/random), delegate (timeout)
 - Animations include blackhole, caustics, clockwork, fire, frizzle, interference, julia, lorenz, matrix, meatballs, plasma, ripples, solid (3D shapes), spectral, spiral, splatter, stars, tunnel, voronoi, wave
+- `solid_animation` renders 3D polyhedra via depth buffer with modes: `wire`, `hidden`, `solid`
 - Element components auto-load: `display`, `image`, `time`
 
 ## Local Development

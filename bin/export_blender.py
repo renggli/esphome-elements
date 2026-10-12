@@ -124,30 +124,53 @@ def main():
     scene.world.use_nodes = True
     bg_node = scene.world.node_tree.nodes.get("Background")
     if bg_node:
-        bg_node.inputs["Color"].default_value = (0.28, 0.30, 0.36, 1.0)
-        bg_node.inputs["Strength"].default_value = 1.0
+        bg_node.inputs["Color"].default_value = (0.16, 0.20, 0.28, 1.0)
+        bg_node.inputs["Strength"].default_value = 0.55
 
-    # Key directional light
+    # Key directional light (broad glossy specular glare)
     light_key = bpy.data.lights.new(name="KeyLight", type="SUN")
-    light_key.energy = 2.2
+    light_key.energy = 3.6
+    light_key.angle = math.radians(26.0)
     obj_key = bpy.data.objects.new("KeyLight", light_key)
-    obj_key.rotation_euler = (math.radians(45), math.radians(-35), math.radians(135))
+    obj_key.rotation_euler = (math.radians(45), math.radians(-30), math.radians(135))
     scene.collection.objects.link(obj_key)
 
-    # Fill directional light
+    # Fill directional light (soft fill)
     light_fill = bpy.data.lights.new(name="FillLight", type="SUN")
-    light_fill.energy = 0.9
+    light_fill.energy = 1.0
+    light_fill.angle = math.radians(35.0)
     obj_fill = bpy.data.objects.new("FillLight", light_fill)
-    obj_fill.rotation_euler = (math.radians(45), math.radians(35), math.radians(-45))
+    obj_fill.rotation_euler = (math.radians(45), math.radians(40), math.radians(-45))
     scene.collection.objects.link(obj_fill)
+
+    # Rim / Glare directional light (high-specular edge accents)
+    light_rim = bpy.data.lights.new(name="RimLight", type="SUN")
+    light_rim.energy = 3.0
+    light_rim.angle = math.radians(22.0)
+    obj_rim = bpy.data.objects.new("RimLight", light_rim)
+    obj_rim.rotation_euler = (math.radians(-55), math.radians(25), math.radians(-115))
+    scene.collection.objects.link(obj_rim)
+
+    # Enable EEVEE raytracing for glossy reflections
+    if hasattr(scene, "eevee") and hasattr(scene.eevee, "use_raytracing"):
+        scene.eevee.use_raytracing = True
 
     # Materials
     mat_shape = bpy.data.materials.new("Mat_SolidShape")
     mat_shape.use_nodes = True
     bsdf_shape = mat_shape.node_tree.nodes.get("Principled BSDF")
     if bsdf_shape:
-        bsdf_shape.inputs["Base Color"].default_value = (0.22, 0.48, 0.82, 1.0)
-        bsdf_shape.inputs["Roughness"].default_value = 0.35
+        # Vibrant saturated royal/sapphire blue with deep gloss and clearcoat glare
+        bsdf_shape.inputs["Base Color"].default_value = (0.12, 0.44, 0.92, 1.0)
+        bsdf_shape.inputs["Roughness"].default_value = 0.10
+        if "Specular IOR Level" in bsdf_shape.inputs:
+            bsdf_shape.inputs["Specular IOR Level"].default_value = 0.90
+        if "Coat Weight" in bsdf_shape.inputs:
+            bsdf_shape.inputs["Coat Weight"].default_value = 1.0
+        if "Coat Roughness" in bsdf_shape.inputs:
+            bsdf_shape.inputs["Coat Roughness"].default_value = 0.03
+        if "Coat IOR" in bsdf_shape.inputs:
+            bsdf_shape.inputs["Coat IOR"].default_value = 1.60
 
     mat_normal = bpy.data.materials.new("Mat_NormalVector")
     mat_normal.use_nodes = True
@@ -197,6 +220,7 @@ def main():
     rot_3d = (math.radians(20), math.radians(-18), math.radians(12))
 
     curr_y = 0.0
+    lowest_y = 0.0
 
     for group_title, shape_names in SHAPE_GROUPS:
         # Group Header Title
@@ -294,6 +318,7 @@ def main():
                     pos_y - 1.30,
                     align_y="TOP",
                 )
+                lowest_y = min(lowest_y, pos_y - 1.30 - 0.25)
 
             curr_y -= spacing_y
         curr_y -= 0.8
@@ -304,15 +329,15 @@ def main():
     scene.render.image_settings.file_format = "PNG"
     scene.render.image_settings.compression = 90
 
-    # Tight Bounding Box framing with balanced padding
+    # Tight Bounding Box framing with zero excess bottom padding
     pad_x = 2.4
-    pad_y_top = 1.0
-    pad_y_bot = 0.8
+    pad_y_top = 0.8
+    pad_y_bot = 0.4
 
     min_x = -pad_x
     max_x = (num_cols - 1) * spacing_x + pad_x
     max_y = pad_y_top
-    min_y = curr_y + 0.8 - 1.30 - 0.25 - pad_y_bot
+    min_y = lowest_y - pad_y_bot
 
     width_span = max_x - min_x
     height_span = max_y - min_y

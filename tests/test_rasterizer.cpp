@@ -1489,6 +1489,7 @@ inline Color get_mock_color(float intensity) {
   return Color{val, val, val};
 }
 
+
 void rasterize_triangle(
     MockDisplay& display, uint16_t* depth_buffer, int width, int height,
     int x0, int y0, uint16_t z0, int x1, int y1, uint16_t z1, int x2, int y2,
@@ -1542,6 +1543,8 @@ void rasterize_triangle(
   // Slope-dependent polygon depth offset prevents depth fighting with edges
   const float poly_offset =
       std::min(12000.0f, 2.0f * (std::abs(dz_dx) + std::abs(dz_dy)) + 1024.0f);
+  const float z_min_limit = std::max(0.0f, min_z - poly_offset);
+  const float z_max_limit = std::max(0.0f, max_z - poly_offset);
 
   const int y_start = std::max(ay, 0);
   const int y_end = std::min(cy, height - 1);
@@ -1578,19 +1581,27 @@ void rasterize_triangle(
     }
 
     const size_t row_idx = static_cast<size_t>(y) * width;
+    uint16_t* dptr = &depth_buffer[row_idx + xs];
     float z_curr = z0_f + static_cast<float>(xs - x0) * dz_dx +
                    static_cast<float>(y - y0) * dz_dy;
 
-    for (int x = xs; x <= xe; ++x, z_curr += dz_dx) {
-      const float z_clamped = std::clamp(z_curr, min_z, max_z);
-      const float z_write = std::max(0.0f, z_clamped - poly_offset);
-      const uint16_t z_val =
-          static_cast<uint16_t>(std::clamp(z_write, 0.0f, 65535.0f));
-      const size_t idx = row_idx + x;
-      if (z_val > depth_buffer[idx]) {
-        depth_buffer[idx] = z_val;
-        if (write_color) {
+    if (write_color) {
+      for (int x = xs; x <= xe; ++x, z_curr += dz_dx, ++dptr) {
+        const float z_write = z_curr - poly_offset;
+        const uint16_t z_val = static_cast<uint16_t>(
+            std::clamp(z_write, z_min_limit, z_max_limit));
+        if (z_val > *dptr) {
+          *dptr = z_val;
           display.draw_pixel_at(x, y, color);
+        }
+      }
+    } else {
+      for (int x = xs; x <= xe; ++x, z_curr += dz_dx, ++dptr) {
+        const float z_write = z_curr - poly_offset;
+        const uint16_t z_val = static_cast<uint16_t>(
+            std::clamp(z_write, z_min_limit, z_max_limit));
+        if (z_val > *dptr) {
+          *dptr = z_val;
         }
       }
     }
@@ -1599,10 +1610,10 @@ void rasterize_triangle(
 
 void draw_line_depth(MockDisplay& display,
                      const uint16_t* depth_buffer,
-                      int width, int height, int x0,
-                      int y0, uint16_t z0, int x1,
-                      int y1, uint16_t z1, uint16_t bias,
-                      Color color) {
+                     int width, int height, int x0,
+                     int y0, uint16_t z0, int x1,
+                     int y1, uint16_t z1, uint16_t bias,
+                     Color color) {
   if (width <= 0 || height <= 0) {
     return;
   }
@@ -1623,12 +1634,44 @@ void draw_line_depth(MockDisplay& display,
   // Pre-allocated static vectors for zero heap allocations in steady-state loop
   static std::vector<int> line_x;
   static std::vector<int> line_y;
-  static std::vector<bool> line_pass;
+  static std::vector<uint8_t> line_pass;
   const size_t total_points = static_cast<size_t>(steps + 1);
   if (line_x.size() < total_points) {
     line_x.resize(total_points);
     line_y.resize(total_points);
     line_pass.resize(total_points);
+  }
+
+  // Fast path: if both endpoints pass depth test, line connects visible vertices.
+  // The algorithm renders an unbroken continuous line to prevent gaps.
+  const bool pass0 = (x0 >= 0 && x0 < width && y0 >= 0 && y0 < height) &&
+                     (static_cast<uint32_t>(z0) + bias >=
+                      depth_buffer[static_cast<size_t>(y0) * width + x0]);
+  const bool pass1 = (x1 >= 0 && x1 < width && y1 >= 0 && y1 < height) &&
+                     (static_cast<uint32_t>(z1) + bias >=
+                      depth_buffer[static_cast<size_t>(y1) * width + x1]);
+
+  if (pass0 && pass1) {
+    int cur_x = x0;
+    int cur_y = y0;
+    const int sx = (x0 < x1) ? 1 : -1;
+    const int sy = (y0 < y1) ? 1 : -1;
+    int err = dx - dy;
+    for (int i = 0; i <= steps; ++i) {
+      display.draw_pixel_at(cur_x, cur_y, color);
+      if (i < steps) {
+        const int e2 = 2 * err;
+        if (e2 > -dy) {
+          err -= dy;
+          cur_x += sx;
+        }
+        if (e2 < dx) {
+          err += dx;
+          cur_y += sy;
+        }
+      }
+    }
+    return;
   }
 
   const int sx = (x0 < x1) ? 1 : -1;
@@ -1640,7 +1683,7 @@ void draw_line_depth(MockDisplay& display,
 
   int cur_x = x0;
   int cur_y = y0;
-  int pass_count = 0;
+  bool any_pass = false;
 
   for (size_t i = 0; i < total_points; ++i) {
     line_x[i] = cur_x;
@@ -1650,13 +1693,11 @@ void draw_line_depth(MockDisplay& display,
       const size_t idx = static_cast<size_t>(cur_y) * width + cur_x;
       const uint16_t z_val =
           static_cast<uint16_t>(std::clamp(z_curr, 0.0f, 65535.0f));
-      bool pass = (static_cast<uint32_t>(z_val) + bias >= depth_buffer[idx]);
+      const bool pass = (static_cast<uint32_t>(z_val) + bias >= depth_buffer[idx]);
       line_pass[i] = pass;
-      if (pass) {
-        pass_count++;
-      }
+      any_pass |= pass;
     } else {
-      line_pass[i] = false;
+      line_pass[i] = 0;
     }
 
     if (i < static_cast<size_t>(steps)) {
@@ -1673,29 +1714,22 @@ void draw_line_depth(MockDisplay& display,
     }
   }
 
+  if (!any_pass) {
+    return;
+  }
+
   // Fill up to 2-pixel gaps caused by rasterization/slope depth fighting
   for (size_t i = 1; i + 1 < total_points; ++i) {
     if (!line_pass[i] && line_pass[i - 1] && line_pass[i + 1]) {
-      line_pass[i] = true;
-      pass_count++;
+      line_pass[i] = 1;
     }
   }
   for (size_t i = 1; i + 2 < total_points; ++i) {
     if (!line_pass[i] && !line_pass[i + 1] && line_pass[i - 1] &&
         line_pass[i + 2]) {
-      line_pass[i] = true;
-      line_pass[i + 1] = true;
-      pass_count += 2;
+      line_pass[i] = 1;
+      line_pass[i + 1] = 1;
     }
-  }
-
-  // If both endpoints pass: edge connects visible vertices, render unbroken
-  // continuous line to prevent low-resolution rasterization gaps.
-  if (line_pass[0] && line_pass[steps]) {
-    for (size_t i = 0; i < total_points; ++i) {
-      display.draw_pixel_at(line_x[i], line_y[i], color);
-    }
-    return;
   }
 
   // Otherwise draw all visible pixels (including stubs and runs on partially
@@ -1731,6 +1765,9 @@ void draw_solid(MockDisplay& display, int width, int height, float time,
     rz.resize(mesh.num_verts);
   }
 
+  int min_py = height - 1;
+  int max_py = 0;
+
   // Transform and project points.
   for (size_t i = 0; i < mesh.num_verts; i++) {
     const Vec3& vert = mesh.verts[i];
@@ -1744,6 +1781,9 @@ void draw_solid(MockDisplay& display, int width, int height, float time,
                        height - 1);
     const float z_norm = std::clamp((rz[i] + 1.5f) / 3.0f, 0.0f, 1.0f);
     pz[i] = static_cast<uint16_t>(z_norm * 65535.0f);
+
+    min_py = std::min(min_py, py[i]);
+    max_py = std::max(max_py, py[i]);
   }
 
   if (mode == SolidMode::WIRE || mesh.faces == nullptr || mesh.num_faces == 0) {
@@ -1778,21 +1818,14 @@ void draw_solid(MockDisplay& display, int width, int height, float time,
   const size_t buffer_size =
       static_cast<size_t>(width) * static_cast<size_t>(height);
   if (depth_buffer.size() < buffer_size) {
-    depth_buffer.resize(buffer_size);
+    depth_buffer.assign(buffer_size, 0);
   }
-  std::memset(depth_buffer.data(), 0, buffer_size * sizeof(uint16_t));
 
-  static std::vector<bool> face_front;
-  if (face_front.size() < mesh.num_faces) {
-    face_front.resize(mesh.num_faces);
-  }
-  std::fill_n(face_front.begin(), mesh.num_faces, false);
-
-  static std::vector<bool> edge_front;
+  static std::vector<uint8_t> edge_front;
   if (edge_front.size() < mesh.num_edges) {
     edge_front.resize(mesh.num_edges);
   }
-  std::fill_n(edge_front.begin(), mesh.num_edges, false);
+  std::fill_n(edge_front.begin(), mesh.num_edges, 0);
 
   constexpr float LX = -0.577350269f;
   constexpr float LY = 0.577350269f;
@@ -1800,15 +1833,12 @@ void draw_solid(MockDisplay& display, int width, int height, float time,
 
   for (size_t i = 0; i < mesh.num_faces; i++) {
     const Vec3& normal = mesh.normals[i];
-    const float ny1 = normal.y * cx_r - normal.z * sx_r;
     const float nz1 = normal.y * sx_r + normal.z * cx_r;
-    const float nx2 = normal.x * cy_r + nz1 * sy_r;
     const float nz2 = -normal.x * sy_r + nz1 * cy_r;
 
     if (nz2 <= 0.0f) {
       continue;
     }
-    face_front[i] = true;
 
     const Face& face = mesh.faces[i];
     if (face.a >= mesh.num_verts || face.b >= mesh.num_verts ||
@@ -1822,6 +1852,8 @@ void draw_solid(MockDisplay& display, int width, int height, float time,
                          py[face.b], pz[face.b], px[face.c], py[face.c],
                          pz[face.c], false, Color{});
     } else if (mode == SolidMode::SOLID) {
+      const float ny1 = normal.y * cx_r - normal.z * sx_r;
+      const float nx2 = normal.x * cy_r + nz1 * sy_r;
       const float dot_key = nx2 * LX + ny1 * LY + nz2 * LZ;
       const float dot_fill = nx2 * (-LX) + ny1 * (-LY) + nz2 * LZ;
       const float diff_key = std::max(0.0f, dot_key);
@@ -1844,7 +1876,7 @@ void draw_solid(MockDisplay& display, int width, int height, float time,
           (face.b == edge.b && face.c == edge.a) ||
           (face.c == edge.a && face.a == edge.b) ||
           (face.c == edge.b && face.a == edge.a)) {
-        edge_front[e] = true;
+        edge_front[e] = 1;
       }
     }
   }
@@ -1880,6 +1912,13 @@ void draw_solid(MockDisplay& display, int width, int height, float time,
                       py[edge.a], pz[edge.a], px[edge.b], py[edge.b],
                       pz[edge.b], BIAS, edge_color);
     }
+  }
+
+  if (min_py <= max_py) {
+    const size_t clear_start = static_cast<size_t>(min_py) * width;
+    const size_t clear_count =
+        static_cast<size_t>(max_py - min_py + 1) * width;
+    std::memset(&depth_buffer[clear_start], 0, clear_count * sizeof(uint16_t));
   }
 }
 
@@ -2239,6 +2278,61 @@ int main() {
       std::cout << "  32x32 Line Continuity: PASSED (0 gaps)\n";
     } else {
       std::cout << "  FAIL: Found " << disconnected_edges << " disconnected edges with internal gaps!\n";
+      total_failures++;
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // TEST SUITE 7: Interleaved Multi-Shape Rendering Parity (Depth Buffer Isolation)
+  // -------------------------------------------------------------------------
+  std::cout << "\n[TEST SUITE 7] Interleaved Multi-Shape Rendering Parity (Depth Buffer Isolation)\n";
+  {
+    MockDisplay disp_alone(32, 32);
+    MockDisplay disp_interleaved(32, 32);
+    int interleaved_mismatches = 0;
+
+    for (size_t s1 = 0; s1 < NUM_TEST_SHAPES; ++s1) {
+      for (size_t s2 = 0; s2 < NUM_TEST_SHAPES; ++s2) {
+        if (s1 == s2) continue;
+        const ShapeMesh& mesh1 = ALL_TEST_SHAPES[s1];
+        const ShapeMesh& mesh2 = ALL_TEST_SHAPES[s2];
+
+        for (int frame = 0; frame < 10; ++frame) {
+          disp_alone.reset();
+          draw_solid(disp_alone, 32, 32, frame * 0.05f, mesh1, SolidMode::SOLID);
+
+          std::vector<bool> alone_pixels(32 * 32);
+          for (int y = 0; y < 32; ++y) {
+            for (int x = 0; x < 32; ++x) {
+              alone_pixels[y * 32 + x] = disp_alone.is_pixel_set(x, y);
+            }
+          }
+
+          // Corrupt buffer with mesh2
+          disp_interleaved.reset();
+          draw_solid(disp_interleaved, 32, 32, (frame + 3) * 0.07f, mesh2, SolidMode::SOLID);
+
+          // Render mesh1 and verify zero stale depth interference
+          disp_interleaved.reset();
+          draw_solid(disp_interleaved, 32, 32, frame * 0.05f, mesh1, SolidMode::SOLID);
+
+          for (int y = 0; y < 32; ++y) {
+            for (int x = 0; x < 32; ++x) {
+              if (disp_interleaved.is_pixel_set(x, y) != alone_pixels[y * 32 + x]) {
+                interleaved_mismatches++;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    std::cout << "  Interleaved shape pairs tested: " << NUM_TEST_SHAPES * (NUM_TEST_SHAPES - 1)
+              << ", pixel mismatches: " << interleaved_mismatches << "\n";
+    if (interleaved_mismatches == 0) {
+      std::cout << "  Interleaved Multi-Shape Parity: PASSED (100% exact isolation)\n";
+    } else {
+      std::cout << "  FAIL: Found " << interleaved_mismatches << " interleaved pixel mismatches!\n";
       total_failures++;
     }
   }
